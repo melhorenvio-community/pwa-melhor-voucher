@@ -1,0 +1,38 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+*.log
+.nuxt
+.yalc
+nuxt.d.ts
+components.d.ts
+.output
+.idea
+.vscode
+dist
+coverage
+.eslintrc-auto-import.json
+public/*[.ico, .svg, .png, .jpg]
+**/*Zone.Identifier
