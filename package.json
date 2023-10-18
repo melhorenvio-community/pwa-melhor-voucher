@@ -15,5 +15,8 @@
     "nuxt": "^3.7.4",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5"
+  },
+  "dependencies": {
+    "@melhorenvio/unbox": "^0.6.0-beta.3"
   }
 }

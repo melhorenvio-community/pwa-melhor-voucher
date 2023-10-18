@@ -32,5 +32,17 @@ export default defineNuxtConfig({
         }
       ]
     }
-  }
+  },
+  css: ['@/assets/pcss/index.pcss'],
+  postcss: {
+    plugins: {
+      'postcss-import': {
+      path: ['./node_modules'],
+    },
+    'tailwindcss/nesting': {},
+    'tailwindcss': {},
+    'autoprefixer': {},
+    },
+  },
+  ssr: false,
 })
