@@ -9,16 +9,32 @@ export default defineNuxtConfig({
       globPatterns: ['**/*.{js,css,html}']
     },
     workbox: {
-      globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+      runtimeCaching: [
+        {
+          urlPattern: ({ url }) => {
+            return url.pathname.startsWith('/')
+          },
+          handler: "CacheFirst" as const,
+          options: {
+            cacheName: 'api-cache',
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+
+          }
+        }
+      ]
     },
     devOptions: {
-      enabled: true
+      enabled: true,
+      type:'module'
     },
     manifest: {
+      scope: '/',
       name: 'Melhor Voucher',
       short_name: 'MelhorVoucher',
+      start_url:'/',
       description: 'Acompanhe sua pontuação na Melhor Envio',
-      theme_color: '#ffffff',
       icons: [
         {
           src: "pwa-192x192.png",
@@ -30,7 +46,10 @@ export default defineNuxtConfig({
           sizes: '512x512',
           type: 'image/png'
         }
-      ]
+      ],
+      theme_color: '#ffffff',
+      background_color: '#ffffff',
+      display: 'standalone'
     }
   },
   css: ['@/assets/pcss/index.pcss'],
