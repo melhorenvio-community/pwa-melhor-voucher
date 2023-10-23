@@ -2,7 +2,8 @@
    <div class="p-8 text-center">
     <div v-if="!firebaseUser">
        <MEForm
-          class="grid grid-cols-1 gap-6 md:gap-7 mt-8"
+          class="grid grid-cols-1 gap-6 md:gap-7 mt-8 p-8 text-center"
+           @submit="login"
         >
           <MEEmailField
             label="Email"
@@ -52,12 +53,8 @@ const login = async () => {
   const password = user.value.password;
 
   credentials.value = await signUser(email, password);
-  console.log('credentials',  credentials.value)
-  return  credentials.value;
-}
+  console.log('credentials', credentials.value)
 
-const logOut = async () => {
-  credentials.value = await signOutUser();
-  console.log('result logout', result);
+  if (credentials.value) return navigateTo('/');
 }
 </script>
