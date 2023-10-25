@@ -34,9 +34,6 @@ export const initUser = () => {
   firebaseUser.value = auth.currentUser;
 
   onAuthStateChanged(auth, (user) => {
-    if (user) console.log('auth change', user);
-    else console.log('auth change else', user);
-
     firebaseUser.value = user;
   });
 }

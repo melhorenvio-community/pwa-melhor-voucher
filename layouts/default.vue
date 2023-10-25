@@ -1,3 +1,15 @@
+<template>
+  <div class="overflow-hidden min-h-screen" :data-page-name="pageDataAttr">
+
+    <METemplate ref="templateRef" v-bind="{
+      avatarName,
+      sidebarSubitems
+    }">
+      <slot />
+    </METemplate>
+  </div>
+</template>
+
 <script setup>
 import { METemplate } from '@melhorenvio/unbox';
 
@@ -8,14 +20,21 @@ const pageDataAttr = computed(() => {
   return `page-${route.name}`
 });
 
-</script>
-<template>
-  <div class="overflow-hidden min-h-screen" :data-page-name="pageDataAttr">
+const authUser = useFirebaseUser();
 
-    <METemplate ref="templateRef" v-bind="{
-      avatarName
-    }">
-      <slot />
-    </METemplate>
-  </div>
-</template>
+const logOut = async () => {
+  await signOutUser();
+  return navigateTo('/login')
+}
+
+const sidebarSubitems = computed(() => {
+  return authUser
+    ? [
+        {
+        label: 'Sair',
+        click: logOut
+      }]
+    : []
+});
+
+</script>
