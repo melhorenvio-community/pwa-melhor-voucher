@@ -42,22 +42,22 @@ export default defineNuxtConfig({
       description: 'Acompanhe sua pontuação na Melhor Envio',
       icons: [
         {
-          src: "android-chrome-48x48.png",
+          src: "icons/android-chrome-48x48.png",
           sizes: "48x48",
           type: "image/png",
         },
         {
-          src: "favicon-32x32.png",
+          src: "icons/favicon-32x32.png",
           sizes: "32x32",
           type: "image/png",
         },
         {
-          src: "pwa-192x192.png",
+          src: "icons/pwa-192x192.png",
           sizes: "192x192",
           type: "image/png",
         },
         {
-          src: "pwa512x512.png",
+          src: "icons/pwa-512x512.png",
           sizes: "512x512",
           type: "image/png",
         },
