@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   runtimeConfig: {
     public: {
-      FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
+      FIREBASE_API_KEY: 'AIzaSyDsK2-_gUwFsmgfFMl8lhAAIAeQbQE0dnU',
     }
   },
   devtools: { enabled: true },

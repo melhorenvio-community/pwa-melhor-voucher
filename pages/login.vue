@@ -60,23 +60,16 @@ const user = ref({
 })
 
 const credentialsUser = useCredentialsUser();
-console.log('credentialsUser', credentialsUser)
 
 const login = async () => {
   const email = user.value.email;
   const password = user.value.password;
 
-  if (credentialsUser) {
-    await authCredential(credentialsUser.value);
-  }
+  credentialsUser.value = await signUser(email, password);
+  console.log(credentialsUser.value)
 
-  try {
-    const isLogged = await signUser(email, password);
-    if (isLogged) return navigateTo('/');
 
-  } catch (error) {
-    return console.error(error.message);
-  }
+  if (credentialsUser.value) return navigateTo('/');
 }
 
 async function authCredential(publicKeyCredential) {

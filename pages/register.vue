@@ -104,13 +104,8 @@ async function registerCredential() {
   const result = await navigator.credentials.create({
     publicKey: publicKeyCredentialCreationOptions,
   });
-  if (result) {
-    const credentialsUser = useCredentialsUser();
-    credentialsUser.value = result;
-
-
-
-  }
+  console.log('result', result);
+  publicKeyCredential.value = result;
 }
 
 const submit = async () => {
