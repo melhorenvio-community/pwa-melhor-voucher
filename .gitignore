@@ -34,5 +34,4 @@ components.d.ts
 dist
 coverage
 .eslintrc-auto-import.json
-public/*[.ico, .svg, .png, .jpg]
 **/*Zone.Identifier
