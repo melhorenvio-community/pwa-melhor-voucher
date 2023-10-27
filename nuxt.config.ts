@@ -1,5 +1,4 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-console.log(process.env.FIREBASE_API_KEY)
 export default defineNuxtConfig({
   runtimeConfig: {
     public: {

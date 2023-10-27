@@ -56,17 +56,22 @@ const user = ref({
   email: '',
   password: ''
 })
-const { userCredentials } = JSON.parse(sessionStorage.getItem('user-credential'));
+
 const credentialsUser = useCredentialsUser();
 const base64ToBuffer = base64 => Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+
 const login = async () => {
+  const credentials = JSON.parse(sessionStorage.getItem('user-credential')) || null;
+
   const email = user.value.email;
   const password = user.value.password;
-  if (userCredentials.credentialId) {
-    return authCredential(userCredentials.credentialId);
+  if (credentials?.userCredentials?.credentialId) {
+    return authCredential(credentials.userCredentials.credentialId);
+  } else {
+    credentialsUser.value = await signUser(email, password);
+    if (credentialsUser.value) return navigateTo('/');
   }
-  credentialsUser.value = await signUser(email, password);
-  if (credentialsUser.value) return navigateTo('/');
+
 }
 async function authCredential() {
   const challenge = new Uint8Array([53, 69, 96, 194]).buffer;
