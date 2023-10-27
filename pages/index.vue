@@ -63,7 +63,17 @@
         </template>
       </MEInputField>
 
-      <card />
+      <div class="flex flex-col mt-4 gap-4">
+        <card 
+          v-for="(message, title) in getCard" 
+          :key="title"
+          :image="message.image"
+          :point="message.point"
+          :title="message.title"
+          :description="message.description" 
+          :available="message.available"
+        />
+      </div>
     </div>
    </div>
 </template>
@@ -71,10 +81,11 @@
 <script setup>
 import { MESkeleton, MEInputField } from '@melhorenvio/unbox';
 import card from '~/components/card.vue';
+import { sealMessage } from '~/enums/selosMessages'
 
 const loading = ref(true);
 const points = ref(200);
-const inspire = ref('Inspira 28/02/2024');
+const inspire = ref('Inspira 28/03/2024');
 const user = ref('Renata Leal');
 const hours = new Date().getHours();
 const transcript = ref('');
@@ -90,6 +101,21 @@ const greetingsMessage = computed(() => {
 
   return 'Boa noite';
 });
+
+function search() {
+  let title = sealMessage.map((item) => item.title);
+
+  return title.filter((item) =>
+    item.includes(transcript.value.toLowerCase()),
+  );
+}
+
+const getCard = computed(() => {
+  return search().map((searchs) => {
+    return sealMessage.find((item) => item.title === searchs);
+  });
+});
+
 
 const description = computed(() => {
   if (points.value > 1) return 'Pontos'; 
