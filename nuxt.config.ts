@@ -1,8 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+console.log(process.env.FIREBASE_API_KEY)
 export default defineNuxtConfig({
   runtimeConfig: {
     public: {
-      FIREBASE_API_KEY: 'AIzaSyDsK2-_gUwFsmgfFMl8lhAAIAeQbQE0dnU',
+      FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
     }
   },
   devtools: { enabled: true },
