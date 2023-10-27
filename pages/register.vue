@@ -1,6 +1,6 @@
 <template>
-  <div class="flex items-center justify-center h-screen">
-    <MEForm class="flex items-center justify-center text-center  grid grid-cols-1 gap-6 md:gap-7" @submit="submit">
+  <div class="flex items-center justify-center h-screen px-6 py-6">
+    <MEForm class="grid grid-cols-1 gap-6 md:gap-7" @submit="submit">
       <img class="illustration" src="/homeIllust.svg" />
        <div class="text-center">
           <p>Cadastra-se agora no Melhor Voucher e aproveite os beneficíos!</p>

@@ -1,6 +1,6 @@
 <template>
-  <div class="flex items-center justify-center h-screen">
-    <MEForm class="flex items-center justify-center text-center  grid grid-cols-1 gap-6 md:gap-7">
+  <div class="flex items-center justify-center h-screen px-6 py-6">
+    <MEForm class="grid grid-cols-1 gap-6 md:gap-7">
       <img class="illustration" src="/homeIllust.svg"/>
 
       <!--
@@ -25,11 +25,6 @@
         <MEButton @click="login" type="submit" class="focus:ring-2 focus:ring-[Highlight] focus:ring-[black]">
           Acessar
         </MEButton>
-
-        <NuxtLink id="forgot-password"
-          class="w-auto mt-3 mx-auto text-primary underline" to="/request-password" rel="noopener noreferrer" minimal>
-          Esqueceu sua senha?
-        </NuxtLink>
       </div>
       <!--
 
