@@ -1,10 +1,15 @@
 <template>
   <div class="overflow-hidden min-h-screen" :data-page-name="pageDataAttr">
 
-    <METemplate ref="templateRef" v-bind="{
-      avatarName,
-      sidebarSubitems
-    }">
+    <METemplate 
+      ref="templateRef" 
+      :logo="{ src: logo }"
+      :sidebar-items="sidebarItems"
+      v-bind="{
+        avatarName,
+        sidebarSubitems
+      }"
+    >
       <slot />
     </METemplate>
   </div>
@@ -12,9 +17,20 @@
 
 <script setup>
 import { METemplate } from '@melhorenvio/unbox';
+import logo from '/logo.svg';
 
 const route = useRoute();
 const avatarName = computed(() => 'Renata leal');
+
+const sidebarItems = [
+  {
+    to: {
+      name: 'index',
+    },
+    label: 'index',
+    icon: '',
+  },
+]
 
 const pageDataAttr = computed(() => {
   return `page-${route.name}`
@@ -30,10 +46,11 @@ const logOut = async () => {
 const sidebarSubitems = computed(() => {
   return authUser
     ? [
-        {
+       {
         label: 'Sair',
         click: logOut
-      }]
+      }
+      ]
     : []
 });
 
