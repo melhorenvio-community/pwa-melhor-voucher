@@ -35,3 +35,4 @@ dist
 coverage
 .eslintrc-auto-import.json
 **/*Zone.Identifier
+.npmrc
