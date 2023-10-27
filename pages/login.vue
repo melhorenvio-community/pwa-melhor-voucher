@@ -49,59 +49,56 @@
 </template>
 <script setup>
 import { MEEmailField, MEPasswordField, MEButton, MEForm } from '@melhorenvio/unbox';
-
 definePageMeta({
   layout: 'empty',
 });
-
 const user = ref({
-  email : '',
-  password : ''
+  email: '',
+  password: ''
 })
-
+const { userCredentials } = JSON.parse(sessionStorage.getItem('user-credential'));
 const credentialsUser = useCredentialsUser();
-
+const base64ToBuffer = base64 => Uint8Array.from(atob(base64), c => c.charCodeAt(0));
 const login = async () => {
   const email = user.value.email;
   const password = user.value.password;
-
+  if (userCredentials.credentialId) {
+    return authCredential(userCredentials.credentialId);
+  }
   credentialsUser.value = await signUser(email, password);
-  console.log(credentialsUser.value)
-
-
   if (credentialsUser.value) return navigateTo('/');
 }
-
-async function authCredential(publicKeyCredential) {
+async function authCredential() {
   const challenge = new Uint8Array([53, 69, 96, 194]).buffer;
-  const publicKey = publicKeyCredential;
-  if (!publicKey) {
-    console.log("Nenhuma credencial registrada.");
-    return;
-  }
-
-  try {
-    const result = await navigator.credentials.get({
-      publicKey: {
-        challenge: challenge,
-        allowCredentials: [
-          {
-            id: publicKey.rawId,
-            type: "public-key",
-          },
-        ],
-        rpId: "localhost",
-        userVerification: "required",
-      },
+  if (!credentialId) {
+    return notify({
+      title: 'Nenhuma credencial cadastrada!',
+      message: 'Cadastre uma credencial e tente novamente.',
+      variant: 'warning',
     });
-    if (result) {
-      console.log("Autenticação bem-sucedida:", result);
-      return navigateTo('/');
-    } else {
-      console.log("Autenticação falhou.");
-    }
-  } catch (error) {
-    console.error("Erro na autenticação:", error);
+  }
+  const hasCredentials = await navigator.credentials.get({
+    publicKey: {
+      challenge: challenge,
+      allowCredentials: [
+        {
+          id: base64ToBuffer(credentialId),
+          type: "public-key",
+        },
+      ],
+      rpId: "localhost",
+      userVerification: "required",
+    },
+  });
+  if (hasCredentials) {
+    credentialsUser.value = await signUser(email, password);
+    if (credentialsUser.value) return navigateTo('/');
+  } else {
+    return notify({
+      title: 'Autenticação falhou',
+      message: 'Tente novamente.',
+      variant: 'danger',
+    });
   }
 }
 </script>

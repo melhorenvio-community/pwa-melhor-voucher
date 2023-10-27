@@ -36,7 +36,7 @@
       </NuxtLink>
     </div>
       <div class="flex flex-col">
-        <MEButton @click="login" type="submit" class="focus:ring-2 focus:ring-[Highlight] focus:ring-[black]">
+        <MEButton @click="registerUser" type="submit" class="focus:ring-2 focus:ring-[Highlight] focus:ring-[black]">
           Registrar
         </MEButton>
       </div>
@@ -67,22 +67,20 @@ import {
   METoast,
   MEInputField
 } from '@melhorenvio/unbox';
-
 definePageMeta({
   layout: 'empty',
 });
-
 const user = ref({
   name: '',
   email: '',
   password: ''
 });
-const showToast = ref(false);
-
+const bufferToBase64 = buffer => btoa(String.fromCharCode(...new Uint8Array(buffer)));
 const challenge = new Uint8Array([53, 69, 96, 194]).buffer;
-const publicKeyCredential = ref(null);
-
-async function registerCredential() {
+const selectOptionToRegisterCredentials = ref(false);
+const credentialId = ref(null);
+const registerCredential = async () => {
+  selectOptionToRegisterCredentials.value = true;
   const publicKeyCredentialCreationOptions = {
     challenge: challenge,
     rp: {
@@ -100,18 +98,32 @@ async function registerCredential() {
     },
     attestation: "direct",
   };
-
-  const result = await navigator.credentials.create({
+  const credential = await navigator.credentials.create({
     publicKey: publicKeyCredentialCreationOptions,
   });
-  console.log('result', result);
-  publicKeyCredential.value = result;
+  credentialId.value = bufferToBase64(credential.rawId);
+  if (credentialId.value) {
+    return notify({
+      title: 'Credenciais cadastradas!',
+      message: 'Faça seu login e aproveite.',
+      variant: 'success',
+    })
+  }
 }
-
-const submit = async () => {
-  const credentials = await createUser(user.email, user.password);
-
-  if (credentials) return showToast.value = true;
+const registerUser = async () => {
+  const credentials = await createUser(user.value.email, user.value.password);
+  const userCredentials = {
+    ...user,
+    credentialId: credentialId.value
+  }
+  sessionStorage.setItem('user-credential', JSON.stringify({ userCredentials }));
+  if (credentials) {
+    return notify({
+      title: 'Conta registrada com sucesso!',
+      message: 'Faça seu login e aproveite.',
+      variant: 'success',
+    })
+  }
 }
 </script>
 <style scoped>
