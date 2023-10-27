@@ -1,6 +1,6 @@
 <template>
   <div 
-    class="shadow-primary rounded-lg p-4 px-5"
+    class="rounded-lg p-4 px-5 shadow"
     :class="available ? 'bg-neutral border' : 'bg-neutral-light'"
   >
     <div class="flex justify-between items-center">
