@@ -13,23 +13,6 @@ export default defineNuxtConfig({
     injectManifest: {
       globPatterns: ['**/*.{js,css,html}']
     },
-    workbox: {
-      runtimeCaching: [
-        {
-          urlPattern: ({ url }) => {
-            return url.pathname.startsWith('/')
-          },
-          handler: "CacheFirst" as const,
-          options: {
-            cacheName: 'api-cache',
-            cacheableResponse: {
-              statuses: [0, 200]
-            }
-
-          }
-        }
-      ]
-    },
     devOptions: {
       enabled: true,
       type:'module'
