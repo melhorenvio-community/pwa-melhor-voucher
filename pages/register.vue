@@ -104,8 +104,7 @@ const registerCredential = async () => {
   credentialId.value = bufferToBase64(credential.rawId);
   if (credentialId.value) {
     return notify({
-      title: 'Credenciais cadastradas!',
-      message: 'Faça seu login e aproveite.',
+      title: 'Credenciais cadastradas com sucesso!',
       variant: 'success',
     })
   }
@@ -113,16 +112,17 @@ const registerCredential = async () => {
 const registerUser = async () => {
   const credentials = await createUser(user.value.email, user.value.password);
   const userCredentials = {
-    user: user.value.email,
-    credentialId: credentialId.value
+    user: user?.value?.email,
+    credentialId: credentialId?.value
   }
   sessionStorage.setItem('user-credential', JSON.stringify({ userCredentials }));
   if (credentials) {
-    return notify({
+    notify({
       title: 'Conta registrada com sucesso!',
       message: 'Faça seu login e aproveite.',
       variant: 'success',
-    })
+    });
+    return navigateTo('/login');
   }
 }
 </script>
