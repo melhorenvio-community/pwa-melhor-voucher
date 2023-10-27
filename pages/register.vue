@@ -90,7 +90,7 @@ const registerCredential = async () => {
     user: {
       id: Uint8Array.from("UZSL85T9AFC", c => c.charCodeAt(0)),
       name: user.value.email,
-      displayName: user.value.name,
+      displayName: user.value.email,
     },
     pubKeyCredParams: [{ alg: -7, type: "public-key" }],
     authenticatorSelection: {
@@ -113,7 +113,7 @@ const registerCredential = async () => {
 const registerUser = async () => {
   const credentials = await createUser(user.value.email, user.value.password);
   const userCredentials = {
-    ...user,
+    user: user.value.email,
     credentialId: credentialId.value
   }
   sessionStorage.setItem('user-credential', JSON.stringify({ userCredentials }));

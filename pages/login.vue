@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center justify-center h-screen">
-    <MEForm class="flex items-center justify-center text-center  grid grid-cols-1 gap-6 md:gap-7" @submit="login">
+    <MEForm class="flex items-center justify-center text-center  grid grid-cols-1 gap-6 md:gap-7">
       <img class="illustration" src="/homeIllust.svg"/>
 
       <!--
@@ -59,35 +59,37 @@ const user = ref({
 
 const credentialsUser = useCredentialsUser();
 const base64ToBuffer = base64 => Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+const credentialId = ref(null);
+
+
+const authenticateLogin = async (email, password) => {
+  credentialsUser.value = await signUser(email, password);
+  if (credentialsUser.value) return navigateTo('/');
+}
 
 const login = async () => {
   const credentials = JSON.parse(sessionStorage.getItem('user-credential')) || null;
-
   const email = user.value.email;
   const password = user.value.password;
-  if (credentials?.userCredentials?.credentialId) {
-    return authCredential(credentials.userCredentials.credentialId);
-  } else {
-    credentialsUser.value = await signUser(email, password);
-    if (credentialsUser.value) return navigateTo('/');
-  }
+  credentialId.value = credentials?.userCredentials?.credentialId;
 
+
+  if (credentialId.value  && credentials.userCredentials.user === email) {
+    return authCredential(email, password);
+  }
+  authenticateLogin(email, password);
 }
-async function authCredential() {
+async function authCredential(email, password) {
   const challenge = new Uint8Array([53, 69, 96, 194]).buffer;
-  if (!credentialId) {
-    return notify({
-      title: 'Nenhuma credencial cadastrada!',
-      message: 'Cadastre uma credencial e tente novamente.',
-      variant: 'warning',
-    });
+  if (!credentialId.value) {
+    return;
   }
   const hasCredentials = await navigator.credentials.get({
     publicKey: {
       challenge: challenge,
       allowCredentials: [
         {
-          id: base64ToBuffer(credentialId),
+          id: base64ToBuffer(credentialId.value),
           type: "public-key",
         },
       ],
@@ -96,8 +98,7 @@ async function authCredential() {
     },
   });
   if (hasCredentials) {
-    credentialsUser.value = await signUser(email, password);
-    if (credentialsUser.value) return navigateTo('/');
+    return authenticateLogin(email, password);
   } else {
     return notify({
       title: 'Autenticação falhou',
