@@ -1,52 +1,61 @@
 <template>
-  <div class="flex items-center justify-center h-screen px-6 py-6">
-    <MEForm class="grid grid-cols-1 gap-6 md:gap-7">
-      <img class="illustration" src="/homeIllust.svg"/>
+  <div class="h-screen flex flex-col items-center lg:flex-row lg:gap-5 lg:w-[1000px] lg:m-auto">
+    <div class="flex-1 flex flex-col justify-center lg:flex-[6]">
+      <img 
+        class="w-[220px] lg:w-[420px]" 
+        src="/homeIllust.svg" 
+        alt="illustration" 
+      />
+    </div>
 
-      <!--
-
-      Email
-
-    -->
-      <MEEmailField v-model="user.email" label="E-mail" name="email" rules="required" :hide-requirement="false" autocomplete="email" autofocus />
-      <!--
-
-      Password
-
-    -->
-      <MEPasswordField v-model="user.password" label="Senha" name="password" rules="required" :hide-requirement="false"
-        autocomplete="current-password" />
-      <!--
-
-      Submit / Password Request Button
-
-    -->
-      <div class="flex flex-col">
-        <MEButton @click="login" type="submit" class="focus:ring-2 focus:ring-[Highlight] focus:ring-[black]">
+    <div class="flex flex-1 flex-col items-center lg:flex-[4]">
+      <MEForm class="flex flex-col gap-6 lg:gap-8">
+        <MEEmailField 
+          v-model="user.email" 
+          label="E-mail" 
+          name="email"
+          rules="required" 
+          :hide-requirement="false"
+          autocomplete="email" 
+          autofocus 
+        />
+      
+        <MEPasswordField 
+          v-model="user.password" 
+          label="Senha" 
+          name="password" 
+          rules="required" 
+          :hide-requirement="false"
+          autocomplete="current-password" 
+        />
+      
+        <MEButton 
+          @click="login" 
+          type="submit" 
+          class="focus:ring-2 focus:ring-[Highlight] focus:ring-[black]"
+        >
           Acessar
         </MEButton>
-      </div>
-      <!--
 
-      Info / Register Button
+        <div class="text-center">
+          <p>Ainda não tem cadastro no Melhor Voucher?</p>
 
-    -->
-      <div class="text-center">
-        <p>Ainda não tem cadastro no Melhor Voucher?</p>
-        <NuxtLink id="register-now" class="text-primary underline" to="/register">
-          Cadastre-se agora!
-        </NuxtLink>
-      </div>
-    </MEForm>
-
+          <NuxtLink id="register-now" class="text-primary underline" to="/register">
+            Cadastre-se agora!
+          </NuxtLink>
+        </div>
+      </MEForm>
+    </div>
   </div>
-
 </template>
+
 <script setup>
 import { MEEmailField, MEPasswordField, MEButton, MEForm } from '@melhorenvio/unbox';
+
 definePageMeta({
   layout: 'empty',
 });
+
 const user = ref({
   email: '',
   password: ''
@@ -57,15 +66,15 @@ const base64ToBuffer = base64 => Uint8Array.from(atob(base64), c => c.charCodeAt
 const credentialId = ref(null);
 
 
-const authenticateLogin = async (email, password) => {
+async function authenticateLogin(email, password) {
   credentialsUser.value = await signUser(email, password);
   if (credentialsUser.value) return navigateTo('/');
 }
 
-const login = async () => {
+async function login() {
   const credentials = JSON.parse(sessionStorage.getItem('user-credential')) || null;
-  const email = user.value.email;
-  const password = user.value.password;
+  
+  const { email, password} = user.value;
   credentialId.value = credentials?.userCredentials?.credentialId;
 
 
@@ -74,6 +83,7 @@ const login = async () => {
   }
   authenticateLogin(email, password);
 }
+
 async function authCredential(email, password) {
   const challenge = new Uint8Array([53, 69, 96, 194]).buffer;
   if (!credentialId.value) {
@@ -103,8 +113,3 @@ async function authCredential(email, password) {
   }
 }
 </script>
-<style scoped>
-.illustration {
-  margin: 0 auto;
-}
-</style>
