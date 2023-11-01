@@ -64,15 +64,26 @@
       </MEInputField>
 
       <div class="flex flex-col mt-4 gap-4">
-        <card 
-          v-for="(message, title) in getCard" 
-          :key="title"
-          :image="message.image"
-          :point="message.point"
-          :title="message.title"
-          :description="message.description" 
-          :available="message.available"
+        <MESkeleton
+          v-if="loading"
+          v-for="(message) in getCard" 
+          :key="message"
+          width="w-full"
+          height="80px"
+          line
         />
+
+        <div v-else class="flex flex-col mt-4 gap-4">
+          <card 
+            v-for="(message, title) in getCard" 
+            :key="title"
+            :image="message.image"
+            :point="message.point"
+            :title="message.title"
+            :description="message.description" 
+            :available="message.available"
+          />
+        </div>
       </div>
     </div>
    </div>

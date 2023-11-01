@@ -30,6 +30,13 @@ const sidebarItems = [
     label: 'index',
     icon: '',
   },
+  {
+    to: {
+      name: 'product',
+    },
+    label: 'produtos',
+    icon: '',
+  },
 ]
 
 const pageDataAttr = computed(() => {
