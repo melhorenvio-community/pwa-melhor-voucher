@@ -7,12 +7,12 @@
       <div class="flex">
         <img 
           src='~/assets/icons/selo-azul.svg'
-          :alt="title" 
+          :alt="props.title" 
         />
       
         <div class="pl-4">
           <p class="font-bold capitalize">
-            {{ title }}
+            {{ props.title }}
           </p>
 
           <p class="font-normal text-xs">
@@ -20,7 +20,7 @@
           </p>
 
           <p class="font-bold text-xs">
-            {{ point }} pontos.
+            {{ props.point }} pontos.
           </p>
         </div>
       </div>
@@ -50,18 +50,18 @@
 <script setup>
 import { useSpeechSynthesis } from '@vueuse/core';
 
-defineProps({
-  image,
-  title,
-  point: number,
-  description,
-  available: boolean,
+const props = defineProps({
+  image: String,
+  title: String,
+  point: Number,
+  description: String,
+  available: Boolean,
 })
 
 const showDescription = ref(false);
 const voice = ref(undefined);
-const info = ref<string>('Para alcançar esses premiso você precisa ter:');
-const text = ref<string>('');
+const info = ref('Para alcançar esses premiso você precisa ter:');
+const text = ref('');
 
 const speech = useSpeechSynthesis(text, {
   lang: 'pt-BR',
