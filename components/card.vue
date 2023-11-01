@@ -60,7 +60,7 @@ const props = defineProps({
 
 const showDescription = ref(false);
 const voice = ref(undefined);
-const info = ref('Para alcançar esses premiso você precisa ter:');
+const info = ref('Para alcançar esses prêmios você precisa ter:');
 const text = ref('');
 
 const speech = useSpeechSynthesis(text, {
