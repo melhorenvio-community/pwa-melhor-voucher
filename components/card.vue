@@ -16,7 +16,7 @@
           </p>
 
           <p class="font-normal text-xs">
-            Para alcançar esses premiso vc precisa ter: 
+            {{ info }} 
           </p>
 
           <p class="font-bold text-xs">
@@ -25,7 +25,14 @@
         </div>
       </div>
 
-      <div>
+      <div class="flex items-center gap-8">
+        <img 
+          class="cursor-pointer" 
+          src="~/assets/icons/audio.svg" 
+          alt="audio" 
+          @click="play(title, info, point, description)"
+        />
+
         <img 
           class="cursor-pointer"
           :class="rotateChevron" 
@@ -40,26 +47,43 @@
   </div>
 </template>
 
-<script setup lang="ts">
-defineProps<{
-  image?: string,
-  title: string,
+<script setup>
+import { useSpeechSynthesis } from '@vueuse/core';
+
+defineProps({
+  image,
+  title,
   point: number,
-  description: string,
+  description,
   available: boolean,
-}>()
+})
 
 const showDescription = ref(false);
+const voice = ref(undefined);
+const info = ref<string>('Para alcançar esses premiso você precisa ter:');
+const text = ref<string>('');
 
-
-
-const rotateChevron = computed(() => {
-  if (showDescription.value) return 'rotate-90'; 
-
-  return 'rotate-0';
+const speech = useSpeechSynthesis(text, {
+  lang: 'pt-BR',
+  pitch: 1,
+  rate: 1,
+  volume: 1,
+  voice,
 });
 
+function play(title, info, point, description) {
+  const desc = showDescription.value ? description : '';
+  text.value = title + info + point + 'pontos'+ desc;
+
+  speech.speak();
+}
 function openDecription() {
   showDescription.value = !showDescription.value
 }
+
+const rotateChevron = computed(() => {
+  if (showDescription.value) return 'rotate-90'; 
+  
+  return 'rotate-0';
+});
 </script>

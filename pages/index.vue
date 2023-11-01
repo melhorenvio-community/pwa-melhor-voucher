@@ -81,7 +81,7 @@
 <script setup>
 import { MESkeleton, MEInputField } from '@melhorenvio/unbox';
 import card from '~/components/card.vue';
-import { sealMessage } from '~/enums/selosMessages'
+import { sealMessage } from '~/enums/selosMessages';
 
 const loading = ref(true);
 const points = ref(200);
@@ -94,13 +94,6 @@ const isRecording = ref(false);
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const sr = new Recognition();
 
-const greetingsMessage = computed(() => {
-  if (hours >= 0 && hours < 12) return 'Bom dia';
-
-  if (hours >= 12 && hours <= 18) return 'Boa tarde';
-
-  return 'Boa noite';
-});
 
 function search() {
   let title = sealMessage.map((item) => item.title);
@@ -110,12 +103,40 @@ function search() {
   );
 }
 
+function CheckForCommand(result) {
+	const voice = result[0].transcript;
+  isRecording.value = false
+
+	if (voice.includes('finalizar') || voice.includes('ok')) {
+		sr.stop()
+	}
+
+  setTimeout(() => sr.stop(), 100);
+}
+
+function ToggleMic() {
+  isRecording.value ? sr.stop() : sr.start()
+}
+
+function init() {
+  setTimeout(() => {
+    loading.value = false;
+  }, 1000);
+}
+
+const greetingsMessage = computed(() => {
+  if (hours >= 0 && hours < 12) return 'Bom dia';
+
+  if (hours >= 12 && hours <= 18) return 'Boa tarde';
+
+  return 'Boa noite';
+});
+
 const getCard = computed(() => {
   return search().map((searchs) => {
     return sealMessage.find((item) => item.title === searchs);
   });
 });
-
 
 const description = computed(() => {
   if (points.value > 1) return 'Pontos'; 
@@ -151,30 +172,9 @@ onMounted(() => {
 	}
 })
 
-function CheckForCommand(result) {
-	const voice = result[0].transcript;
-  isRecording.value = false
-
-	if (voice.includes('finalizar') || voice.includes('ok')) {
-		sr.stop()
-	}
-
-  setTimeout(() => sr.stop(), 100);
-}
-
-function ToggleMic() {
-  isRecording.value ? sr.stop() : sr.start()
-}
-
-function init() {
-  setTimeout(() => {
-    loading.value = false;
-  }, 1000);
-}
+definePageMeta({
+  middleware: ['auth']
+});
 
 init();
-
-definePageMeta({
-   middleware: ['auth']
-});
 </script>
