@@ -29,21 +29,21 @@ const sidebarItems = [
     to: {
       name: 'index',
     },
-    label: 'index',
+    label: 'Página inicial',
     icon: '',
   },
   {
     to: {
       name: 'product',
     },
-    label: 'produtos',
+    label: 'Produtos',
     icon: '',
   },
   {
     to: {
       name: 'recharge',
     },
-    label: 'recharge',
+    label: 'Recarga',
     icon: '',
   },
 ]

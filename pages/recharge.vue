@@ -13,7 +13,7 @@
       />
     </div>
     
-    <div>
+    <div class="my-4">
       <MEButton @click="openScanner = !openScanner">
         {{ textCamera }}
       </MEButton>
@@ -23,18 +23,16 @@
         style="width: 500px;" 
         @result="onScan" 
       />
-
-      <p>
-        {{ scan }}
-      </p>
     </div>
+
+    <p>{{ scan }}</p>
   </div>
 </template>
 
 <script setup>
 import { MEButton } from  '@melhorenvio/unbox';
 import { useSpeechSynthesis } from '@vueuse/core';
-import QRCodeScanner from '../components/QRCodeScanner.vue'
+import QRCodeScanner from '~/components/QRCodeScanner.vue'
 
 const openScanner = ref(false);
 const scan = ref({});
