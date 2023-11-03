@@ -7,7 +7,11 @@ export default defineNuxtConfig({
     }
   },
   devtools: { enabled: true },
-  modules: ["@vite-pwa/nuxt", '@vueuse/nuxt',],
+  modules: ["@vite-pwa/nuxt", '@vueuse/nuxt', ['unplugin-icons/nuxt', {
+    scale: 1,
+    compiler: 'vue3',
+    autoInstall: true,
+  }]],
   pwa: {
     registerType: 'autoUpdate',
     injectRegister: 'auto',
