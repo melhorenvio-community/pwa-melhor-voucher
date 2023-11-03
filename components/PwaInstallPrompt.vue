@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="isInstalled"
-    class="fixed bottom-4 right-4 p-4 mt-3 border-[1px] rounded-[20px] gap-1 border-neutral-light"
+   class="fixed bottom-0 right-0 p-3 m-3 border-[1px] rounded-[20px] gap-1 border-neutral-light bg-white"
   >
     <div class="flex items-center mt-2">
       <div class="text-blue-600 text-2xl mr-2">
@@ -23,7 +23,7 @@
           compact
           minimal
           :disabled="false"
-           class="danger"
+          @click="cancelInstall()"
         >
           Cancelar
         </MEButton>
