@@ -1,18 +1,19 @@
 <template>
   <div 
     class="rounded-lg p-4 px-5 shadow"
-    :class="available ? 'bg-neutral border' : 'bg-neutral-light'"
+    :class="available ? 'bg-neutral' : 'bg-neutral-light'"
   >
     <div class="flex justify-between items-center">
       <div class="flex">
         <img 
-          src='~/assets/icons/selo-azul.svg'
-          :alt="props.title" 
+          class="w-[25px] lg:w-[30px]"
+          :src='image'
+          :alt="title" 
         />
       
         <div class="pl-4">
           <p class="font-bold capitalize">
-            {{ props.title }}
+            {{ title }}
           </p>
 
           <p class="font-normal text-xs">
@@ -20,7 +21,7 @@
           </p>
 
           <p class="font-bold text-xs">
-            {{ props.point }} pontos.
+            {{ point }} pontos.
           </p>
         </div>
       </div>
@@ -50,7 +51,7 @@
 <script setup>
 import { useSpeechSynthesis } from '@vueuse/core';
 
-const props = defineProps({
+defineProps({
   image: String,
   title: String,
   point: Number,
