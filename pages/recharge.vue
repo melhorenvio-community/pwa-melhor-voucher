@@ -13,16 +13,31 @@
       />
     </div>
     
-    
-    <MEButton @click="start">Câmera</MEButton>
+    <div>
+      <MEButton @click="openScanner = !openScanner">
+        {{ textCamera }}
+      </MEButton>
+
+      <qrcodescanner 
+        v-if="openScanner" 
+        style="width: 500px;" 
+        @result="onScan" 
+      />
+
+      <p>
+        {{ scan }}
+      </p>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { MEButton } from  '@melhorenvio/unbox';
 import { useSpeechSynthesis } from '@vueuse/core';
+import qrcodescanner from '../components/qrcodescanner.vue'
 
-const scanner = ref(null);
+const openScanner = ref(false);
+const scan = ref({});
 const voice = ref(undefined);
 const text = ref('Coloque a câmera na direção do QRCode');
 
@@ -37,6 +52,24 @@ const speech = useSpeechSynthesis(text, {
 function play() {
   speech.speak();
 }
+
+function onScan(decodedText, decodedResult) {
+  if (scan.value.decodedText) {
+    return false;
+  } else {
+    scan.value = {
+      decodedText,
+      decodedResult,
+    };
+
+    openScanner.value = !openScanner.value
+  }
+}
+
+const textCamera = computed(()=>{
+  if(!openScanner.value) return 'Câmera';
+  return 'Fechar'
+})
 
 definePageMeta({
  middleware: ['auth']
