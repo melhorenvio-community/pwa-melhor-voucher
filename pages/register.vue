@@ -41,7 +41,7 @@
         </p>
 
         <MEButton 
-          @click="registerCredential" 
+          @click="registerCredential"
           class="focus:ring-2 focus:ring-[Highlight] focus:ring-[black]" 
           :disabled="activate"
         >
@@ -88,85 +88,62 @@ import {
   METoast,
   MEInputField
 } from '@melhorenvio/unbox';
-
 definePageMeta({
   layout: 'empty',
 });
-
 const user = ref({
   name: '',
   email: '',
   password: ''
 });
-
 const bufferToBase64 = buffer => btoa(String.fromCharCode(...new Uint8Array(buffer)));
-
 const challenge = new Uint8Array([53, 69, 96, 194]).buffer;
 const selectOptionToRegisterCredentials = ref(false);
 const credentialId = ref(null);
-
-async function registerCredential() {
+const registerCredential = async () => {
   selectOptionToRegisterCredentials.value = true;
-
   const publicKeyCredentialCreationOptions = {
     challenge: challenge,
     rp: {
       name: 'Melhor Voucher',
       id: 'localhost',
     },
-
     user: {
       id: Uint8Array.from("UZSL85T9AFC", c => c.charCodeAt(0)),
       name: user.value.email,
       displayName: user.value.email,
     },
-
     pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-
     authenticatorSelection: {
       authenticatorAttachment: "cross-platform",
     },
-
     attestation: "direct",
   };
-  
   const credential = await navigator.credentials.create({
     publicKey: publicKeyCredentialCreationOptions,
   });
-
   credentialId.value = bufferToBase64(credential.rawId);
-  
   if (credentialId.value) {
-    notify({
-      title: 'Credencial cadastrada com sucesso!',
-      message: 'Agora você já pode se registar.',
+    return notify({
+      title: 'Credenciais cadastradas com sucesso!',
       variant: 'success',
-    });
+    })
   }
 }
-
-async function registerUser() {
-  //const credentials = await createUser(user.value.email, user.value.password);
-
+const registerUser = async () => {
+  const credentials = await createUser(user.value.email, user.value.password);
   const userCredentials = {
     user: user?.value?.email,
     credentialId: credentialId?.value
   }
-
   sessionStorage.setItem('user-credential', JSON.stringify({ userCredentials }));
-
-  if (userCredentials) {
+  if (credentials) {
     notify({
       title: 'Conta registrada com sucesso!',
       message: 'Faça seu login e aproveite.',
       variant: 'success',
     });
-
     return navigateTo('/login');
   }
 }
-
-const activate = computed(()=>{
-  return !(user.value.name && user.value.email && user.value.password);
-})
 </script>
