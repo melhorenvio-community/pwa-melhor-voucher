@@ -20,7 +20,7 @@
 
       <QRCodeScanner 
         v-if="openScanner" 
-        style="width: 500px;" 
+        class="w-full" 
         @result="onScan" 
       />
     </div>
