@@ -1,4 +1,5 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+const isPWADev = process.env.VITE_PWA_DEV_MODE === 'true';
+
 export default defineNuxtConfig({
   runtimeConfig: {
     public: {
@@ -13,9 +14,15 @@ export default defineNuxtConfig({
     injectManifest: {
       globPatterns: ['**/*.{js,css,html}']
     },
+    workbox: {
+      navigateFallback: '/',
+    },
     devOptions: {
-      enabled: true,
+      enabled: isPWADev,
       type:'module'
+    },
+    client: {
+      installPrompt: true
     },
     manifest: {
       scope: '/',
