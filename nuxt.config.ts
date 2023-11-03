@@ -1,4 +1,4 @@
-const isPWADev = process.env.VITE_PWA_DEV_MODE === 'true';
+const isPWADevMode = process.env.VITE_PWA_DEV_MODE === 'true';
 
 export default defineNuxtConfig({
   runtimeConfig: {
@@ -18,7 +18,7 @@ export default defineNuxtConfig({
       navigateFallback: '/',
     },
     devOptions: {
-      enabled: isPWADev,
+      enabled: isPWADevMode,
       type:'module'
     },
     client: {
@@ -30,16 +30,20 @@ export default defineNuxtConfig({
       short_name: 'MelhorVoucher',
       start_url:'/',
       description: 'Acompanhe sua pontuação na Melhor Envio',
+      screenshots: [
+        {
+          src: "icons/home-screen.png",
+          sizes: "1476x658",
+          type: "image/svg",
+          form_factor: "wide",
+          label: "Melhor Voucher"
+        }
+      ],
       icons: [
         {
-          src: "icons/android-chrome-48x48.png",
-          sizes: "48x48",
-          type: "image/png",
-        },
-        {
-          src: "icons/favicon-32x32.png",
-          sizes: "32x32",
-          type: "image/png",
+          src: 'icons/pwa-64x64.png',
+          sizes: '64x64',
+          type: 'image/png'
         },
         {
           src: "icons/pwa-192x192.png",
@@ -50,7 +54,20 @@ export default defineNuxtConfig({
           src: "icons/pwa-512x512.png",
           sizes: "512x512",
           type: "image/png",
+          purpose: 'any'
         },
+        {
+          src: 'icons/maskable-icon-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable'
+        },
+         {
+          src: 'icons/apple-touch-icon-180x180.png',
+          sizes: '180x180',
+          type: 'image/png',
+          purpose: 'maskable'
+        }
       ],
       theme_color: '#ffffff',
       background_color: '#ffffff',

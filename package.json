@@ -7,10 +7,12 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "generate-pwa-assets": "pwa-assets-generator"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
+    "@vite-pwa/assets-generator": "^0.0.10",
     "@vite-pwa/nuxt": "^0.1.1",
     "nuxt": "^3.7.4",
     "vue": "^3.3.4",
