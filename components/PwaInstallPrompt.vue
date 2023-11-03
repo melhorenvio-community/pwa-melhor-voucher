@@ -32,7 +32,7 @@
 
 </template>
 <script setup>
-import { MEInfoBlock, MEButton } from '@melhorenvio/unbox';
+import { MEButton } from '@melhorenvio/unbox';
 
 const { $pwa } = useNuxtApp()
 
@@ -47,6 +47,4 @@ function cancelInstall() {
 const isInstalled = computed(() => {
   return $pwa?.showInstallPrompt && !$pwa?.needRefresh;
 });
-
-console.log('isInstalled', isInstalled)
 </script>
