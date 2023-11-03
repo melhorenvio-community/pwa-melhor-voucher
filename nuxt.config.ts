@@ -15,11 +15,21 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     injectRegister: 'auto',
-    injectManifest: {
-      globPatterns: ['**/*.{js,css,html}']
-    },
+    strategies: 'generateSW',
     workbox: {
-      navigateFallback: '/',
+      runtimeCaching: [{
+        urlPattern: ({ url }) => {
+          return url.pathname.startsWith('/');
+        },
+        handler: "NetworkFirst" as const,
+        options: {
+          cacheName: 'cache-melhor-voucher',
+          cacheableResponse: {
+            statuses: [0, 200]
+          }
+        }
+      }]
+
     },
     devOptions: {
       enabled: isPWADevMode,
