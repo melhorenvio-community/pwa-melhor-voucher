@@ -24,6 +24,10 @@ export default defineNuxtConfig({
         handler: "NetworkFirst" as const,
         options: {
           cacheName: 'cache-melhor-voucher',
+          expiration: {
+            maxEntries: 10,
+            maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+          },
           cacheableResponse: {
             statuses: [0, 200]
           }
