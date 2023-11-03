@@ -74,7 +74,7 @@
         />
 
         <div v-else class="flex flex-col mt-4 gap-4">
-          <card 
+          <Card 
             v-for="(message, title) in getCard" 
             :key="title"
             :image="message.image"
@@ -91,7 +91,7 @@
 
 <script setup>
 import { MESkeleton, MEInputField } from '@melhorenvio/unbox';
-import card from '~/components/card.vue';
+import Card from '~/components/Card.vue';
 import { sealMessage } from '~/enums/selosMessages';
 
 const loading = ref(true);

@@ -29,7 +29,7 @@
       />
 
       <div class="flex flex-col mt-4 gap-4" v-else>
-      <buy 
+      <Buy 
         v-for="(message, title) in getCard" 
         :key="title"
         :image="message.image"
@@ -45,12 +45,9 @@
 <script setup>
 import { MESkeleton, MEInputField } from '@melhorenvio/unbox';
 import { productMessages } from '~/enums/productMessages';
-import buy from '~/components/buy.vue';
+import Buy from '~/components/Buy.vue';
 
 const loading = ref(true);
-const points = ref(200);
-const user = ref('Renata Leal');
-const hours = new Date().getHours();
 const transcript = ref('');
 const isRecording = ref(false);
 

@@ -39,6 +39,13 @@ const sidebarItems = [
     label: 'produtos',
     icon: '',
   },
+  {
+    to: {
+      name: 'recharge',
+    },
+    label: 'recharge',
+    icon: '',
+  },
 ]
 
 const pageDataAttr = computed(() => {

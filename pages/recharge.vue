@@ -18,7 +18,7 @@
         {{ textCamera }}
       </MEButton>
 
-      <qrcodescanner 
+      <QRCodeScanner 
         v-if="openScanner" 
         style="width: 500px;" 
         @result="onScan" 
@@ -34,7 +34,7 @@
 <script setup>
 import { MEButton } from  '@melhorenvio/unbox';
 import { useSpeechSynthesis } from '@vueuse/core';
-import qrcodescanner from '../components/qrcodescanner.vue'
+import QRCodeScanner from '../components/QRCodeScanner.vue'
 
 const openScanner = ref(false);
 const scan = ref({});

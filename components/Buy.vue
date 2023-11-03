@@ -1,10 +1,9 @@
 <template>
   <div 
     class="rounded-lg p-4 px-5 shadow bg-neutral cursor-pointer hover:border"
-    @click="comprar"
   >
-    <div class="flex justify-between items-center">
-      <div class="flex">
+    <div class="flex justify-between items-center" >
+      <div class="flex" @click="comprar">
         <img 
           class="w-[100px] lg:w-[120px]"
           :src='image'
