@@ -12,6 +12,8 @@
     >
       <slot />
     </METemplate>
+
+    <PwaInstallPrompt />
   </div>
 </template>
 
