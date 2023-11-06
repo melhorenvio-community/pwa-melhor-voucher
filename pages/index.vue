@@ -112,7 +112,7 @@ const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const sr = new Recognition();
 
 const user = computed(() => {
-  return  $state.user.name;
+  return  $state.user?.name;
 });
 
 function search() {
