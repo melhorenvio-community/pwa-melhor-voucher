@@ -1,9 +1,13 @@
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useUserStore } from '~/stores/user';
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  const auth = getAuth();
+  const { getIndexedDB } = useUserStore();
 
-  onAuthStateChanged(auth, (user) => {
+  const auth = getAuth();
+  await getIndexedDB();
+
+  onAuthStateChanged(auth, (user) => {    
     if (!user) navigateTo('/login');
   });
 });

@@ -17,7 +17,10 @@
     >
         <div class="flex flex-col items-center mb-7 lg:block lg:mb-0">
           <p class="text-base">
-            {{ greetingsMessage }}, <strong class="text-base font-bold">{{ user }}</strong>
+            {{ greetingsMessage }}, 
+            <strong class="text-base font-bold capitalize">
+              {{ user }}
+            </strong>
           </p>
         </div>
 
@@ -25,7 +28,7 @@
           <p class="basis-full mb-5 text-lg font-bold lg:basis-auto lg:mr-7 lg:mb-0">
             Pontos atual:
           </p>
-
+        
           <MESkeleton
             v-if="loading"
             width="100px"
@@ -46,6 +49,8 @@
 
     <div class="px-5">
       <p class="font-bold pt-4">Selos</p>
+
+      {{ sa }}
 
       <MEInputField
         class="my-3"
@@ -93,11 +98,12 @@
 import { MESkeleton, MEInputField } from '@melhorenvio/unbox';
 import Card from '~/components/Card.vue';
 import { sealMessage } from '~/enums/selosMessages';
+import { useUserStore } from '~/stores/user';
 
+const { $state, getIndexedDB } = useUserStore();
 const loading = ref(true);
 const points = ref(200);
 const inspire = ref('Inspira 28/03/2024');
-const user = ref('Renata Leal');
 const hours = new Date().getHours();
 const transcript = ref('');
 const isRecording = ref(false);
@@ -105,6 +111,9 @@ const isRecording = ref(false);
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const sr = new Recognition();
 
+const user = computed(() => {
+  return  $state.user.name;
+});
 
 function search() {
   let title = sealMessage.map((item) => item.title);
@@ -127,12 +136,6 @@ function CheckForCommand(result) {
 
 function ToggleMic() {
   isRecording.value ? sr.stop() : sr.start()
-}
-
-function init() {
-  setTimeout(() => {
-    loading.value = false;
-  }, 1000);
 }
 
 const greetingsMessage = computed(() => {
@@ -186,6 +189,12 @@ onMounted(() => {
 definePageMeta({
   middleware: ['auth']
 });
+
+function init() {
+  setTimeout(() => {
+    loading.value = false;
+  }, 1000);
+}
 
 init();
 </script>

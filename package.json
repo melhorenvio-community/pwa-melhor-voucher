@@ -21,9 +21,11 @@
   "dependencies": {
     "@melhorenvio/unbox": "^0.6.0-beta.3",
     "@nuxtjs/firebase": "^8.2.2",
+    "@pinia/nuxt": "^0.5.1",
     "@vueuse/core": "^10.5.0",
     "@vueuse/nuxt": "^10.5.0",
     "firebase": "^10.5.0",
-    "html5-qrcode": "^2.3.8"
+    "html5-qrcode": "^2.3.8",
+    "pinia": "^2.1.7"
   }
 }

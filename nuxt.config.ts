@@ -7,7 +7,7 @@ export default defineNuxtConfig({
     }
   },
   devtools: { enabled: true },
-  modules: ["@vite-pwa/nuxt", '@vueuse/nuxt',],
+  modules: ['@vite-pwa/nuxt', '@vueuse/nuxt', '@pinia/nuxt',],
   pwa: {
     registerType: 'autoUpdate',
     injectRegister: 'auto',
