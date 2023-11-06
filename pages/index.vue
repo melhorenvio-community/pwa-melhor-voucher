@@ -100,7 +100,7 @@ import Card from '~/components/Card.vue';
 import { sealMessage } from '~/enums/selosMessages';
 import { useUserStore } from '~/stores/user';
 
-const { $state, getIndexedDB } = useUserStore();
+const { $state } = useUserStore();
 const loading = ref(true);
 const points = ref(200);
 const inspire = ref('Inspira 28/03/2024');

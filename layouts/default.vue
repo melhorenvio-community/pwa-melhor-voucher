@@ -19,10 +19,13 @@
 
 <script setup>
 import { METemplate } from '@melhorenvio/unbox';
+import { useUserStore } from '~/stores/user';
 import logo from '/logo.svg';
 
+const { $state } = useUserStore();
+
 const route = useRoute();
-const avatarName = computed(() => 'Renata leal');
+const avatarName = computed(() => $state.user.name);
 
 const sidebarItems = [
   {
