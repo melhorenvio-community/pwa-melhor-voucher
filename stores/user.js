@@ -1,4 +1,8 @@
 import { defineStore } from 'pinia';
+import { useVibrate } from '@vueuse/core';
+
+const { vibrate, stop, isSupported } = useVibrate({ pattern: [300, 100, 300] });
+
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -19,22 +23,31 @@ export const useUserStore = defineStore('user', {
         const getAllRequest = objectStore.getAll();
       
         getAllRequest.onsuccess = (event) => {
-          const data = event.target.result;
-          const { email } = data[0].value;
+          const db = event.target.result;
+          
+          if(db) {
+            const { email } = db[0].value;
 
-          let partes = email.split('@');
-          let userName = partes[0];
+            let partes = email.split('@');
+            let userName = partes[0];
+  
+            this.user = {
+              name: userName.replace('.', ' '),
+              email
+            }
+          } else {
+            vibrate();
 
-          this.user = {
-            name: userName.replace('.', ' '),
-            email
+            setTimeout(() => {
+              stop();
+            }, 2000);
+            
+            navigateTo('/login');
           }
         };
       };
 
-      request.onerror = (event) => {
-        console.error("Erro ao abrir o banco de dados: " + event.target.errorCode);
-      };
+    
     },
   },
 });
