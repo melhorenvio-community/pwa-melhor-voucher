@@ -21,7 +21,7 @@ export default defineNuxtConfig({
         urlPattern: ({ url }) => {
           return url.pathname.startsWith('/');
         },
-        handler: "NetworkFirst" as const,
+        handler: "CacheFirst" as const,
         options: {
           cacheName: 'cache-melhor-voucher',
           expiration: {
