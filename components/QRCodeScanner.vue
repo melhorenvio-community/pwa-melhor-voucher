@@ -4,7 +4,7 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 const emit = defineEmits();
 
 const config = {
-  fps: 10,
+  fps: 25,
   qrbox: 250,
 };
 

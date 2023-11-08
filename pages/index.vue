@@ -102,7 +102,8 @@ import { useUserStore } from '~/stores/user';
 
 const { $state } = useUserStore();
 const loading = ref(true);
-const points = ref(200);
+const points =  $state.user?.points;
+const user =  $state.user?.name;
 const inspire = ref('Inspira 28/03/2024');
 const hours = new Date().getHours();
 const transcript = ref('');
@@ -110,10 +111,6 @@ const isRecording = ref(false);
 
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const sr = new Recognition();
-
-const user = computed(() => {
-  return  $state.user?.name;
-});
 
 function search() {
   let title = sealMessage.map((item) => item.title);
@@ -153,9 +150,9 @@ const getCard = computed(() => {
 });
 
 const description = computed(() => {
-  if (points.value > 1) return 'Pontos'; 
+  if (points > 1) return 'Pontos'; 
 
-  return'Ponto';
+  return 'Ponto';
 });
 
 onMounted(() => {
