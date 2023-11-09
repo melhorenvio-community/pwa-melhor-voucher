@@ -17,7 +17,10 @@
     >
         <div class="flex flex-col items-center mb-7 lg:block lg:mb-0">
           <p class="text-base">
-            {{ greetingsMessage }}, <strong class="text-base font-bold">{{ user }}</strong>
+            {{ greetingsMessage }}, 
+            <strong class="text-base font-bold capitalize">
+              {{ user }}
+            </strong>
           </p>
         </div>
 
@@ -25,7 +28,7 @@
           <p class="basis-full mb-5 text-lg font-bold lg:basis-auto lg:mr-7 lg:mb-0">
             Pontos atual:
           </p>
-
+        
           <MESkeleton
             v-if="loading"
             width="100px"
@@ -93,18 +96,19 @@
 import { MESkeleton, MEInputField } from '@melhorenvio/unbox';
 import Card from '~/components/Card.vue';
 import { sealMessage } from '~/enums/selosMessages';
+import { useUserStore } from '~/stores/user';
 
+const { $state } = useUserStore();
 const loading = ref(true);
-const points = ref(200);
+const points =  $state.user?.points;
+const user =  $state.user?.name;
 const inspire = ref('Inspira 28/03/2024');
-const user = ref('Renata Leal');
 const hours = new Date().getHours();
 const transcript = ref('');
 const isRecording = ref(false);
 
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const sr = new Recognition();
-
 
 function search() {
   let title = sealMessage.map((item) => item.title);
@@ -129,12 +133,6 @@ function ToggleMic() {
   isRecording.value ? sr.stop() : sr.start()
 }
 
-function init() {
-  setTimeout(() => {
-    loading.value = false;
-  }, 1000);
-}
-
 const greetingsMessage = computed(() => {
   if (hours >= 0 && hours < 12) return 'Bom dia';
 
@@ -150,9 +148,9 @@ const getCard = computed(() => {
 });
 
 const description = computed(() => {
-  if (points.value > 1) return 'Pontos'; 
+  if (points > 1) return 'Pontos'; 
 
-  return'Ponto';
+  return 'Ponto';
 });
 
 onMounted(() => {
@@ -186,6 +184,12 @@ onMounted(() => {
 definePageMeta({
   middleware: ['auth']
 });
+
+function init() {
+  setTimeout(() => {
+    loading.value = false;
+  }, 1000);
+}
 
 init();
 </script>
