@@ -50,8 +50,6 @@
     <div class="px-5">
       <p class="font-bold pt-4">Selos</p>
 
-      {{ sa }}
-
       <MEInputField
         class="my-3"
         v-model="transcript"
