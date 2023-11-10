@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import { useVibrate } from '@vueuse/core';
-import { openDB, deleteDB } from 'idb';
 
 const { vibrate, stop } = useVibrate({ pattern: [300, 100, 300] });
 
@@ -16,80 +15,108 @@ export const useUserStore = defineStore('user', {
       try {
         const { user } = await userPromise;
 
-        const db = await openDB('db-local-voucher', 1, {
-          upgrade(db) {
-            const store = db.createObjectStore('me-voucher-user', {
-              keyPath: 'id',
-              autoIncrement: true,
-            });
-            store.createIndex('date', 'date');
-          },
-        });
-
-        let email = user.email;
-        let partes = email.split('@');
-        let userName = partes[0];
-
-        {
-          const tx = db.transaction('me-voucher-user', 'readwrite');
-         
-          await Promise.all([
-            tx.store.add({
-              name: userName.replace('.', ' '),
-              date: new Date(),
-              email,
-              points: this.points,
-              shipments: this.shipments
-            }),
-            tx.done,
-          ]);
-        }
+        const dbName = 'db-local-voucher';
+        const dbVersion = 1;
+  
+        const request = indexedDB.open(dbName, dbVersion);
+  
+        request.onupgradeneeded = function(event) {
+          const db = event.target.result;
+  
+          if (!db.objectStoreNames.contains('me-voucher-user')) {
+           db.createObjectStore('me-voucher-user', { keyPath: 'id', autoIncrement: true });
+          }
+        };
+  
+        request.onsuccess = function(event) {
+          const db = event.target.result;
+  
+          const transaction = db.transaction(['me-voucher-user'], 'readwrite');
+          const objectStore = transaction.objectStore('me-voucher-user');
+  
+          let email = user.email;
+          let partes = email.split('@');
+          let userName = partes[0];
+  
+          const newRecord = {
+            name: userName.replace('.', ' '),
+            date: new Date(),
+            email,
+            points: this.points,
+            shipments: this.shipments
+          };
+  
+          const addRequest = objectStore.add(newRecord);
+  
+          addRequest.onsuccess = function() {
+            console.log('Registro adicionado com sucesso!');
+          };
+  
+          addRequest.onerror = function() {
+            console.error('Erro ao adicionar registro.');
+          };
+        };
       } catch (error) {
         console.error("Error: " + error);
+
+        vibrate();
+
+        setTimeout(() => {
+          stop();
+        }, 2000);
       }
     },
     
     async getIndexedDB() {
-      const dbName = "db-local-voucher";
-      const request = indexedDB.open(dbName);
-
+      const request = indexedDB.open('db-local-voucher');
       request.onsuccess = (event) => {
-        const db =  event.target.result;
-      
-        const transaction = db.transaction(["me-voucher-user"], "readonly");
-        const objectStore = transaction.objectStore("me-voucher-user");
-      
-        const getAllRequest = objectStore.getAll();
-      
-        getAllRequest.onsuccess = (event) => {
-          const db = event.target.result;
-          const { name, email } = db[0];
-
-          this.setUserStorage();
-          
-          this.user = {
-            name,
-            email,
-            points: this.points,
-            shipments: this.shipments
-          }
-        };
-      };
+        const db = event.target.result;
+       
+        if(request) {
+          const transaction = db.transaction(['me-voucher-user'], 'readonly');
+          const objectStore = transaction.objectStore('me-voucher-user');
+          const cursorRequest = objectStore.openCursor();
+  
+          cursorRequest.onsuccess = (event) => {
+            const result = event.target.result;
+  
+            if (result) {
+              const { name, email } = result.value;
+  
+              this.user = {
+                name,
+                email,
+                points: this.points,
+                shipments: this.shipments
+              }
+              
+              this.setUserStorage();
+            } else {
+              console.log('Erro ao pegar os dados.');
+  
+              vibrate();
+  
+              setTimeout(() => {
+                stop();
+              }, 2000);
+            }
+          };
+        } else {
+          console.log('erro ao logar');
+        }
+      }; 
     },
 
     async deleteIndexedDB() {
       const db = 'db-local-voucher'
-      this.deleteUserStorage();
-      
-      await deleteDB(db, {
-        blocked() {
-          vibrate();
+      indexedDB.deleteDatabase(db);
 
-          setTimeout(() => {
-            stop();
-          }, 2000);
-        },
-      });
+      this.deleteUserStorage();
+      vibrate();
+
+      setTimeout(() => {
+        stop();
+      }, 2000);
     },
 
     async setUserStorage() {
@@ -99,7 +126,8 @@ export const useUserStore = defineStore('user', {
 
           if (persisted) {
             const points = this.points;
-            localStorage.setItem('user', JSON.stringify({...this.user, points}));
+            const shipments = this.shipments;
+            localStorage.setItem('user', JSON.stringify({...this.user, points, shipments}));
           } else {
             console.log("Armazenamento persistente solicitado, mas não concedido.");
           }

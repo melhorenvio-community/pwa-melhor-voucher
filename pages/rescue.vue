@@ -20,7 +20,7 @@
         </MEButton>
 
         <div class="flex-col">
-          <p class="text-xs">* Click no botão para fazer sua recarga.</p>
+          <p class="text-xs">* Click no botão para fazer seu resgate.</p>
           <p class="text-xs text-danger" v-if="notice">{{ notice }}</p>
         </div>
       </div>
