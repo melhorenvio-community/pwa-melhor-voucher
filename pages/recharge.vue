@@ -13,10 +13,17 @@
       />
     </div>
     
-    <div class="my-4">
-      <MEButton @click="openScanner = !openScanner">
-        {{ textCamera }}
-      </MEButton>
+    <div class="my-8 w-full">
+      <div class="flex items-center gap-2">
+        <MEButton @click="openScanner = !openScanner">
+          {{ textCamera }}
+        </MEButton>
+
+        <div class="flex-col">
+          <p class="text-xs">* Click no botão para fazer sua recarga.</p>
+          <p  class="text-xs text-danger" v-if="notice">{{ notice }}</p>
+        </div>
+      </div>
 
       <QRCodeScanner 
         v-if="openScanner" 
@@ -25,7 +32,16 @@
       />
     </div>
 
-    <p>{{ scan }}</p>
+    <div class="my-8 md:flex justify-center items-center gap-4" v-if="textRecharge">
+      <img 
+        class="w-[250px] md:w-[350px] text-center mx-auto my-4" 
+        src="~/assets/icons/congratulations.svg" 
+        alt="Imagem de Parabéns"
+      >
+      <p class="max-w-[350px] my-4 mx-auto text-primary text-center text-lg font-bold md:w-[350px] md:text-xl">
+        {{ textRecharge }}
+      </p> 
+    </div>
   </div>
 </template>
 
@@ -33,11 +49,16 @@
 import { MEButton } from  '@melhorenvio/unbox';
 import { useSpeechSynthesis } from '@vueuse/core';
 import QRCodeScanner from '~/components/QRCodeScanner.vue'
+import { useUserStore } from '~/stores/user';
+
+const { $state } = useUserStore();
 
 const openScanner = ref(false);
 const scan = ref({});
 const voice = ref(undefined);
+const notice = ref('')
 const text = ref('Coloque a câmera na direção do QRCode');
+const textRecharge = ref('');
 
 const speech = useSpeechSynthesis(text, {
   lang: 'pt-BR',
@@ -60,7 +81,25 @@ function onScan(decodedText, decodedResult) {
       decodedResult,
     };
 
+    validateVoucher(scan.value.decodedText);
+
     openScanner.value = !openScanner.value
+  }
+}
+
+function validateVoucher(parametro) {
+  if(parametro) {
+    let minhaString = "{points:50}";
+    let matches = minhaString.match(/\d+/);
+
+    if (matches) {
+      let recharge = parseInt(matches[0], 10);
+      textRecharge.value = `Parabéns você acaba de fazer uma recarga no valor de R$: ${recharge},00.`
+
+      $state.points += recharge;
+    } else {
+      notice.value  = "Problemas na bipagem do QR Code, tente novamente";
+    }
   }
 }
 
