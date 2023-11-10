@@ -1,6 +1,6 @@
 <template>
   <div class="px-5">
-    <p class="font-bold pt-4">Recarga de pontos</p>
+    <p class="font-bold pt-4">Resgate de pontos</p>
 
     <div class="flex gap-2">
       <P>{{ text }}</P>
@@ -21,7 +21,7 @@
 
         <div class="flex-col">
           <p class="text-xs">* Click no botão para fazer sua recarga.</p>
-          <p  class="text-xs text-danger" v-if="notice">{{ notice }}</p>
+          <p class="text-xs text-danger" v-if="notice">{{ notice }}</p>
         </div>
       </div>
 
@@ -89,12 +89,11 @@ function onScan(decodedText, decodedResult) {
 
 function validateVoucher(parametro) {
   if(parametro) {
-    let minhaString = "{points:50}";
-    let matches = minhaString.match(/\d+/);
+    let matches = parametro.match(/\d+/);
 
     if (matches) {
       let recharge = parseInt(matches[0], 10);
-      textRecharge.value = `Parabéns você acaba de fazer uma recarga no valor de R$: ${recharge},00.`
+      textRecharge.value = `Parabéns! Você acabou de obter ${recharge} para utilizar na plataforma.`
 
       $state.points += recharge;
     } else {

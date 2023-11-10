@@ -26,7 +26,7 @@
 
         <div class="flex flex-col flex-wrap">
           <p class="basis-full mb-5 text-lg font-bold lg:basis-auto lg:mr-7 lg:mb-0">
-            Pontos atual:
+            Quantidades de envios atuais:
           </p>
         
           <MESkeleton
@@ -36,13 +36,15 @@
             line
           />
 
-          <p
-            v-else
-            class="text-2xl font-bold"
-          >
-            {{ points }} <small class="text-minute">{{ description }}</small>
-          </p>
+          <div class="flex gap-4" v-else>
+            <p class="text-2xl font-bold">
+              {{ shipments }} <small class="text-minute">envios</small>
+            </p>
 
+            <p class="text-2xl font-bold">
+              {{ points }} <small class="text-minute">{{ description }}</small>
+            </p>
+          </div>
           <small class="text-minute">{{ inspire }}</small>
         </div>
     </div>
@@ -100,9 +102,10 @@ import { useUserStore } from '~/stores/user';
 
 const { $state } = useUserStore();
 const loading = ref(true);
+const shipments = $state.user?.shipments;
 const points =  $state.user?.points;
 const user =  $state.user?.name;
-const inspire = ref('Inspira 28/03/2024');
+const inspire = ref('Expira: 28/03/2024');
 const hours = new Date().getHours();
 const transcript = ref('');
 const isRecording = ref(false);

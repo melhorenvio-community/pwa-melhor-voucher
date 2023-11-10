@@ -7,7 +7,7 @@ export default defineNuxtConfig({
     }
   },
   devtools: { enabled: true },
-  modules: ["@vite-pwa/nuxt", '@vueuse/nuxt', '@pinia/nuxt', ['unplugin-icons/nuxt', {
+  modules: ['@vite-pwa/nuxt', '@vueuse/nuxt', '@pinia/nuxt', ['unplugin-icons/nuxt', {
     scale: 1,
     compiler: 'vue3',
     autoInstall: true,

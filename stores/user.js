@@ -8,6 +8,7 @@ export const useUserStore = defineStore('user', {
   state: () => ({
     user: null,
     points: 50,
+    shipments: 250,
   }),
 
   actions: {
@@ -38,6 +39,7 @@ export const useUserStore = defineStore('user', {
               date: new Date(),
               email,
               points: this.points,
+              shipments: this.shipments
             }),
             tx.done,
           ]);
@@ -68,7 +70,8 @@ export const useUserStore = defineStore('user', {
           this.user = {
             name,
             email,
-            points: this.points
+            points: this.points,
+            shipments: this.shipments
           }
         };
       };
@@ -109,9 +112,19 @@ export const useUserStore = defineStore('user', {
     },
 
     async getUserStorage() {
-      const user = localStorage.getItem('user');
+      const userLocal = await localStorage.getItem('user');
+
       try {
-        await JSON.parse(user);
+        const { name, email, points, shipments } = JSON.parse(userLocal);
+        
+        const user = {
+          name, 
+          email, 
+          points,
+          shipments
+        }
+
+        return user;
       } catch (error) {
         console.error("Erro a buscar usuario", error);
       }

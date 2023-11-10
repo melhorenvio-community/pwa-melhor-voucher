@@ -44,9 +44,9 @@ const sidebarItems = [
   },
   {
     to: {
-      name: 'recharge',
+      name: 'rescue',
     },
-    label: 'Recarga',
+    label: 'Resgate',
     icon: '',
   },
 ]
