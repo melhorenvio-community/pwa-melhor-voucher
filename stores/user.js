@@ -90,9 +90,10 @@ export const useUserStore = defineStore('user', {
             }
           };
         } catch(e) {
-          console.error("Erro ao buscar o banco:", error);
           this.deleteIndexedDB();
           navigateTo('/login');
+
+          console.error("Erro ao buscar o banco:", error);
         }
       }; 
     },
