@@ -47,9 +47,9 @@ export const useUserStore = defineStore('user', {
           };
   
           objectStore.add(newUser);
-        };
 
-        this.getIndexedDB();
+          this.setUserStorage(newUser);
+        };
       } catch (error) {
         console.error("Error: " + error);
 
@@ -66,7 +66,7 @@ export const useUserStore = defineStore('user', {
       request.onsuccess = (event) => {
         const db = event.target.result;
        
-        if(request) {
+        try {
           const transaction = db.transaction(['me-voucher-user'], 'readonly');
           const objectStore = transaction.objectStore('me-voucher-user');
           const cursorRequest = objectStore.openCursor();
@@ -84,14 +84,15 @@ export const useUserStore = defineStore('user', {
                 shipments: this.shipments
               }
 
-              this.setUserStorage(result);
             } else {
               this.deleteIndexedDB();
               navigateTo('/login');
             }
           };
-        } else {
-          console.log('erro ao logar');
+        } catch(e) {
+          console.error("Erro ao buscar o banco:", error);
+          this.deleteIndexedDB();
+          navigateTo('/login');
         }
       }; 
     },
@@ -118,7 +119,7 @@ export const useUserStore = defineStore('user', {
 
     async setUserStorage(result) {
       try {
-        const { name, email } = result.value;
+        const { name, email } = result;
 
         this.user = {
           name,

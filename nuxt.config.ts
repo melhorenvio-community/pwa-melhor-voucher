@@ -1,6 +1,15 @@
 const isPWADevMode = process.env.VITE_PWA_DEV_MODE === 'true';
 
 export default defineNuxtConfig({
+  app: {
+    buildAssetsDir: 'public/',
+    head: {
+      htmlAttrs: { dir: 'ltr', lang: 'pt' },
+      link: [{ rel: 'icon', type: 'image/svg', href: "public/logo.svg" }],
+      charset: 'utf-8',
+      viewport: 'width=device-width, initial-scale=1',
+    },
+  },
   runtimeConfig: {
     public: {
       FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
