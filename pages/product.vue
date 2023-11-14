@@ -33,7 +33,7 @@
         v-for="(message, title) in getCard" 
         :key="title"
         :image="message.image"
-        :price="message.price"
+        :points="message.points"
         :title="message.title"
         :description="message.description" 
       />

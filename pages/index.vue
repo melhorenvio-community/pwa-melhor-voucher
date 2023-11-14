@@ -26,12 +26,12 @@
 
         <div class="flex flex-col flex-wrap">
           <p class="basis-full mb-5 text-lg font-bold lg:basis-auto lg:mr-7 lg:mb-0">
-            Quantidades de envios atuais:
+            Quantidades de envios atual:
           </p>
         
           <MESkeleton
             v-if="loading"
-            width="100px"
+            width="200px"
             height="30px"
             line
           />

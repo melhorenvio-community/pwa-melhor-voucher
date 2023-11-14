@@ -28,7 +28,7 @@ export const useUserStore = defineStore('user', {
           }
         };
   
-        request.onsuccess = function(event) {
+        request.onsuccess = (event) => {
           const db = event.target.result;
   
           const transaction = db.transaction(['me-voucher-user'], 'readwrite');
@@ -38,24 +38,18 @@ export const useUserStore = defineStore('user', {
           let partes = email.split('@');
           let userName = partes[0];
   
-          const newRecord = {
-            name: userName.replace('.', ' '),
+          const newUser = {
+            name: userName.replace('.', ' ') || 'Antônio Agusto',
             date: new Date(),
             email,
             points: this.points,
             shipments: this.shipments
           };
   
-          const addRequest = objectStore.add(newRecord);
-  
-          addRequest.onsuccess = function() {
-            console.log('Registro adicionado com sucesso!');
-          };
-  
-          addRequest.onerror = function() {
-            console.error('Erro ao adicionar registro.');
-          };
+          objectStore.add(newUser);
         };
+
+        this.getIndexedDB();
       } catch (error) {
         console.error("Error: " + error);
 
@@ -66,7 +60,7 @@ export const useUserStore = defineStore('user', {
         }, 2000);
       }
     },
-    
+
     async getIndexedDB() {
       const request = indexedDB.open('db-local-voucher');
       request.onsuccess = (event) => {
@@ -84,27 +78,30 @@ export const useUserStore = defineStore('user', {
               const { name, email } = result.value;
   
               this.user = {
-                name,
+                name: name || 'Antônio Agusto',
                 email,
                 points: this.points,
                 shipments: this.shipments
               }
-              
-              this.setUserStorage();
+
+              this.setUserStorage(result);
             } else {
-              console.log('Erro ao pegar os dados.');
-  
-              vibrate();
-  
-              setTimeout(() => {
-                stop();
-              }, 2000);
+              this.deleteIndexedDB();
+              navigateTo('/login');
             }
           };
         } else {
           console.log('erro ao logar');
         }
       }; 
+    },
+
+    async validationIndexedDB() {
+        if (!localStorage.getItem('user')) {
+          return this.getIndexedDB();
+        } else {
+          return this.getUserStorage();
+        }
     },
 
     async deleteIndexedDB() {
@@ -119,15 +116,22 @@ export const useUserStore = defineStore('user', {
       }, 2000);
     },
 
-    async setUserStorage() {
+    async setUserStorage(result) {
       try {
-        if (navigator.storage && navigator.storage.persist) {
+        if ( navigator?.storage && navigator?.storage?.persist) {
           const persisted = await navigator.storage.persist();
 
           if (persisted) {
-            const points = this.points;
-            const shipments = this.shipments;
-            localStorage.setItem('user', JSON.stringify({...this.user, points, shipments}));
+            const { name, email } = result.value;
+  
+            this.user = {
+              name,
+              email,
+              points: this.points,
+              shipments: this.shipments
+            }
+
+            localStorage.setItem('user', JSON.stringify(this.user));
           } else {
             console.log("Armazenamento persistente solicitado, mas não concedido.");
           }
@@ -140,13 +144,20 @@ export const useUserStore = defineStore('user', {
     },
 
     async getUserStorage() {
-      const userLocal = await localStorage.getItem('user');
+      const userLocal = await localStorage?.getItem('user');
 
       try {
         const { name, email, points, shipments } = JSON.parse(userLocal);
+
+        this.user = {
+          name: name || 'Antônio Agusto',
+          email,
+          points: this.points,
+          shipments: this.shipments
+        }
         
         const user = {
-          name, 
+          name: name || 'Antônio Agusto',
           email, 
           points,
           shipments

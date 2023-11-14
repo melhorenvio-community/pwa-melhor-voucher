@@ -20,7 +20,7 @@
           </p>
 
           <p class="font-bold text-xs">
-            R$: {{ price }}
+            Valor: {{ points }} pontos
           </p>
         </div>
       </div>
@@ -30,7 +30,7 @@
           class="cursor-pointer" 
           src="~/assets/icons/audio.svg" 
           alt="audio" 
-          @click="play(title, description, price)"
+          @click="play(title, description, points)"
         />
       </div>
     </div>
@@ -79,7 +79,7 @@ import { useSpeechSynthesis } from '@vueuse/core';
 defineProps({
   image: String,
   title: String,
-  price: Number,
+  points: Number,
   description: String,
 })
 
@@ -97,8 +97,8 @@ const speech = useSpeechSynthesis(text, {
   voice,
 });
 
-function play(title, description, price) {
-  text.value = title + description + ', valor' +  price + 'reais';
+function play(title, description, points) {
+  text.value = title + description + ', valor' +  points + 'reais';
 
   speech.speak();
 }
