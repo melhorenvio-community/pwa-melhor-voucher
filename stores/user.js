@@ -47,8 +47,6 @@ export const useUserStore = defineStore('user', {
           };
   
           objectStore.add(newUser);
-
-          this.setUserStorage(newUser);
         };
       } catch (error) {
         console.error("Error: " + error);
@@ -119,11 +117,16 @@ export const useUserStore = defineStore('user', {
     },
 
     async setUserStorage(result) {
+   
       try {
-        const { name, email } = result;
+        const { user } = await result
+        const { email } = user;
+        
+        let partes = email.split('@');
+        let userName = partes[0];
 
         this.user = {
-          name,
+          name: userName.replace('.', ' ') || 'Antônio Agusto',
           email,
           points: this.points,
           shipments: this.shipments
