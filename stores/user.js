@@ -118,27 +118,17 @@ export const useUserStore = defineStore('user', {
 
     async setUserStorage(result) {
       try {
-        if ( navigator?.storage && navigator?.storage?.persist) {
-          const persisted = await navigator.storage.persist();
+        const { name, email } = result.value;
 
-          if (persisted) {
-            const { name, email } = result.value;
-  
-            this.user = {
-              name,
-              email,
-              points: this.points,
-              shipments: this.shipments
-            }
-
-            localStorage.setItem('user', JSON.stringify(this.user));
-          } else {
-            console.log("Armazenamento persistente solicitado, mas não concedido.");
-          }
-        } else {
-          console.log("O armazenamento persistente não é suportado.");
+        this.user = {
+          name,
+          email,
+          points: this.points,
+          shipments: this.shipments
         }
-      } catch (error) {
+
+        localStorage.setItem('user', JSON.stringify(this.user));
+        } catch (error) {
         console.error("Um erro ocorreu:", error);
       }
     },
