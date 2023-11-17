@@ -6,8 +6,8 @@ const { vibrate, stop } = useVibrate({ pattern: [300, 100, 300] });
 export const useUserStore = defineStore('user', {
   state: () => ({
     user: null,
-    points: 50,
-    shipments: 250,
+    shipments: 1,
+    tags: []
   }),
 
   actions: {
@@ -42,7 +42,6 @@ export const useUserStore = defineStore('user', {
             name: userName.replace('.', ' ') || 'Antônio Agusto',
             date: new Date(),
             email,
-            points: this.points,
             shipments: this.shipments
           };
   
@@ -78,7 +77,6 @@ export const useUserStore = defineStore('user', {
               this.user = {
                 name: name || 'Antônio Agusto',
                 email,
-                points: this.points,
                 shipments: this.shipments
               }
 
@@ -117,7 +115,6 @@ export const useUserStore = defineStore('user', {
     },
 
     async setUserStorage(result) {
-   
       try {
         const { user } = await result
         const { email } = user;
@@ -128,8 +125,8 @@ export const useUserStore = defineStore('user', {
         this.user = {
           name: userName.replace('.', ' ') || 'Antônio Agusto',
           email,
-          points: this.points,
-          shipments: this.shipments
+          shipments: this.shipments,
+          tags: this.tags
         }
 
         localStorage.setItem('user', JSON.stringify(this.user));
@@ -142,19 +139,17 @@ export const useUserStore = defineStore('user', {
       const userLocal = await localStorage?.getItem('user');
 
       try {
-        const { name, email, points, shipments } = JSON.parse(userLocal);
+        const { name, email, shipments } = JSON.parse(userLocal);
 
         this.user = {
           name: name || 'Antônio Agusto',
           email,
-          points: this.points,
           shipments: this.shipments
         }
         
         const user = {
           name: name || 'Antônio Agusto',
           email, 
-          points,
           shipments
         }
 

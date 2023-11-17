@@ -37,13 +37,6 @@ const sidebarItems = [
   },
   {
     to: {
-      name: 'product',
-    },
-    label: 'Produtos',
-    icon: '',
-  },
-  {
-    to: {
       name: 'rescue',
     },
     label: 'Resgate',

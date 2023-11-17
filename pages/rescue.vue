@@ -1,6 +1,6 @@
 <template>
   <div class="px-5">
-    <p class="font-bold pt-4">Resgate de pontos</p>
+    <p class="font-bold pt-4">Resgate de voucher</p>
 
     <div class="flex gap-2">
       <P>{{ text }}</P>
@@ -39,7 +39,7 @@
         alt="Imagem de Parabéns"
       >
       <p class="max-w-[350px] my-4 mx-auto text-primary text-center text-lg font-bold md:w-[350px] md:text-xl">
-        {{ textRecharge }}
+        {{ $state.tags }}
       </p> 
     </div>
   </div>
@@ -73,18 +73,15 @@ function play() {
 }
 
 function onScan(decodedText, decodedResult) {
-  if (scan.value.decodedText) {
-    return false;
-  } else {
-    scan.value = {
-      decodedText,
-      decodedResult,
-    };
+ 
+  scan.value = {
+    decodedText,
+    decodedResult,
+  };
 
-    validateVoucher(scan.value.decodedText);
+  validateVoucher(scan.value.decodedText);
 
-    openScanner.value = !openScanner.value
-  }
+  openScanner.value = !openScanner.value
 }
 
 function validateVoucher(parametro) {
@@ -95,7 +92,7 @@ function validateVoucher(parametro) {
       let recharge = parseInt(matches[0], 10);
       textRecharge.value = `Parabéns! Você acabou de obter ${recharge} para utilizar na plataforma.`
 
-      $state.points += recharge;
+      $state.tags.push(parametro);
     } else {
       notice.value  = "Problemas na bipagem do QR Code, tente novamente";
     }

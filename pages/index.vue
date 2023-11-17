@@ -31,18 +31,14 @@
         
           <MESkeleton
             v-if="loading"
-            width="200px"
+            width="100px"
             height="30px"
             line
           />
 
           <div class="flex gap-4" v-else>
             <p class="text-2xl font-bold">
-              {{ shipments }} <small class="text-minute">envios</small>
-            </p>
-
-            <p class="text-2xl font-bold">
-              {{ points }} <small class="text-minute">{{ description }}</small>
+              {{ $state.tags.length }} <small class="text-minute">{{ description }}</small>
             </p>
           </div>
           <small class="text-minute">{{ inspire }}</small>
@@ -50,7 +46,7 @@
     </div>
 
     <div class="px-5">
-      <p class="font-bold pt-4">Selos</p>
+      <p class="font-bold pt-4">Cupons</p>
 
       <MEInputField
         class="my-3"
@@ -79,15 +75,53 @@
         />
 
         <div v-else class="flex flex-col mt-4 gap-4">
-          <Card 
+          <Coupons 
             v-for="(message, title) in getCard" 
             :key="title"
             :image="message.image"
-            :point="message.point"
+            :voucher="message.voucher"
             :title="message.title"
             :description="message.description" 
-            :available="message.available"
+            @rescue="rescue"
           />
+
+          <MEDialog
+            :open="openModal"
+            @close="closeBuyModal"
+          >
+            <template #body>
+              <h3 class="text-xl font-bold mb-7">
+                Você acaba de adquirir nosso voucher!
+              </h3>
+
+              <p class="text-base text-primary ont-bold mb-5">
+                código do voucher: <span class="text-black">{{ voucherNumber }}</span>
+              </p>
+            </template>
+
+            <template #footer>
+            <div class="flex justify-center gap-4">
+              <MECopyToClipboard
+                class="block"
+                :content="voucherNumber"
+                alt
+              />
+
+              <MEButton class="block" @click="shared()">
+                <template #icon>
+                  <div class="flex items-center gap-2">
+                    <img 
+                      src='~/assets/icons/share.svg'
+                      alt="titsharedle" 
+                    />
+
+                    <span class="text-sm">Compartilhar</span>
+                  </div>
+                </template>
+              </MEButton>
+            </div>
+            </template>
+          </MEDialog>
         </div>
       </div>
     </div>
@@ -95,28 +129,35 @@
 </template>
 
 <script setup>
-import { MESkeleton, MEInputField } from '@melhorenvio/unbox';
-import Card from '~/components/Card.vue';
+import { 
+  MESkeleton, 
+  MEInputField, 
+  meDialog, 
+  MEButton, 
+  MEDialog, 
+  MECopyToClipboard 
+} from '@melhorenvio/unbox';
+import Coupons from '~/components/Coupons.vue';
 import { sealMessage } from '~/enums/selosMessages';
 import { useUserStore } from '~/stores/user';
 
 const { $state } = useUserStore();
 const loading = ref(true);
-const shipments = $state.user?.shipments;
-const points =  $state.user?.points;
 const user =  $state.user?.name;
 const inspire = ref('Expira: 28/03/2024');
 const hours = new Date().getHours();
 const transcript = ref('');
 const isRecording = ref(false);
+const openModal = ref(false);
+const voucherNumber = ref('');
 
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const sr = new Recognition();
 
 function search() {
-  let title = sealMessage.map((item) => item.title);
+  let description = sealMessage.map((item) => item.description);
 
-  return title.filter((item) =>
+  return description.filter((item) =>
     item.includes(transcript.value.toLowerCase()),
   );
 }
@@ -136,6 +177,52 @@ function ToggleMic() {
   isRecording.value ? sr.stop() : sr.start()
 }
 
+function shared() {
+  if(navigator.share) {
+    navigator.share({
+      title: 'Adquirindo este voucher',
+      text: voucherNumber.value,
+      url: "https://melhorenvio.com.br/login"
+    });
+  } else {
+    navigator.clipboard.writeText(voucherNumber.value);
+  }
+}
+
+async function rescue( voucher) {
+ if( voucher ) {
+  voucherNumber.value = voucher.toUpperCase();
+
+  const { confirmed } = await meDialog.fire({
+    icon: '',
+    iconClasses: '',
+    title: 'Melhor Voucher!',
+    body: 'você deseja resgatar seu voucher?',
+    confirmButtonText: 'Resgatar',
+    cancelButtonText: 'Cancelar',
+    showConfirmButton: true,
+    showCancelButton: true,
+  });
+
+  if (confirmed) {
+    let seal = sealMessage.map((item) => item.voucher === voucher);
+    console.log(seal);
+
+    openBuyModal();
+  }
+ }
+
+ return false
+}
+
+function closeBuyModal() {
+  openModal.value = false;
+}
+
+function openBuyModal() {
+  openModal.value = true;
+}
+
 const greetingsMessage = computed(() => {
   if (hours >= 0 && hours < 12) return 'Bom dia';
 
@@ -145,15 +232,15 @@ const greetingsMessage = computed(() => {
 });
 
 const getCard = computed(() => {
-  return search().map((searchs) => {
-    return sealMessage.find((item) => item.title === searchs);
+  return search().map((description) => {
+    return sealMessage.find((item) => item.description === description);
   });
 });
 
 const description = computed(() => {
-  if (points > 1) return 'Pontos'; 
+  if ($state.tags.length > 1) return 'Envios'; 
 
-  return 'Ponto';
+  return 'Envio';
 });
 
 onMounted(() => {
