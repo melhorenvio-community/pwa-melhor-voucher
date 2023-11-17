@@ -29,6 +29,20 @@ export default defineNuxtConfig({
     },
     workbox: {
       navigateFallback: '/',
+      runtimeCaching: [
+        {
+          urlPattern: ({ url }) => {
+            return url.pathname.startsWith('/');
+          },
+          handler: "CacheFirst" as const,
+          options: {
+            cacheName: 'cache-static-mv-v1',
+            cacheableResponse: {
+              statuses: [0, 200]
+            },
+          }
+        }
+      ],
     },
     devOptions: {
       enabled: isPWADevMode,
