@@ -40,6 +40,10 @@ export default defineNuxtConfig({
             cacheableResponse: {
               statuses: [0, 200]
             },
+            expiration: {
+              maxEntries: 50,
+              maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
+            },
           }
         }
       ],
