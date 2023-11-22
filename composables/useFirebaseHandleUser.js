@@ -37,8 +37,8 @@ export const signUser = async (email, password) => {
     }
   });
 
-  const { addIndexedDB, setUserStorage } = useUserStore();
-  addIndexedDB(credetials);
+  const { addIndexedDBUser, setUserStorage } = useUserStore();
+  addIndexedDBUser(credetials);
   setUserStorage(credetials)
 
   return credetials;

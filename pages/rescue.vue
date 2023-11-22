@@ -39,19 +39,19 @@
         alt="Imagem de Parabéns"
       >
       <p class="max-w-[350px] my-4 mx-auto text-primary text-center text-lg font-bold md:w-[350px] md:text-xl">
-        {{ $state.tags }}
+        {{ textRecharge }}
       </p> 
     </div>
   </div>
 </template>
 
 <script setup>
-import { MEButton } from  '@melhorenvio/unbox';
+import { MEButton, meToast } from  '@melhorenvio/unbox';
 import { useSpeechSynthesis } from '@vueuse/core';
 import QRCodeScanner from '~/components/QRCodeScanner.vue'
 import { useUserStore } from '~/stores/user';
 
-const { $state } = useUserStore();
+const { $state, getTagsStorage } = useUserStore();
 
 const openScanner = ref(false);
 const scan = ref({});
@@ -80,22 +80,34 @@ function onScan(decodedText, decodedResult) {
   };
 
   validateVoucher(scan.value.decodedText);
-
   openScanner.value = !openScanner.value
 }
 
-function validateVoucher(parametro) {
-  if(parametro) {
-    let matches = parametro.match(/\d+/);
+function validateVoucher(qrcodeValue) {
+  if(qrcodeValue) {
+    const tag = getTagsStorage();
 
-    if (matches) {
-      let recharge = parseInt(matches[0], 10);
-      textRecharge.value = `Parabéns! Você acabou de obter ${recharge} para utilizar na plataforma.`
-
-      $state.tags.push(parametro);
+    if (!tag.includes(qrcodeValue)) {
+      textRecharge.value = 'Parabéns você acaba de ganhar um Cupom!'
+      
+      $state.tags.push(qrcodeValue);
     } else {
-      notice.value  = "Problemas na bipagem do QR Code, tente novamente";
+      textRecharge.value = 'Desculpe, mas parece que este QR Code já foi usado anteriormente.'
+
+      meToast.show({
+        variant: 'danger',
+        title: 'Cupom inválido.',
+        message: textRecharge.value,
+      }); 
     }
+  } else {
+    notice.value = "Problemas na bipagem do QR Code, tente novamente";
+
+    meToast.show({
+      variant: 'danger',
+      title: 'QR Code inválido.',
+      message: notice.value,
+    });
   }
 }
 
