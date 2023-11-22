@@ -6,7 +6,7 @@ const { vibrate, stop } = useVibrate({ pattern: [300, 100, 300] });
 export const useUserStore = defineStore('user', {
   state: () => ({
     user: null,
-    tags: useStorage('tag', [])
+    tags: useStorage('tags', [])
   }),
 
   actions: {
@@ -84,7 +84,7 @@ export const useUserStore = defineStore('user', {
       });
     },
 
-    async getIndexedDB() {
+    async getIndexedDBUser() {
       const request = indexedDB.open('db-local-user');
       request.onsuccess = (event) => {
         const db = event.target.result;
@@ -120,7 +120,7 @@ export const useUserStore = defineStore('user', {
     },
 
     async validationIndexedDB() {
-      return !localStorage.getItem('user') ? this.getIndexedDB() : this.getUserStorage();
+      return !localStorage.getItem('user') ? this.getIndexedDBUser() : this.getUserStorage();
     },
 
     async deleteIndexedDB() {
@@ -177,8 +177,8 @@ export const useUserStore = defineStore('user', {
     },
 
     getTagsStorage() {
-      const userLocal = localStorage?.getItem('tag');
-      const tags = JSON.parse(userLocal)
+      const userLocal = localStorage?.getItem('tags');
+      const tags = JSON.parse(userLocal);
 
       return tags;
     },
