@@ -141,7 +141,12 @@ import Coupons from '~/components/Coupons.vue';
 import { sealMessage } from '~/enums/selosMessages';
 import { useUserStore } from '~/stores/user';
 
-const { $state, getTagsStorage } = useUserStore();
+const { 
+  $state, 
+  getTagsStorage, 
+  validationIndexedDB 
+} = useUserStore();
+
 const loading = ref(true);
 const user =  $state.user?.name;
 const inspire = ref('Expira: 28/03/2024');
@@ -286,7 +291,9 @@ definePageMeta({
   middleware: ['auth']
 });
 
-function init() {
+async function init() {
+  await validationIndexedDB();
+  
   setTimeout(() => {
     loading.value = false;
   }, 1000);
