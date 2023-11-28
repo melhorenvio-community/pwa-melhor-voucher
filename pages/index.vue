@@ -143,12 +143,11 @@ import { useUserStore } from '~/stores/user';
 
 const { 
   $state, 
-  getTagsStorage, 
+  getStorageTags, 
   validationIndexedDB 
 } = useUserStore();
 
 const loading = ref(true);
-const user =  $state.user?.name;
 const inspire = ref('Expira: 28/03/2024');
 const hours = new Date().getHours();
 const transcript = ref('');
@@ -160,7 +159,7 @@ const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const sr = new Recognition();
 
 function search() {
-  const tag = getTagsStorage();
+  const tag = getStorageTags();
 
   let numberCompany = tag.map((string) =>
     parseInt(string.split(';').pop())
@@ -246,6 +245,12 @@ const greetingsMessage = computed(() => {
 
   return 'Boa noite';
 });
+
+const user =  computed(() => {
+  return $state.user?.name;
+});
+
+
 
 const getCard = computed(() => {
   return search().map((description) => {

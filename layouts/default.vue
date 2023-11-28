@@ -22,10 +22,11 @@ import { METemplate } from '@melhorenvio/unbox';
 import { useUserStore } from '~/stores/user';
 import logo from '/logo.svg';
 
-const { $state } = useUserStore();
+const { $state, clearAll } = useUserStore();
 
 const route = useRoute();
 const avatarName = computed(() => $state.user?.name);
+
 
 const sidebarItems = [
   {
@@ -50,11 +51,6 @@ const pageDataAttr = computed(() => {
 
 const authUser = useFirebaseUser();
 
-const logOut = async () => {
-  await signOutUser();
-  return navigateTo('/login')
-}
-
 const sidebarSubitems = computed(() => {
   return authUser
     ? [
@@ -65,5 +61,11 @@ const sidebarSubitems = computed(() => {
       ]
     : []
 });
+
+const logOut = async () => {
+  await clearAll();
+  await signOutUser();
+  return navigateTo('/login');
+}
 
 </script>

@@ -19,13 +19,15 @@ export const useUserStore = defineStore('user', {
   
         const request = indexedDB.open(dbName, dbVersion);
   
-        request.onupgradeneeded = function(event) {
+        request.onupgradeneeded = (event) => {
           const db = event.target.result;
   
           if (!db.objectStoreNames.contains('me-user')) {
            db.createObjectStore('me-user', { keyPath: 'id', autoIncrement: true });
           }
         };
+
+        this.setStorageUser(userPromise)
   
         request.onsuccess = (event) => {
           const db = event.target.result;
@@ -36,14 +38,16 @@ export const useUserStore = defineStore('user', {
           let email = user.email;
           let partes = email.split('@');
           let userName = partes[0];
-
+          
+          let localStorageTags = this.getStorageTags()
+       
           const newUser = {
             name: userName.replace('.', ' ') || 'Antônio Agusto',
             date: new Date(),
-            email
+            email,
+            tags: localStorageTags
           };
 
-          this.addIndexedDBTag();
           objectStore.add(newUser);
         };
       } catch (error) {
@@ -57,85 +61,106 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async addIndexedDBTag() {
-      const tag = this.getTagsStorage();
-      
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open('db-local-tags', 1);
+    updateIndexedDBTag(tags) {
+      const dbName = 'db-local-tags';
+      const storeName = 'me-tags';
+      const idToUpdate = 1;
+      const newValue = tags;
 
-        request.onupgradeneeded = function(event) {
-          const db = event.target.result;
-          db.createObjectStore('me-tags', { keyPath: 'id', autoIncrement: true });
+      const request = indexedDB.open(dbName, 1);
+
+      request.onupgradeneeded = function(event) {
+        const db = event.target.result;
+        db.createObjectStore(storeName, { keyPath: 'id', autoIncrement: true });
+      };
+
+      request.onsuccess = function(event) {
+        const db = event.target.result;
+        const transaction = db.transaction([storeName], 'readwrite');
+        const objectStore = transaction.objectStore(storeName);
+
+        const getRequest = objectStore.get(idToUpdate);
+
+        getRequest.onsuccess = function(event) {
+          const existingItem = getRequest.result;
+
+          if (existingItem) {
+            existingItem.valor = newValue;
+
+            const updateRequest = objectStore.put(existingItem);
+
+            updateRequest.onsuccess = function() {
+              console.log(`Valor do item com chave ${idToUpdate} atualizado com sucesso!`);
+              resolve(`Valor do item com chave ${idToUpdate} atualizado com sucesso!`);
+            };
+
+            updateRequest.onerror = function() {
+              console.error(`Erro ao atualizar o valor do item com chave ${idToUpdate}`);
+              reject(`Erro ao atualizar o valor do item com chave ${idToUpdate}`);
+            };
+          } else {
+            console.error(`Item com chave ${idToUpdate} não encontrado`);
+            reject(`Item com chave ${idToUpdate} não encontrado`);
+          }
         };
 
-        request.onsuccess = function(event) {
-          const db = event.target.result;
-          const transaction = db.transaction(['me-tags'], 'readwrite');
-          const objectStore = transaction.objectStore('me-tags');
-
-          tag.forEach(item => {
-            objectStore.add({ valor: item });
-          });
-
-          transaction.oncomplete = function() {
-            resolve('Dados adicionados com sucesso!');
-          };
+        getRequest.onerror = function() {
+          console.error(`Erro ao buscar o item com chave ${idToUpdate}`);
+          reject(`Erro ao buscar o item com chave ${idToUpdate}`);
         };
-      });
+
+        transaction.oncomplete = function() {
+          console.log('Transação concluída');
+        };
+
+        transaction.onerror = function(event) {
+          console.error('Erro na transação:', event.target.error);
+        };
+      };
+
     },
 
     async getIndexedDBUser() {
       const request = indexedDB.open('db-local-user');
+
       request.onsuccess = (event) => {
         const db = event.target.result;
-       
+
         try {
           const transaction = db.transaction(['me-user'], 'readonly');
           const objectStore = transaction.objectStore('me-user');
           const cursorRequest = objectStore.openCursor();
-  
+
           cursorRequest.onsuccess = (event) => {
             const result = event.target.result;
-  
+          
             if (result) {
-              const { name, email } = result.value;
-  
+              const { name, email, tags } = result.value;
+
               this.user = {
                 name: name || 'Antônio Agusto',
                 email,
+                tags
               }
-
-            } else {
-              this.deleteIndexedDB();
-              navigateTo('/login');
             }
-          };
+          }
         } catch(e) {
-          this.deleteIndexedDB();
           navigateTo('/login');
-
-          console.error("Erro ao buscar o banco:", error);
+          this.clearAll();
         }
       }; 
     },
 
     async validationIndexedDB() {
-      return !localStorage.getItem('user') ? this.getIndexedDBUser() : this.getUserStorage();
+      return !localStorage.getItem('user') ? this.getIndexedDBUser() : this.getStorageUser();
     },
 
-    async deleteIndexedDB() {
+    async deleteIndexedDBUser() {
       const db = 'db-local-user'
       indexedDB.deleteDatabase(db);
-
-      this.deleteUserStorage();
-      vibrate();
-
-      setTimeout(() => {
-        stop();
-      }, 2000);
     },
 
-    async setUserStorage(result) {
+    async setStorageUser(result) {
       try {
         const { user } = await result
         const { email } = user;
@@ -154,7 +179,7 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async getUserStorage() {
+    async getStorageUser() {
       const userLocal = await localStorage?.getItem('user');
 
       try {
@@ -176,21 +201,25 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    getTagsStorage() {
+    getStorageTags() {
       const userLocal = localStorage?.getItem('tags');
       const tags = JSON.parse(userLocal);
 
       return tags;
     },
 
-    async deleteUserStorage() {
+    async deleteStorageUser() {
       localStorage.removeItem("user");
+    },
 
-      vibrate();
+    async deleteStorageTag() {
+      this.tags = []
+    },
 
-      setTimeout(() => {
-        stop();
-      }, 2000);
+    async clearAll() {
+      this.deleteStorageUser();
+      this.deleteStorageTag();
+      this.deleteIndexedDBUser();
     },
   },
 });

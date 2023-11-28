@@ -41,6 +41,14 @@
       <p class="max-w-[350px] my-4 mx-auto text-primary text-center text-lg font-bold md:w-[350px] md:text-xl">
         {{ textRecharge }}
       </p> 
+
+      
+      <NuxtLink 
+        class="flex justify-center text-primary mx-auto underline" 
+        to="/"
+      >
+        Quero usar o cupom!
+      </NuxtLink>
     </div>
   </div>
 </template>
@@ -51,7 +59,7 @@ import { useSpeechSynthesis } from '@vueuse/core';
 import QRCodeScanner from '~/components/QRCodeScanner.vue'
 import { useUserStore } from '~/stores/user';
 
-const { $state, getTagsStorage } = useUserStore();
+const { $state, getStorageTags } = useUserStore();
 
 const openScanner = ref(false);
 const scan = ref({});
@@ -85,7 +93,7 @@ function onScan(decodedText, decodedResult) {
 
 function validateVoucher(qrcodeValue) {
   if(qrcodeValue) {
-    const tag = getTagsStorage();
+    const tag = getStorageTags();
 
     if (!tag.includes(qrcodeValue)) {
       textRecharge.value = 'Parabéns você acaba de ganhar um Cupom!'
