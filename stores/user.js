@@ -61,63 +61,37 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    updateIndexedDBTag(tags) {
-      const dbName = 'db-local-tags';
-      const storeName = 'me-tags';
+    updateIndexedDBTag() {
+      const dbName = 'db-local-user';
+      const storeName = 'me-user';
+      const version = 1;
       const idToUpdate = 1;
-      const newValue = tags;
+      const newValue = this.tags;
 
-      const request = indexedDB.open(dbName, 1);
+      const request = indexedDB.open(dbName, version);
 
-      request.onupgradeneeded = function(event) {
-        const db = event.target.result;
-        db.createObjectStore(storeName, { keyPath: 'id', autoIncrement: true });
-      };
-
-      request.onsuccess = function(event) {
+      request.onsuccess = (event) => {
         const db = event.target.result;
         const transaction = db.transaction([storeName], 'readwrite');
         const objectStore = transaction.objectStore(storeName);
-
         const getRequest = objectStore.get(idToUpdate);
+      
+        getRequest.onsuccess = () => {
+          const record = getRequest.result;
 
-        getRequest.onsuccess = function(event) {
-          const existingItem = getRequest.result;
-
-          if (existingItem) {
-            existingItem.valor = newValue;
-
-            const updateRequest = objectStore.put(existingItem);
-
-            updateRequest.onsuccess = function() {
-              console.log(`Valor do item com chave ${idToUpdate} atualizado com sucesso!`);
-              resolve(`Valor do item com chave ${idToUpdate} atualizado com sucesso!`);
-            };
-
-            updateRequest.onerror = function() {
-              console.error(`Erro ao atualizar o valor do item com chave ${idToUpdate}`);
-              reject(`Erro ao atualizar o valor do item com chave ${idToUpdate}`);
-            };
-          } else {
-            console.error(`Item com chave ${idToUpdate} não encontrado`);
-            reject(`Item com chave ${idToUpdate} não encontrado`);
-          }
+          const filterTags = newValue.filter((newValue) => {
+            return !record.tags.includes(newValue);
+          });
+        
+          record.tags.push(...filterTags);
+        
+          const updateRequest = objectStore.put(record);
+      
+          updateRequest.onerror = () => {
+            console.error('Erro ao atualizar o registro:', updateRequest.error);
+          };
         };
-
-        getRequest.onerror = function() {
-          console.error(`Erro ao buscar o item com chave ${idToUpdate}`);
-          reject(`Erro ao buscar o item com chave ${idToUpdate}`);
-        };
-
-        transaction.oncomplete = function() {
-          console.log('Transação concluída');
-        };
-
-        transaction.onerror = function(event) {
-          console.error('Erro na transação:', event.target.error);
-        };
-      };
-
+      }
     },
 
     async getIndexedDBUser() {

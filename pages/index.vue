@@ -250,8 +250,6 @@ const user =  computed(() => {
   return $state.user?.name;
 });
 
-
-
 const getCard = computed(() => {
   return search().map((description) => {
     return sealMessage.find((item) => item.description === description);

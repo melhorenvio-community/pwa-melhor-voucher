@@ -32,22 +32,34 @@
       />
     </div>
 
-    <div class="my-8 md:flex justify-center items-center gap-4" v-if="textRecharge">
-      <img 
-        class="w-[250px] md:w-[350px] text-center mx-auto my-4" 
-        src="~/assets/icons/congratulations.svg" 
-        alt="Imagem de Parabéns"
-      >
-      <p class="max-w-[350px] my-4 mx-auto text-primary text-center text-lg font-bold md:w-[350px] md:text-xl">
-        {{ textRecharge }}
-      </p> 
+    <div class="my-8 md:flex justify-center items-center gap-4">
+      <div v-if="textRecharge">
+        <img 
+          class="w-[250px] md:w-[350px] text-center mx-auto my-4" 
+          src="~/assets/icons/congratulations.svg" 
+          alt="Imagem de Parabéns"
+        >
+        <p class="max-w-[350px] my-4 mx-auto text-primary text-center text-lg font-bold md:w-[350px] md:text-xl">
+          {{ textRecharge }}
+        </p> 
+      </div>
 
+      <div v-if="textErrorRecharge">
+        <img 
+          class="w-[250px] md:w-[350px] text-center mx-auto my-4" 
+          src="~/assets/icons/error.svg" 
+          alt="Imagem de Erro"
+        >
+        <p class="max-w-[350px] my-4 mx-auto text-danger text-center text-lg font-bold md:w-[350px] md:text-xl">
+          {{ textErrorRecharge }}
+        </p> 
+      </div>
       
       <NuxtLink 
         class="flex justify-center text-primary mx-auto underline" 
         to="/"
       >
-        Quero usar o cupom!
+        {{ textCupom }}
       </NuxtLink>
     </div>
   </div>
@@ -56,10 +68,10 @@
 <script setup>
 import { MEButton, meToast } from  '@melhorenvio/unbox';
 import { useSpeechSynthesis } from '@vueuse/core';
-import QRCodeScanner from '~/components/QRCodeScanner.vue'
 import { useUserStore } from '~/stores/user';
+import QRCodeScanner from '~/components/QRCodeScanner.vue'
 
-const { $state, getStorageTags } = useUserStore();
+const { $state, getStorageTags, updateIndexedDBTag } = useUserStore();
 
 const openScanner = ref(false);
 const scan = ref({});
@@ -67,6 +79,7 @@ const voice = ref(undefined);
 const notice = ref('')
 const text = ref('Coloque a câmera na direção do QRCode');
 const textRecharge = ref('');
+const textErrorRecharge = ref('');
 
 const speech = useSpeechSynthesis(text, {
   lang: 'pt-BR',
@@ -81,7 +94,9 @@ function play() {
 }
 
 function onScan(decodedText, decodedResult) {
- 
+  textRecharge.value = null;
+  textErrorRecharge.value = null;
+
   scan.value = {
     decodedText,
     decodedResult,
@@ -97,15 +112,17 @@ function validateVoucher(qrcodeValue) {
 
     if (!tag.includes(qrcodeValue)) {
       textRecharge.value = 'Parabéns você acaba de ganhar um Cupom!'
-      
+
       $state.tags.push(qrcodeValue);
+      
+      updateIndexedDBTag();
     } else {
-      textRecharge.value = 'Desculpe, mas parece que este QR Code já foi usado anteriormente.'
+      textErrorRecharge.value = 'Desculpe, mas parece que este QR Code já foi usado anteriormente.'
 
       meToast.show({
         variant: 'danger',
         title: 'Cupom inválido.',
-        message: textRecharge.value,
+        message: textErrorRecharge.value,
       }); 
     }
   } else {
@@ -122,6 +139,10 @@ function validateVoucher(qrcodeValue) {
 const textCamera = computed(()=>{
   if(!openScanner.value) return 'Câmera';
   return 'Fechar'
+})
+
+const textCupom = computed(()=>{
+  return textRecharge.value ? 'Quero usar o cupom!' : 'Voltar a página inicial'
 })
 
 definePageMeta({
