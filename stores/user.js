@@ -1,50 +1,53 @@
 import { defineStore } from 'pinia';
-import { useVibrate } from '@vueuse/core';
+import { useVibrate, useStorage } from '@vueuse/core';
 
 const { vibrate, stop } = useVibrate({ pattern: [300, 100, 300] });
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     user: null,
-    shipments: 1,
-    tags: []
+    tags: useStorage('tags', [])
   }),
 
   actions: {
-    async addIndexedDB(userPromise) {
+    async addIndexedDBUser(userPromise) {
       try {
         const { user } = await userPromise;
 
-        const dbName = 'db-local-voucher';
+        const dbName = 'db-local-user';
         const dbVersion = 1;
   
         const request = indexedDB.open(dbName, dbVersion);
   
-        request.onupgradeneeded = function(event) {
+        request.onupgradeneeded = (event) => {
           const db = event.target.result;
   
-          if (!db.objectStoreNames.contains('me-voucher-user')) {
-           db.createObjectStore('me-voucher-user', { keyPath: 'id', autoIncrement: true });
+          if (!db.objectStoreNames.contains('me-user')) {
+           db.createObjectStore('me-user', { keyPath: 'id', autoIncrement: true });
           }
         };
+
+        this.setStorageUser(userPromise)
   
         request.onsuccess = (event) => {
           const db = event.target.result;
   
-          const transaction = db.transaction(['me-voucher-user'], 'readwrite');
-          const objectStore = transaction.objectStore('me-voucher-user');
+          const transaction = db.transaction(['me-user'], 'readwrite');
+          const objectStore = transaction.objectStore('me-user');
   
           let email = user.email;
           let partes = email.split('@');
           let userName = partes[0];
-  
+          
+          let localStorageTags = this.getStorageTags()
+       
           const newUser = {
             name: userName.replace('.', ' ') || 'Antônio Agusto',
             date: new Date(),
             email,
-            shipments: this.shipments
+            tags: localStorageTags
           };
-  
+
           objectStore.add(newUser);
         };
       } catch (error) {
@@ -58,63 +61,80 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async getIndexedDB() {
-      const request = indexedDB.open('db-local-voucher');
+    updateIndexedDBTag() {
+      const dbName = 'db-local-user';
+      const storeName = 'me-user';
+      const version = 1;
+      const idToUpdate = 1;
+      const newValue = this.tags;
+
+      const request = indexedDB.open(dbName, version);
+
       request.onsuccess = (event) => {
         const db = event.target.result;
-       
+        const transaction = db.transaction([storeName], 'readwrite');
+        const objectStore = transaction.objectStore(storeName);
+        const getRequest = objectStore.get(idToUpdate);
+      
+        getRequest.onsuccess = () => {
+          const record = getRequest.result;
+
+          const filterTags = newValue.filter((newValue) => {
+            return !record.tags.includes(newValue);
+          });
+        
+          record.tags.push(...filterTags);
+        
+          const updateRequest = objectStore.put(record);
+      
+          updateRequest.onerror = () => {
+            console.error('Erro ao atualizar o registro:', updateRequest.error);
+          };
+        };
+      }
+    },
+
+    async getIndexedDBUser() {
+      const request = indexedDB.open('db-local-user');
+
+      request.onsuccess = (event) => {
+        const db = event.target.result;
+
         try {
-          const transaction = db.transaction(['me-voucher-user'], 'readonly');
-          const objectStore = transaction.objectStore('me-voucher-user');
+          const transaction = db.transaction(['me-user'], 'readonly');
+          const objectStore = transaction.objectStore('me-user');
           const cursorRequest = objectStore.openCursor();
-  
+
           cursorRequest.onsuccess = (event) => {
             const result = event.target.result;
-  
+          
             if (result) {
-              const { name, email } = result.value;
-  
+              const { name, email, tags } = result.value;
+
               this.user = {
                 name: name || 'Antônio Agusto',
                 email,
-                shipments: this.shipments
+                tags
               }
-
-            } else {
-              this.deleteIndexedDB();
-              navigateTo('/login');
             }
-          };
+          }
         } catch(e) {
-          this.deleteIndexedDB();
           navigateTo('/login');
-
-          console.error("Erro ao buscar o banco:", error);
+          this.clearAll();
         }
       }; 
     },
 
     async validationIndexedDB() {
-        if (!localStorage.getItem('user')) {
-          return this.getIndexedDB();
-        } else {
-          return this.getUserStorage();
-        }
+      return !localStorage.getItem('user') ? this.getIndexedDBUser() : this.getStorageUser();
     },
 
-    async deleteIndexedDB() {
-      const db = 'db-local-voucher'
+    async deleteIndexedDBUser() {
+      const db = 'db-local-user'
       indexedDB.deleteDatabase(db);
-
-      this.deleteUserStorage();
-      vibrate();
-
-      setTimeout(() => {
-        stop();
-      }, 2000);
     },
 
-    async setUserStorage(result) {
+    async setStorageUser(result) {
       try {
         const { user } = await result
         const { email } = user;
@@ -125,8 +145,6 @@ export const useUserStore = defineStore('user', {
         this.user = {
           name: userName.replace('.', ' ') || 'Antônio Agusto',
           email,
-          shipments: this.shipments,
-          tags: this.tags
         }
 
         localStorage.setItem('user', JSON.stringify(this.user));
@@ -135,22 +153,20 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async getUserStorage() {
+    async getStorageUser() {
       const userLocal = await localStorage?.getItem('user');
 
       try {
-        const { name, email, shipments } = JSON.parse(userLocal);
+        const { name, email } = JSON.parse(userLocal);
 
         this.user = {
           name: name || 'Antônio Agusto',
           email,
-          shipments: this.shipments
         }
         
         const user = {
           name: name || 'Antônio Agusto',
           email, 
-          shipments
         }
 
         return user;
@@ -159,14 +175,25 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async deleteUserStorage() {
+    getStorageTags() {
+      const userLocal = localStorage?.getItem('tags');
+      const tags = JSON.parse(userLocal);
+
+      return tags;
+    },
+
+    async deleteStorageUser() {
       localStorage.removeItem("user");
+    },
 
-      vibrate();
+    async deleteStorageTag() {
+      this.tags = []
+    },
 
-      setTimeout(() => {
-        stop();
-      }, 2000);
+    async clearAll() {
+      this.deleteStorageUser();
+      this.deleteStorageTag();
+      this.deleteIndexedDBUser();
     },
   },
 });

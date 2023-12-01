@@ -37,9 +37,8 @@ export const signUser = async (email, password) => {
     }
   });
 
-  const { addIndexedDB, setUserStorage } = useUserStore();
-  addIndexedDB(credetials);
-  setUserStorage(credetials)
+  const { addIndexedDBUser } = useUserStore();
+  addIndexedDBUser(credetials);
 
   return credetials;
 }
@@ -55,9 +54,6 @@ export const initUser = () => {
 }
 
 export const signOutUser = async () => {
-  const { deleteIndexedDB } = useUserStore();
-  deleteIndexedDB();
-  
   const auth = getAuth();
   const result = await auth.signOut();
 }

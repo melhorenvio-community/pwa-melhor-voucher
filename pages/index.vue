@@ -141,9 +141,13 @@ import Coupons from '~/components/Coupons.vue';
 import { sealMessage } from '~/enums/selosMessages';
 import { useUserStore } from '~/stores/user';
 
-const { $state } = useUserStore();
+const { 
+  $state, 
+  getStorageTags, 
+  validationIndexedDB 
+} = useUserStore();
+
 const loading = ref(true);
-const user =  $state.user?.name;
 const inspire = ref('Expira: 28/03/2024');
 const hours = new Date().getHours();
 const transcript = ref('');
@@ -155,7 +159,21 @@ const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const sr = new Recognition();
 
 function search() {
-  let description = sealMessage.map((item) => item.description);
+  const tag = getStorageTags();
+
+  let numberCompany = tag.map((string) =>
+    parseInt(string.split(';').pop())
+  );
+ 
+  let cumponFree = 0;
+
+  numberCompany.unshift(cumponFree);
+
+  let matchingObjects = numberCompany.map((value) =>
+    sealMessage.find((obj) => obj.company === value)
+  );
+
+  let description = matchingObjects.map((item) => item.description);
 
   return description.filter((item) =>
     item.includes(transcript.value.toLowerCase()),
@@ -205,9 +223,6 @@ async function rescue( voucher) {
   });
 
   if (confirmed) {
-    let seal = sealMessage.map((item) => item.voucher === voucher);
-    console.log(seal);
-
     openBuyModal();
   }
  }
@@ -229,6 +244,10 @@ const greetingsMessage = computed(() => {
   if (hours >= 12 && hours <= 18) return 'Boa tarde';
 
   return 'Boa noite';
+});
+
+const user =  computed(() => {
+  return $state.user?.name;
 });
 
 const getCard = computed(() => {
@@ -275,7 +294,9 @@ definePageMeta({
   middleware: ['auth']
 });
 
-function init() {
+async function init() {
+  await validationIndexedDB();
+  
   setTimeout(() => {
     loading.value = false;
   }, 1000);
