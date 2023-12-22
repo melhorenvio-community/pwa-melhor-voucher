@@ -10,10 +10,6 @@ export default defineConfig({
     'public/homeIllust.svg',
     'public/logo-melhor-voucher.svg'
   ],
-  transparent: {
-    sizes: [64, 192, 512],
-    favicons: [[48, 'favicon.ico']]
-  },
   maskable: {
     sizes: [512]
   },
