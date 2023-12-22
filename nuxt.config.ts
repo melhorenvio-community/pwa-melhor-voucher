@@ -24,14 +24,9 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     injectRegister: 'auto',
-    injectManifest: {
-      globPatterns: [
-        '**/*.{js,css,html,png,svg}'
-      ]
-    },
     workbox: {
       globPatterns: [
-        'client/**/*.{js,css,ico,png,svg,webp,webmanifest}', 'prerendered/**/*.html'
+        '**/*.{js,css,html,png,svg}'
       ],
       navigateFallback: '/',
       cleanupOutdatedCaches: false,
