@@ -25,10 +25,14 @@ export default defineNuxtConfig({
     registerType: 'autoUpdate',
     injectRegister: 'auto',
     injectManifest: {
-      globPatterns: ['**/*.{js,css,html}']
+      globPatterns: [
+        '**/*.{js,css,html,png,svg,mp3}'
+      ]
     },
     workbox: {
       navigateFallback: '/',
+      cleanupOutdatedCaches: false,
+      sourcemap: true,
       runtimeCaching: [
         {
           urlPattern: ({ url }) => {
