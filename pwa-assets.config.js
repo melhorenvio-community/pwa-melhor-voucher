@@ -6,9 +6,9 @@ export default defineConfig({
   },
   preset,
   images: [
-    '/logo.svg',
-    '/homeIllust.svg',
-    '/logo-melhor-voucher.svg'
+    'public/logo.svg',
+    'public/homeIllust.svg',
+    'public/logo-melhor-voucher.svg'
   ],
   transparent: {
     sizes: [64, 192, 512],
