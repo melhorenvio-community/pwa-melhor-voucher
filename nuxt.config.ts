@@ -25,9 +25,7 @@ export default defineNuxtConfig({
     registerType: 'autoUpdate',
     injectRegister: 'auto',
     injectManifest: {
-      globPatterns: [
-        '**/*.{js,css,html,png,svg}'
-      ],
+      globPatterns: ['**/*.{js,css,html}']
     },
     workbox: {
       navigateFallback: '/',
