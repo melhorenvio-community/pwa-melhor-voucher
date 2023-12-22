@@ -26,10 +26,13 @@ export default defineNuxtConfig({
     injectRegister: 'auto',
     injectManifest: {
       globPatterns: [
-        '**/*.{js,css,html,png,svg,mp3}'
+        '**/*.{js,css,html,png,svg}'
       ]
     },
     workbox: {
+      globPatterns: [
+        'client/**/*.{js,css,ico,png,svg,webp,webmanifest}', 'prerendered/**/*.html'
+      ],
       navigateFallback: '/',
       cleanupOutdatedCaches: false,
       sourcemap: true,
