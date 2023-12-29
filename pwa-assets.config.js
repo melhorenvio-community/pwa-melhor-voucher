@@ -3,6 +3,14 @@ import { defineConfig, minimalPreset as preset } from '@vite-pwa/assets-generato
 export default defineConfig({
   preset,
   images: [
-    'public/logo.svg'
-  ]
+    'icons/logo.svg',
+    '~/public/icons/homeIllust.svg',
+    'icons/logo-melhor-voucher.svg'
+  ],
+  maskable: {
+    sizes: [512]
+  },
+  apple: {
+    sizes: [180]
+  }
 })
