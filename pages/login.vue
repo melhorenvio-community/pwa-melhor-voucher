@@ -7,7 +7,14 @@
         alt="illustration"
       />
     </div>
-
+    teste:
+    Online: {{ isOnline }}
+    Type: {{ type }}
+    offlineAt:{{ offlineAt}}
+    downlink:{{  downlink}}
+    downlinkMax:{{  downlinkMax}}
+    effectiveType:{{  effectiveType}}
+    saveData: {{  saveData }}
     <div class="flex flex-1 flex-col items-center lg:flex-[4]">
       <MEForm class="flex flex-col gap-6 lg:gap-8">
         <MEEmailField 
@@ -51,6 +58,11 @@
 
 <script setup>
 import { MEEmailField, MEPasswordField, MEButton, MEForm } from '@melhorenvio/unbox';
+import { useNetwork } from '@vueuse/core'
+
+const { isOnline, offlineAt, downlink, downlinkMax, effectiveType, saveData, type } = useNetwork()
+
+
 definePageMeta({
   layout: 'empty',
 });
