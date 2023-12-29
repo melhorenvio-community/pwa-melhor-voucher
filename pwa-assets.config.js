@@ -7,7 +7,7 @@ export default defineConfig({
   preset,
   images: [
     'icons/logo.svg',
-    '~/public/icons/homeIllust.svg',
+    'icons/homeIllust.svg',
     'icons/logo-melhor-voucher.svg'
   ],
   maskable: {
