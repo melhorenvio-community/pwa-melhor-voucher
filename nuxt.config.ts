@@ -1,5 +1,3 @@
-//const isPWADevMode = process.env.VITE_PWA_DEV_MODE === 'true';
-
 export default defineNuxtConfig({
   app: {
     buildAssetsDir: 'public/',
@@ -25,16 +23,33 @@ export default defineNuxtConfig({
     registerType: 'autoUpdate',
     injectRegister: 'auto',
     injectManifest: {
-      globPatterns: [
-        '**/*.{js,css,html,png,svg}'
-      ],
+      globPatterns: ['**/*.{js,css,html,png,svg}']
     },
     workbox: {
-      navigateFallback: "/",
+      navigateFallback: '/',
+      runtimeCaching: [
+        {
+          urlPattern: ({ url }) => {
+            return url.pathname.startsWith('/');
+          },
+          method: "GET",
+          handler: "StaleWhileRevalidate",
+          options: {
+            cacheName: 'pwa-melhor-voucher',
+            cacheableResponse: {
+              statuses: [0, 200]
+            },
+            expiration: {
+              maxEntries: 64,
+              maxAgeSeconds: 24 * 60 * 60 // 24 hours
+            },
+          }
+        }
+      ],
     },
     devOptions: {
       enabled: true,
-      type: "module",
+      type:'module'
     },
     client: {
       installPrompt: true
