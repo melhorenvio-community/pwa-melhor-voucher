@@ -1,12 +1,14 @@
 import { defineStore } from 'pinia';
-import { useVibrate, useStorage } from '@vueuse/core';
+import { useVibrate, useStorage, useNetwork } from '@vueuse/core';
+const { isOnline, offlineAt, downlink, downlinkMax, effectiveType, saveData, type } = useNetwork()
 
 const { vibrate, stop } = useVibrate({ pattern: [300, 100, 300] });
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     user: null,
-    tags: useStorage('tags', [])
+    tags: useStorage('tags', []),
+    status: isOnline.value
   }),
 
   actions: {
