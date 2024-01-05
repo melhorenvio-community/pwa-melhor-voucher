@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     buildAssetsDir: 'public/',
     head: {
       htmlAttrs: { dir: 'ltr', lang: 'pt' },
-      link: [{ rel: 'icon', type: 'image/svg', href: "icons/logo.svg" }],
+      link: [{ rel: 'icon', type: 'image/svg', href: "public/icons/logo.svg" }],
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
     },
@@ -16,14 +16,44 @@ export default defineNuxtConfig({
     }
   },
   devtools: { enabled: true },
-  modules: ['@vite-pwa/nuxt', '@vueuse/nuxt', '@pinia/nuxt', ['unplugin-icons/nuxt', {
+  modules: ['@vite-pwa/nuxt', '@vueuse/nuxt', '@pinia/nuxt', ['unplugin-public/icons/nuxt', {
     scale: 1,
     compiler: 'vue3',
     autoInstall: true,
   }]],
   pwa: {
+    registerType: 'autoUpdate',
+    injectRegister: 'auto',
+    injectManifest: {
+      globPatterns: [
+        '**/*.{js,css,html,png,svg}'
+      ],
+    },
     workbox: {
-      globPatterns: ['**/*.{js,css,html,png,svg}'],
+      navigateFallback: '/',
+      cleanupOutdatedCaches: false,
+      sourcemap: true,
+      globPatterns: [
+        '**/*.{js,css,html,png,svg}'
+      ],
+      runtimeCaching: [
+        {
+          urlPattern: ({ url }) => {
+            return url.pathname.startsWith('/');
+          },
+          handler: "CacheFirst" as const,
+          options: {
+            cacheName: 'cache-static-mv-v1',
+            cacheableResponse: {
+              statuses: [0, 200]
+            },
+            expiration: {
+              maxEntries: 50,
+              maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
+            },
+          }
+        }
+      ],
     },
     devOptions: {
       enabled: isPWADevMode,
@@ -40,7 +70,7 @@ export default defineNuxtConfig({
       description: 'Acompanhe sua pontuação na Melhor Envio',
       screenshots: [
         {
-          src: "icons/home-screen.png",
+          src: "public/icons/home-screen.png",
           sizes: "1476x658",
           type: "image/svg",
           form_factor: "wide",
@@ -49,29 +79,29 @@ export default defineNuxtConfig({
       ],
       icons: [
         {
-          src: 'icons/pwa-64x64.png',
+          src: 'public/icons/pwa-64x64.png',
           sizes: '64x64',
           type: 'image/png'
         },
         {
-          src: "icons/pwa-192x192.png",
+          src: "public/icons/pwa-192x192.png",
           sizes: "192x192",
           type: "image/png",
         },
         {
-          src: "icons/pwa-512x512.png",
+          src: "public/icons/pwa-512x512.png",
           sizes: "512x512",
           type: "image/png",
           purpose: 'any'
         },
         {
-          src: 'icons/maskable-icon-512x512.png',
+          src: 'public/icons/maskable-icon-512x512.png',
           sizes: '512x512',
           type: 'image/png',
           purpose: 'maskable'
         },
          {
-          src: 'icons/apple-touch-icon-180x180.png',
+          src: 'public/icons/apple-touch-icon-180x180.png',
           sizes: '180x180',
           type: 'image/png',
           purpose: 'maskable'
