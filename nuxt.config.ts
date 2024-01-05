@@ -22,35 +22,8 @@ export default defineNuxtConfig({
     autoInstall: true,
   }]],
   pwa: {
-    registerType: 'autoUpdate',
-    injectRegister: 'auto',
-    injectManifest: {
-      globPatterns: [
-        '**/*.{js,css,html,png,svg}'
-      ],
-    },
     workbox: {
-      navigateFallback: '/',
-      cleanupOutdatedCaches: false,
-      sourcemap: true,
-      runtimeCaching: [
-        {
-          urlPattern: ({ url }) => {
-            return url.pathname.startsWith('/');
-          },
-          handler: "CacheFirst" as const,
-          options: {
-            cacheName: 'cache-static-mv-v1',
-            cacheableResponse: {
-              statuses: [0, 200]
-            },
-            expiration: {
-              maxEntries: 50,
-              maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
-            },
-          }
-        }
-      ],
+      globPatterns: ['**/*.{js,css,html,png,svg}'],
     },
     devOptions: {
       enabled: isPWADevMode,
