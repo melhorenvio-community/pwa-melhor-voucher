@@ -1,11 +1,11 @@
-const isPWADevMode = process.env.VITE_PWA_DEV_MODE === 'true';
+//const isPWADevMode = process.env.VITE_PWA_DEV_MODE === 'true';
 
 export default defineNuxtConfig({
   app: {
     buildAssetsDir: 'public/',
     head: {
       htmlAttrs: { dir: 'ltr', lang: 'pt' },
-      link: [{ rel: 'icon', type: 'image/svg', href: "public/icons/logo.svg" }],
+      link: [{ rel: 'icon', type: 'image/svg', href: "icons/logo.svg" }],
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
     },
@@ -16,7 +16,7 @@ export default defineNuxtConfig({
     }
   },
   devtools: { enabled: true },
-  modules: ['@vite-pwa/nuxt', '@vueuse/nuxt', '@pinia/nuxt', ['unplugin-public/icons/nuxt', {
+  modules: ['@vite-pwa/nuxt', '@vueuse/nuxt', '@pinia/nuxt', ['unplugin-icons/nuxt', {
     scale: 1,
     compiler: 'vue3',
     autoInstall: true,
@@ -34,7 +34,7 @@ export default defineNuxtConfig({
       cleanupOutdatedCaches: false,
       sourcemap: true,
       globPatterns: [
-        '**/*.{js,css,html,png,svg}'
+        '**/*.{js,css,html,json,svg,webp,png,svg}'
       ],
       runtimeCaching: [
         {
@@ -56,7 +56,7 @@ export default defineNuxtConfig({
       ],
     },
     devOptions: {
-      enabled: isPWADevMode,
+      enabled: true,
       type:'module'
     },
     client: {
@@ -70,7 +70,7 @@ export default defineNuxtConfig({
       description: 'Acompanhe sua pontuação na Melhor Envio',
       screenshots: [
         {
-          src: "public/icons/home-screen.png",
+          src: "icons/home-screen.png",
           sizes: "1476x658",
           type: "image/svg",
           form_factor: "wide",
@@ -79,29 +79,29 @@ export default defineNuxtConfig({
       ],
       icons: [
         {
-          src: 'public/icons/pwa-64x64.png',
+          src: 'icons/pwa-64x64.png',
           sizes: '64x64',
           type: 'image/png'
         },
         {
-          src: "public/icons/pwa-192x192.png",
+          src: "icons/pwa-192x192.png",
           sizes: "192x192",
           type: "image/png",
         },
         {
-          src: "public/icons/pwa-512x512.png",
+          src: "icons/pwa-512x512.png",
           sizes: "512x512",
           type: "image/png",
           purpose: 'any'
         },
         {
-          src: 'public/icons/maskable-icon-512x512.png',
+          src: 'icons/maskable-icon-512x512.png',
           sizes: '512x512',
           type: 'image/png',
           purpose: 'maskable'
         },
          {
-          src: 'public/icons/apple-touch-icon-180x180.png',
+          src: 'icons/apple-touch-icon-180x180.png',
           sizes: '180x180',
           type: 'image/png',
           purpose: 'maskable'
