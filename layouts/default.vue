@@ -27,7 +27,6 @@ const { $state, clearAll } = useUserStore();
 const route = useRoute();
 const avatarName = computed(() => $state.user?.name);
 
-
 const sidebarItems = [
   {
     to: {

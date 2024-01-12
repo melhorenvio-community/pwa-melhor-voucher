@@ -47,7 +47,6 @@
 
     <div class="px-5">
       <p class="font-bold pt-4">Cupons</p>
-
       <MEInputField
         class="my-3"
         v-model="transcript"
@@ -126,6 +125,15 @@
       </div>
     </div>
    </div>
+
+   <div>
+    <METoast
+      v-if="!isOnline"
+      class="fixed bottom-0 w-[210px]"
+      title="Esses está offline."
+      variant="danger"
+    />
+   </div>
 </template>
 
 <script setup>
@@ -135,11 +143,17 @@ import {
   meDialog, 
   MEButton, 
   MEDialog, 
+  METoast,
   MECopyToClipboard 
 } from '@melhorenvio/unbox';
 import Coupons from '~/components/Coupons.vue';
 import { sealMessage } from '~/enums/selosMessages';
 import { useUserStore } from '~/stores/user';
+import { useNetwork } from '@vueuse/core';
+
+const { isOnline, effectiveType} = useNetwork();
+
+const status = isOnline;
 
 const { 
   $state, 

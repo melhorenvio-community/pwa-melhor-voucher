@@ -59,12 +59,13 @@ export default defineNuxtConfig({
       name: 'Melhor Voucher',
       short_name: 'MelhorVoucher',
       start_url:'/',
+      lang: 'pt-br',
       description: 'Acompanhe sua pontuação na Melhor Envio',
       screenshots: [
         {
           src: "icons/home-screen.png",
           sizes: "1476x658",
-          type: "image/svg",
+          type: "image/png",
           form_factor: "wide",
           label: "Melhor Voucher"
         }
@@ -92,7 +93,7 @@ export default defineNuxtConfig({
           type: 'image/png',
           purpose: 'maskable'
         },
-         {
+        {
           src: 'icons/apple-touch-icon-180x180.png',
           sizes: '180x180',
           type: 'image/png',
@@ -101,7 +102,7 @@ export default defineNuxtConfig({
       ],
       theme_color: '#ffffff',
       background_color: '#ffffff',
-      display: 'standalone'
+      display: 'standalone',
     }
   },
   css: ['@/assets/pcss/index.pcss'],

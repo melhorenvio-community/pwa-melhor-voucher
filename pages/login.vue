@@ -7,7 +7,7 @@
         alt="illustration"
       />
     </div>
-    teste: {{ status }}
+   
     <div class="flex flex-1 flex-col items-center lg:flex-[4]">
       <MEForm class="flex flex-col gap-6 lg:gap-8">
         <MEEmailField 
@@ -51,11 +51,6 @@
 
 <script setup>
 import { MEEmailField, MEPasswordField, MEButton, MEForm } from '@melhorenvio/unbox';
-import { useUserStore } from '~/stores/user';
-
-const { $state } = useUserStore();
-
-const { status } =  $state
 
 definePageMeta({
   layout: 'empty',
