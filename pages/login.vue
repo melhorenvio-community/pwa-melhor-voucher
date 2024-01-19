@@ -47,22 +47,10 @@
       </MEForm>
     </div>
   </div>
-
-  
-  <METoast
-    v-if="!isOnline"
-    class="fixed bottom-0 w-[210px]"
-    title="Você esta offline no momento."
-    message="Observe sua conexão!"
-    variant="danger"
-  />
 </template>
 
 <script setup>
-import { MEEmailField, MEPasswordField, MEButton, MEForm, METoast } from '@melhorenvio/unbox';
-import { useNetwork } from '@vueuse/core';
-
-const { isOnline, effectiveType} = useNetwork();
+import { MEEmailField, MEPasswordField, MEButton, MEForm } from '@melhorenvio/unbox';
 
 definePageMeta({
   layout: 'empty',
