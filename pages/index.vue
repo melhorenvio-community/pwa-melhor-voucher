@@ -22,6 +22,13 @@
               {{ user }}
             </strong>
           </p>
+          
+          <p class="text-base">
+            Status: 
+            <strong class="text-base font-bold capitalize">
+              {{ statusOnline }}
+            </strong>
+          </p>
         </div>
 
         <div class="flex flex-col flex-wrap">
@@ -139,6 +146,13 @@ import {
 import Coupons from '~/components/Coupons.vue';
 import { sealMessage } from '~/enums/selosMessages';
 import { useUserStore } from '~/stores/user';
+import { useNetwork } from '@vueuse/core';
+
+const { isOnline, effectiveType} = useNetwork();
+
+const statusOnline = computed(() => {
+  return isOnline.value ? effectiveType.value : 'Offline';
+});
 
 const { 
   $state, 

@@ -25,7 +25,10 @@ import logo from '/icons/logo.svg';
 const { $state, clearAll } = useUserStore();
 
 const route = useRoute();
-const avatarName = computed(() => $state.user?.name);
+
+const avatarName = computed(() => {
+  return $state.user?.name;
+});
 
 const sidebarItems = [
   {
