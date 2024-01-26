@@ -26,7 +26,7 @@ export default defineNuxtConfig({
       globPatterns: ['**/*.{js,css,html,png,svg}']
     },
     workbox: {
-      navigateFallback: '/',
+      navigateFallback: '/icons/',
       runtimeCaching: [
         {
           urlPattern: ({ url }) => {
