@@ -55,7 +55,7 @@
       >
         <template #right-icon>
           <img 
-            src="~/assets/icons/micro.svg" 
+            src="/icons/micro.svg" 
             alt="microfone" 
             class="hover:scale-110" 
             @click="ToggleMic" 
@@ -110,7 +110,7 @@
                 <template #icon>
                   <div class="flex items-center gap-2">
                     <img 
-                      src='~/assets/icons/share.svg'
+                      src='/icons/share.svg'
                       alt="titsharedle" 
                     />
 

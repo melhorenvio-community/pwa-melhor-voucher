@@ -3,7 +3,7 @@
     <div class="flex-1 flex flex-col justify-center lg:flex-[6]">
       <img 
         class="w-[220px] lg:w-[420px]"
-        src="~/public/icons/homeIllust.svg"
+        src="/icons/homeIllust.svg"
         alt="illustration"
       />
     </div>

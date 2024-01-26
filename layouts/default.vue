@@ -20,7 +20,7 @@
 <script setup>
 import { METemplate } from '@melhorenvio/unbox';
 import { useUserStore } from '~/stores/user';
-import logo from '~/public/icons/logo.svg';
+import logo from '/icons/logo.svg';
 
 const { $state, clearAll } = useUserStore();
 

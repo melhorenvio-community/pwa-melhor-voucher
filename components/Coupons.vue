@@ -25,7 +25,7 @@
       <div class="flex items-center gap-8">
         <img 
           class="cursor-pointer" 
-          src="~/assets/icons/audio.svg" 
+          src="/icons/audio.svg" 
           alt="audio" 
           @click="play(title, description)"
         />

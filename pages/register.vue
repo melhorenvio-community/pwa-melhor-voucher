@@ -3,7 +3,7 @@
     <div class="flex-1 flex flex-col justify-center lg:flex-[6]">
       <img 
         class="w-[220px] lg:w-[420px]" 
-        src="~/public/icons/homeIllust.svg" 
+        src="/icons/homeIllust.svg" 
         alt="illustration" 
       />
     </div>
@@ -46,7 +46,7 @@
           :disabled="activate"
         >
           <template #icon>
-            <img src="../assets/icons/ion_finger-print.svg" alt="ion_finger-print"/>
+            <img src="/icons/ion_finger-print.svg" alt="ion_finger-print"/>
           </template>
           Cadastrar Credenciais de Login
         </MEButton>

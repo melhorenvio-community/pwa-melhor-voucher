@@ -7,7 +7,7 @@
 
       <img 
         class="cursor-pointer" 
-        src="~/assets/icons/audio.svg" 
+        src="/icons/audio.svg" 
         alt="audio" 
         @click="play()"
       />
@@ -36,7 +36,7 @@
       <div v-if="textRecharge">
         <img 
           class="w-[250px] md:w-[350px] text-center mx-auto my-4" 
-          src="~/assets/icons/congratulations.svg" 
+          src="/icons/congratulations.svg" 
           alt="Imagem de Parabéns"
         >
         <p class="max-w-[350px] my-4 mx-auto text-primary text-center text-lg font-bold md:w-[350px] md:text-xl">
@@ -47,7 +47,7 @@
       <div v-if="textErrorRecharge">
         <img 
           class="w-[250px] md:w-[350px] text-center mx-auto my-4" 
-          src="~/assets/icons/error.svg" 
+          src="/icons/error.svg" 
           alt="Imagem de Erro"
         >
         <p class="max-w-[350px] my-4 mx-auto text-danger text-center text-lg font-bold md:w-[350px] md:text-xl">

@@ -1,11 +1,11 @@
-import cupom from '~/assets/icons/cupom.svg';
-import jadlog from '~/assets/companies/jadlog.svg';
-import correios from '~/assets/companies/correios.svg';
-import azul from '~/assets/companies/azulcargo.svg';
-import jet from '~/assets/companies/j&t.svg';
-import latam from '~/assets/companies/latam.svg';
-import buslog from '~/assets/companies/buslog.svg';
-import loggi from '~/assets/companies/loggi.svg';
+import cupom from '/icons/cupom.svg';
+import jadlog from '/companies/jadlog.svg';
+import correios from '/companies/correios.svg';
+import azul from '/companies/azulcargo.svg';
+import jet from '/companies/j&t.svg';
+import latam from '/companies/latam.svg';
+import buslog from '/companies/buslog.svg';
+import loggi from '/companies/loggi.svg';
 
 export const sealMessage = [
   {
