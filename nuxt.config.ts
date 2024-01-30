@@ -1,3 +1,5 @@
+const isPWADevMode = process.env.VITE_PWA_DEV_MODE === 'true';
+
 export default defineNuxtConfig({
   app: {
     buildAssetsDir: 'public/',
@@ -48,7 +50,7 @@ export default defineNuxtConfig({
       ],
     },
     devOptions: {
-      enabled: true,
+      enabled: isPWADevMode,
       type:'module'
     },
     client: {
