@@ -106,7 +106,7 @@ const registerCredential = async () => {
     challenge: challenge,
     rp: {
       name: 'Melhor Voucher',
-      id: 'localhost',
+      id: process.env.APP_DOMAIN,
     },
     user: {
       id: Uint8Array.from("UZSL85T9AFC", c => c.charCodeAt(0)),
