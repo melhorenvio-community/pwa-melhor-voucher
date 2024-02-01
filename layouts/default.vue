@@ -25,6 +25,7 @@ import iconLogoutOutlineIcon from '~icons/ion/log-out-outline';
 import iconSettings from '~icons/ion/ios-settings';
 import iconHome from '~icons/ion/home-outline';
 import iconTicket from '~icons/ion/ticket';
+import iosSettingsStrongIcon from '~icons/ion/ios-settings-strong';
 
 const { $state, clearAll } = useUserStore();
 
@@ -46,15 +47,15 @@ const sidebarItems = [
     to: {
       name: 'rescue',
     },
-    label: 'Vouchers',
+    label: 'Cupons',
     icon: iconTicket,
   },
   {
     to: {
       name: 'settings',
     },
-    label: 'Settings',
-    icon: iconSettings,
+    label: 'Configurações',
+    icon: iosSettingsStrongIcon,
   },
 ]
 

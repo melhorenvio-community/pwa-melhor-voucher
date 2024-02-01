@@ -1,26 +1,34 @@
 <template>
   <div class="px-5">
-    <p class="font-bold pt-4">Resgate de voucher</p>
-
+     <div class="flex flex-row items-baseline mt-4">
+        <NuxtLink :to="back">
+          <ionChevronLeft
+            class="text-lg text-primary"
+            to="/settings"
+          />
+        </NuxtLink>
+        <h2 class="text-xl mt-9 lg:mt-0 mb-9 font-bold text-primary ml-4">
+           Resgate seu Voucher
+        </h2>
+      </div>
     <div class="flex gap-2">
-      <P>{{ text }}</P>
+      <span>{{ text }}</span>
 
-      <img 
-        class="cursor-pointer" 
-        src="/icons/audio.svg" 
-        alt="audio" 
+      <img
+        class="cursor-pointer ml-3"
+        src="/icons/audio.svg"
+        alt="audio"
         @click="play()"
       />
     </div>
     
     <div class="my-8 w-full">
+      <MEButton @click="openScanner = !openScanner">
+        {{ textCamera }}
+      </MEButton>
       <div class="flex items-center gap-2">
-        <MEButton @click="openScanner = !openScanner">
-          {{ textCamera }}
-        </MEButton>
-
         <div class="flex-col">
-          <p class="text-xs">* Click no botão para fazer seu resgate.</p>
+          <p class="text-xs mt-2">Click no botão para fazer seu resgate.</p>
           <p class="text-xs text-danger" v-if="notice">{{ notice }}</p>
         </div>
       </div>
@@ -56,7 +64,7 @@
       </div>
       
       <NuxtLink 
-        class="flex justify-center text-primary mx-auto underline" 
+        class="flex justify-center text-primary mx-auto underline mt-12"
         to="/"
       >
         {{ textCupom }}
@@ -70,6 +78,7 @@ import { MEButton, meToast } from  '@melhorenvio/unbox';
 import { useSpeechSynthesis } from '@vueuse/core';
 import { useUserStore } from '~/stores/user';
 import QRCodeScanner from '~/components/QRCodeScanner.vue'
+import ionChevronLeft from '~icons/ion/chevron-left';
 
 const { $state, getStorageTags, updateIndexedDBTag } = useUserStore();
 
@@ -80,6 +89,17 @@ const notice = ref('')
 const text = ref('Coloque a câmera na direção do QRCode');
 const textRecharge = ref('');
 const textErrorRecharge = ref('');
+const route = useRoute();
+
+const paths = computed(() => route.path
+  .split('/')
+  .slice(0, -1)
+  .filter(base => !!base)
+);
+const back = computed(() => {
+  return '/' + paths.value.join('/');
+});
+
 
 const speech = useSpeechSynthesis(text, {
   lang: 'pt-BR',
@@ -137,7 +157,7 @@ function validateVoucher(qrcodeValue) {
 }
 
 const textCamera = computed(()=>{
-  if(!openScanner.value) return 'Câmera';
+  if(!openScanner.value) return 'Ativar Câmera';
   return 'Fechar'
 })
 
