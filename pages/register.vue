@@ -115,7 +115,7 @@ const registerCredential = async () => {
     },
     pubKeyCredParams: [{ alg: -7, type: "public-key" }],
     authenticatorSelection: {
-      authenticatorAttachment: "cross-platform",
+      authenticatorAttachment: "platform",
     },
     attestation: "direct",
   };
