@@ -3,7 +3,7 @@ export default defineNuxtConfig({
     buildAssetsDir: 'public/',
     head: {
       htmlAttrs: { dir: 'ltr', lang: 'pt' },
-      link: [{ rel: 'icon', type: 'image/svg', href: "icons/logo.svg" }],
+      link: [{ rel: 'icon', type: 'image/svg', href: "public/icons/logo.svg" }],
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
     },
@@ -47,16 +47,19 @@ export default defineNuxtConfig({
           }
         },
         {
-          urlPattern: '/icons/',
+          urlPattern: ({ url }) => {
+            return url.pathname.startsWith('/icons/');
+          },
+          method: "GET",
           handler: 'CacheFirst',
           options: {
             cacheName: 'pwa-melhor-icons',
+            cacheableResponse: {
+              statuses: [0, 200]
+            },
             expiration: {
               maxEntries: 10,
               maxAgeSeconds: 2 * 60 // 2 minutes
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
             },
           }
         }
