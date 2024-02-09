@@ -28,7 +28,7 @@ export default defineNuxtConfig({
       globPatterns: ['**/*.{js,css,html,png,svg}']
     },
     workbox: {
-      navigateFallback: '/icons',
+      navigateFallback: '/',
       globPatterns: ['**/*.{js,css,html,png,svg}'],
       runtimeCaching: [
         {
@@ -38,13 +38,27 @@ export default defineNuxtConfig({
           method: "GET",
           handler: "StaleWhileRevalidate",
           options: {
-            cacheName: 'pwa-melhor-voucher',
+            cacheName: 'pwa-melhor-full',
             cacheableResponse: {
               statuses: [0, 200]
             },
             expiration: {
               maxEntries: 64,
-              maxAgeSeconds: 2 * 60 // 2 min
+              maxAgeSeconds: 24 * 60 * 60 // 24 hours
+            },
+          }
+        },
+        {
+          urlPattern: '/icons/',
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'pwa-melhor-icons',
+            expiration: {
+              maxEntries: 10,
+              maxAgeSeconds: 2 * 60 // 2 minutes
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
             },
           }
         }
