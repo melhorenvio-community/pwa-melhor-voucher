@@ -26,7 +26,7 @@ export default defineNuxtConfig({
       globPatterns: ['**/*.{js,css,html,png,svg}']
     },
     workbox: {
-      navigateFallback: '/',
+      navigateFallback: '/icons',
       globPatterns: ['**/*.{js,css,html,png,svg}'],
       runtimeCaching: [
         {
@@ -42,7 +42,7 @@ export default defineNuxtConfig({
             },
             expiration: {
               maxEntries: 64,
-              maxAgeSeconds: 24 * 60 * 60 // 24 hours
+              maxAgeSeconds: 2 * 60 // 2 min
             },
           }
         }
