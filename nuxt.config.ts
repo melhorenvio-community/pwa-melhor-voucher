@@ -28,7 +28,7 @@ export default defineNuxtConfig({
       runtimeCaching: [
         {
           urlPattern: ({ url }) => {
-            return url.pathname.startsWith('/icons/');
+            return url.pathname.startsWith('/');
           },
           method: "GET",
           handler: "StaleWhileRevalidate",
