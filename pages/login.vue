@@ -75,7 +75,7 @@ const login = async () => {
   const credentials = JSON.parse(sessionStorage.getItem('user-credential')) || null;
   const email = user.value.email;
   const password = user.value.password;
-  credentialId.value = credentials?.userCredentials?.credentialId;
+  credentialId.value = JSON.parse(sessionStorage.getItem('secure_credential_datal')) || null;
 
 
   if (credentialId.value && credentials.userCredentials.user === email) {

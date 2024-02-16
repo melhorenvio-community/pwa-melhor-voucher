@@ -40,24 +40,13 @@
           *Preencha todos campos antes de realizar cadastro de credenciais
         </p>
 
-        <MEButton 
-          @click="registerCredential"
-          class="focus:ring-2 focus:ring-[Highlight] focus:ring-[black]" 
-          :disabled="activate"
-        >
-          <template #icon>
-            <img src="/icons/ion_finger-print.svg" alt="ion_finger-print"/>
-          </template>
-          Cadastrar Credenciais de Login
-        </MEButton>
-
-        <MEButton 
+        <MEButton
           class="focus:ring-2 focus:ring-[Highlight] focus:ring-[black]"
           @click="registerUser" 
           type="submit"
           :disabled="!selectOptionToRegisterCredentials"
         >
-          Registrar
+          Registrar Conta
         </MEButton>
 
         <div class="text-center">
@@ -106,7 +95,7 @@ const registerCredential = async () => {
     challenge: challenge,
     rp: {
       name: 'Melhor Voucher',
-      id: 'localhost',
+      id: process.env.APP_DOMAIN,
     },
     user: {
       id: Uint8Array.from("UZSL85T9AFC", c => c.charCodeAt(0)),
@@ -115,7 +104,7 @@ const registerCredential = async () => {
     },
     pubKeyCredParams: [{ alg: -7, type: "public-key" }],
     authenticatorSelection: {
-      authenticatorAttachment: "cross-platform",
+      authenticatorAttachment: "platform",
     },
     attestation: "direct",
   };
@@ -130,11 +119,11 @@ const registerCredential = async () => {
     })
   }
 }
+
 const registerUser = async () => {
   const credentials = await createUser(user.value.email, user.value.password);
   const userCredentials = {
-    user: user?.value?.email,
-    credentialId: credentialId?.value
+    user: user?.value?.email
   }
   sessionStorage.setItem('user-credential', JSON.stringify({ userCredentials }));
   if (credentials) {

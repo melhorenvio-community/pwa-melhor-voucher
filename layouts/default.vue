@@ -21,11 +21,19 @@
 import { METemplate } from '@melhorenvio/unbox';
 import { useUserStore } from '~/stores/user';
 import logo from '/icons/logo.svg';
+import iconLogoutOutlineIcon from '~icons/ion/log-out-outline';
+import iconSettings from '~icons/ion/ios-settings';
+import iconHome from '~icons/ion/home-outline';
+import iconTicket from '~icons/ion/ticket';
+import iosSettingsStrongIcon from '~icons/ion/ios-settings-strong';
 
 const { $state, clearAll } = useUserStore();
 
 const route = useRoute();
-const avatarName = computed(() => $state.user?.name);
+
+const avatarName = computed(() => {
+  return $state.user?.name;
+});
 
 const sidebarItems = [
   {
@@ -33,14 +41,21 @@ const sidebarItems = [
       name: 'index',
     },
     label: 'Página inicial',
-    icon: '',
+    icon: iconHome,
   },
   {
     to: {
       name: 'rescue',
     },
-    label: 'Resgate',
-    icon: '',
+    label: 'Cupons',
+    icon: iconTicket,
+  },
+  {
+    to: {
+      name: 'settings',
+    },
+    label: 'Configurações',
+    icon: iosSettingsStrongIcon,
   },
 ]
 
@@ -55,7 +70,8 @@ const sidebarSubitems = computed(() => {
     ? [
        {
         label: 'Sair',
-        click: logOut
+        click: logOut,
+        icon: iconLogoutOutlineIcon
       }
       ]
     : []
