@@ -1,5 +1,3 @@
-const isPWADevMode = process.env.VITE_PWA_DEV_MODE === 'true';
-
 export default defineNuxtConfig({
   app: {
     buildAssetsDir: 'public/',
@@ -24,6 +22,9 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     injectRegister: 'auto',
+    injectManifest: {
+      globPatterns: ['**/*.{js,css,html,png,svg}']
+    },
     workbox: {
       navigateFallback: '/',
       globPatterns: ['**/*.{js,css,html,png,svg}'],
@@ -48,7 +49,7 @@ export default defineNuxtConfig({
       ],
     },
     devOptions: {
-      enabled: isPWADevMode,
+      enabled: true,
       type:'module'
     },
     client: {
