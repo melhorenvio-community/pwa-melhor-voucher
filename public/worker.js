@@ -4,10 +4,11 @@ if ('serviceWorker' in navigator) {
   const cacheAssets = [
     'index.html',
     '/assets/pcss/index.pcss',
-    '/assets/pcss/wor.pcss',
+    '/assets/workerVite/workerVite.js',
     '/icons/',
     '/companies/',
   ]
+  
   
   self.addEventListener('Install', (event) => {
     console.log("Service worker: Install");

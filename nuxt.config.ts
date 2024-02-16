@@ -22,16 +22,13 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     injectRegister: 'auto',
-    injectManifest: {
-      globPatterns: ['**/*.{js,css,html,png,svg}']
-    },
     workbox: {
       navigateFallback: '/',
       globPatterns: ['**/*.{js,css,html,png,svg}'],
       runtimeCaching: [
         {
           urlPattern: ({ url }) => {
-            return url.pathname.startsWith('/');
+            return url.pathname.startsWith('/icons/');
           },
           method: "GET",
           handler: "StaleWhileRevalidate",
@@ -43,23 +40,6 @@ export default defineNuxtConfig({
             expiration: {
               maxEntries: 64,
               maxAgeSeconds: 24 * 60 * 60 // 24 hours
-            },
-          }
-        },
-        {
-          urlPattern: ({ url }) => {
-            return url.pathname.startsWith('/icons/');
-          },
-          method: "GET",
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'pwa-melhor-icons',
-            cacheableResponse: {
-              statuses: [0, 200]
-            },
-            expiration: {
-              maxEntries: 10,
-              maxAgeSeconds: 2 * 60 // 2 minutes
             },
           }
         }
