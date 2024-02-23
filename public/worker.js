@@ -1,3 +1,7 @@
+import { registerRoute } from 'workbox-routing';
+import { CacheFirst } from 'workbox-strategies';
+import { CacheableResponsePlugin } from 'workbox-cacheable-response';
+
 if ('serviceWorker' in navigator) {
   const cacheName = 'PWA-V1';
 
@@ -8,8 +12,28 @@ if ('serviceWorker' in navigator) {
     '/icons/',
     '/companies/',
   ]
+
+  const pageStrategy = new CacheFirst({
+    cacheName: 'pages',
+    plugins: [
+      new CacheableResponsePlugin({
+        statuses: [200],
+      }),
+    ],
+  });
+
+  registerRoute( ({ request }) => request.mode === 'navigate', pageStrategy );
+
+  self.addEventListener('install', event => {
+    console.log("offline: Install");
+    const files = ['/offline.html'];
+    event.waitUntil(
+      self.caches.open('offline-fallbacks')
+          .then(cache => cache.addAll(files))
+    );
+  });
   
-  
+ 
   self.addEventListener('Install', (event) => {
     console.log("Service worker: Install");
 

@@ -3,7 +3,7 @@ export default defineNuxtConfig({
     buildAssetsDir: 'public/',
     head: {
       htmlAttrs: { dir: 'ltr', lang: 'pt' },
-      link: [{ rel: 'icon', type: 'image/svg', href: "public/icons/logo.svg" }],
+      link: [{ rel: 'icon', type: 'image/svg', href: "/public/icons/logo.svg" }],
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
     },
