@@ -51,7 +51,6 @@
 
 <script setup>
 import { MEEmailField, MEPasswordField, MEButton, MEForm } from '@melhorenvio/unbox';
-import MyWorker from '~/assets/workers/workerVite?worker'
 
 definePageMeta({
   layout: 'empty',
@@ -112,36 +111,4 @@ async function authCredential(email, password) {
     });
   }
 }
-
-const numToSum = ref(100)
-
-const sumNumWorkerPublic = () => {
-  return new Promise((resolve, reject) => {
-      const worker = new Worker('/worker.js')
-      worker.addEventListener('message', (e) => {
-          if (e.data) {
-              resolve(e.data)
-              worker.terminate()
-          }
-      }, false);
-      worker.postMessage(numToSum.value);
-  })
-}
-
-// calculate the answer with web worker create from /assets/workers/worker.js
-const sumNumWorkerVite = () => {
-  return new Promise((resolve, reject) => {
-      const worker = new MyWorker()
-      worker.addEventListener('message', (e) => {
-          if (e.data) {
-              resolve(e.data)
-              worker.terminate()
-          }
-      }, false);
-      worker.postMessage(numToSum.value);
-  })
-}
-
-sumNumWorkerPublic();
-sumNumWorkerVite();
 </script>

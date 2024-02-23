@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { useVibrate, useStorage, useNetwork } from '@vueuse/core';
+import { useVibrate, useStorage } from '@vueuse/core';
 
 const { vibrate, stop } = useVibrate({ pattern: [300, 100, 300] });
 
