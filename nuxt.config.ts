@@ -20,11 +20,6 @@ export default defineNuxtConfig({
     autoInstall: true,
   }]],
   pwa: {
-    registerType: 'autoUpdate',
-    injectRegister: 'auto',
-    injectManifest: {
-      globPatterns: ['**/*.{js,css,html,png,svg}']
-    },
     workbox: {
       navigateFallback: '/',
       globPatterns: ['**/*.{js,css,html,png,svg}'],
@@ -33,16 +28,11 @@ export default defineNuxtConfig({
           urlPattern: ({ url }) => {
             return url.pathname.startsWith('/');
           },
-          method: "GET",
-          handler: "StaleWhileRevalidate",
+          handler: "CacheFirst" as const,
           options: {
             cacheName: 'pwa-melhor-full',
             cacheableResponse: {
               statuses: [0, 200]
-            },
-            expiration: {
-              maxEntries: 64,
-              maxAgeSeconds: 24 * 60 * 60 // 24 hours
             },
           }
         }
