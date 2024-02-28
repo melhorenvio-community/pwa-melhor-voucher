@@ -93,18 +93,31 @@ const areFieldsFilled = computed(() => {
 });
 
 const registerUser = async () => {
-  const credentials = await createUser(user.value.email, user.value.password);
-  const userCredentials = {
-    user: user?.value?.email
-  }
-  sessionStorage.setItem('user-credential', JSON.stringify({ userCredentials }));
-  if (credentials) {
+  try {
+    if (!areFieldsFilled.value) {
+      return;
+    }
+
+    const credentials = await createUser(user.value.email, user.value.password);
+    const userCredentials = {
+      user: user.value.email
+    }
+    sessionStorage.setItem('user-credential', JSON.stringify({ userCredentials }));
+    if (credentials) {
+      notify({
+        title: 'Conta registrada com sucesso!',
+        message: 'Faça seu login e aproveite.',
+        variant: 'success',
+      });
+      return navigateTo('/login');
+    }
+  } catch (error) {
+    console.error('Erro ao registrar usuário:', error.message);
     notify({
-      title: 'Conta registrada com sucesso!',
-      message: 'Faça seu login e aproveite.',
-      variant: 'success',
+      title: 'Erro ao registrar usuário',
+      message: error.message,
+      variant: 'error',
     });
-    return navigateTo('/login');
   }
 }
 </script>
