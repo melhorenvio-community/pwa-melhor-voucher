@@ -44,7 +44,7 @@
           class="focus:ring-2 focus:ring-[Highlight] focus:ring-[black]"
           @click="registerUser" 
           type="submit"
-          :disabled="!selectOptionToRegisterCredentials"
+          :disabled="!areFieldsFilled"
         >
           Registrar Conta
         </MEButton>
@@ -85,40 +85,12 @@ const user = ref({
   email: '',
   password: ''
 });
-const bufferToBase64 = buffer => btoa(String.fromCharCode(...new Uint8Array(buffer)));
-const challenge = new Uint8Array([53, 69, 96, 194]).buffer;
-const selectOptionToRegisterCredentials = ref(false);
-const credentialId = ref(null);
-const registerCredential = async () => {
-  selectOptionToRegisterCredentials.value = true;
-  const publicKeyCredentialCreationOptions = {
-    challenge: challenge,
-    rp: {
-      name: 'Melhor Voucher',
-      id: process.env.APP_DOMAIN,
-    },
-    user: {
-      id: Uint8Array.from("UZSL85T9AFC", c => c.charCodeAt(0)),
-      name: user.value.email,
-      displayName: user.value.email,
-    },
-    pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-    authenticatorSelection: {
-      authenticatorAttachment: "platform",
-    },
-    attestation: "direct",
-  };
-  const credential = await navigator.credentials.create({
-    publicKey: publicKeyCredentialCreationOptions,
-  });
-  credentialId.value = bufferToBase64(credential.rawId);
-  if (credentialId.value) {
-    return notify({
-      title: 'Credenciais cadastradas com sucesso!',
-      variant: 'success',
-    })
-  }
-}
+
+const areFieldsFilled = computed(() => {
+  return user.value.name.trim() !== '' &&
+    user.value.email.trim() !== '' &&
+    user.value.password.trim() !== '';
+});
 
 const registerUser = async () => {
   const credentials = await createUser(user.value.email, user.value.password);
