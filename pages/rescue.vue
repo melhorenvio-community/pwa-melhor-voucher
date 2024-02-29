@@ -42,14 +42,23 @@
 
     <div class="my-8 md:flex justify-center items-center gap-4">
       <div v-if="textRecharge">
-        <img 
-          class="w-[250px] md:w-[350px] text-center mx-auto my-4" 
-          src="/icons/congratulations.svg" 
-          alt="Imagem de Parabéns"
+        <div>
+          <img 
+            class="w-[250px] md:w-[350px] text-center mx-auto my-4" 
+            src="/icons/congratulations.svg" 
+            alt="Imagem de Parabéns"
+          >
+          <p class="max-w-[350px] my-4 mx-auto text-primary text-center text-lg font-bold md:w-[350px] md:text-xl">
+            {{ textRecharge }}
+          </p> 
+        </div>
+
+        <NuxtLink 
+          class="flex justify-center text-primary mx-auto underline mt-12"
+          to="/"
         >
-        <p class="max-w-[350px] my-4 mx-auto text-primary text-center text-lg font-bold md:w-[350px] md:text-xl">
-          {{ textRecharge }}
-        </p> 
+          {{ textCupom }}
+        </NuxtLink>
       </div>
 
       <div v-if="textErrorRecharge">
@@ -62,13 +71,6 @@
           {{ textErrorRecharge }}
         </p> 
       </div>
-      
-      <NuxtLink 
-        class="flex justify-center text-primary mx-auto underline mt-12"
-        to="/"
-      >
-        {{ textCupom }}
-      </NuxtLink>
     </div>
   </div>
 </template>
@@ -99,7 +101,6 @@ const paths = computed(() => route.path
 const back = computed(() => {
   return '/' + paths.value.join('/');
 });
-
 
 const speech = useSpeechSynthesis(text, {
   lang: 'pt-BR',

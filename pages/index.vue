@@ -54,21 +54,32 @@
 
     <div class="px-5">
       <p class="font-bold pt-4">Cupons</p>
-      <MEInputField
-        class="my-3"
-        v-model="transcript"
-        label="Buscar selos"
-        name="transcript"
-      >
-        <template #right-icon>
-          <img 
-            src="/icons/micro.svg" 
-            alt="microfone" 
-            class="hover:scale-110" 
-            @click="ToggleMic" 
-          />
-        </template>
-      </MEInputField>
+     
+      <div class="flex gap-4">
+        <div class="relative w-full">
+          <MEInputField
+            v-model="transcript"
+            label="Buscar selos"
+            name="transcript"
+          >
+            <template #right-icon>
+              <img 
+                class="hover:scale-110" 
+                src="/icons/search.svg" 
+                alt="search" 
+                @click="ToggleMic" 
+              />
+            </template>
+          </MEInputField>
+        </div>
+
+        <img 
+          class="bg-neutral-light w-12 h-12 p-4 rounded-full hover:scale-110" 
+          src="/icons/micro.svg" 
+          alt="microfone" 
+          @click="ToggleMic" 
+        />
+      </div>
 
       <div class="flex flex-col mt-4 gap-4">
         <MESkeleton
