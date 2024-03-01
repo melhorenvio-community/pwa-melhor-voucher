@@ -20,21 +20,8 @@ export default defineNuxtConfig({
   }]],
   pwa: {
     workbox: {
-      navigateFallback: '/',
-      globPatterns: ['**/*.{js,css,html,png,svg}'],
-      runtimeCaching: [
-        {
-          urlPattern: ({ url }) => {
-            return url.pathname.startsWith('/');
-          },
-          handler: "CacheFirst" as const,
-          options: {
-            cacheName: 'pwa-melhor-full',
-            cacheableResponse: {
-              statuses: [0, 200]
-            },
-          }
-        },
+      globPatterns: [
+        '**/*.{js,css,html,png,svg}',
       ],
     },
     devOptions: {
