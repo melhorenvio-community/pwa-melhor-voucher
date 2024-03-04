@@ -1,3 +1,5 @@
+const sw = true;
+
 export default defineNuxtConfig({
   app: {
     head: {
@@ -19,18 +21,10 @@ export default defineNuxtConfig({
     autoInstall: true,
   }]],
   pwa: {
-    workbox: {
-      globPatterns: [
-        '**/*.{js,css,html,png,svg}',
-      ],
-    },
-    devOptions: {
-      enabled: true,
-      type:'module'
-    },
-    client: {
-      installPrompt: true
-    },
+    strategies: sw ? 'injectManifest' : 'generateSW',
+    srcDir: sw ? 'service-worker' : undefined,
+    filename: sw ? 'sw.ts' : undefined,
+    registerType: 'autoUpdate',
     manifest: {
       scope: '/',
       name: 'Melhor Voucher',
@@ -80,7 +74,23 @@ export default defineNuxtConfig({
       theme_color: '#ffffff',
       background_color: '#ffffff',
       display: 'standalone',
-    }
+    },
+    workbox: {
+      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+    },
+    injectManifest: {
+      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+    },
+    client: {
+      installPrompt: true
+    },
+    devOptions: {
+      enabled: true,
+      suppressWarnings: true,
+      navigateFallback: '/',
+      navigateFallbackAllowlist: [/^\/$/],
+      type: 'module',
+    },
   },
   css: ['@/assets/pcss/index.pcss'],
   postcss: {
