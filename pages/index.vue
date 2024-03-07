@@ -17,14 +17,14 @@
     >
         <div class="flex flex-col items-center mb-7 lg:block lg:mb-0">
           <p class="text-base">
-            {{ greetingsMessage }}, 
+            {{ greetingsMessage }},
             <strong class="text-base font-bold capitalize">
               {{ user }}
             </strong>
           </p>
-          
+
           <p class="text-base">
-            Status: 
+            Status:
             <strong class="text-base font-bold capitalize">
               {{ statusOnline }}
             </strong>
@@ -35,7 +35,7 @@
           <p class="basis-full mb-5 text-lg font-bold lg:basis-auto lg:mr-7 lg:mb-0">
             Quantidades de envios atual:
           </p>
-        
+
           <MESkeleton
             v-if="loading"
             width="100px"
@@ -61,11 +61,11 @@
         name="transcript"
       >
         <template #right-icon>
-          <img 
-            src="/icons/micro.svg" 
-            alt="microfone" 
-            class="hover:scale-110" 
-            @click="ToggleMic" 
+          <img
+            src="/icons/micro.svg"
+            alt="microfone"
+            class="hover:scale-110"
+            @click="ToggleMic"
           />
         </template>
       </MEInputField>
@@ -73,7 +73,7 @@
       <div class="flex flex-col mt-4 gap-4">
         <MESkeleton
           v-if="loading"
-          v-for="(message) in getCard" 
+          v-for="(message) in getCard"
           :key="message"
           width="w-full"
           height="80px"
@@ -81,13 +81,13 @@
         />
 
         <div v-else class="flex flex-col mt-4 gap-4">
-          <Coupons 
-            v-for="(message, title) in getCard" 
+          <Coupons
+            v-for="(message, title) in getCard"
             :key="title"
             :image="message.image"
             :voucher="message.voucher"
             :title="message.title"
-            :description="message.description" 
+            :description="message.description"
             @rescue="rescue"
           />
 
@@ -116,9 +116,9 @@
               <MEButton class="block" @click="shared()">
                 <template #icon>
                   <div class="flex items-center gap-2">
-                    <img 
+                    <img
                       src='/icons/share.svg'
-                      alt="titsharedle" 
+                      alt="titsharedle"
                     />
 
                     <span class="text-sm">Compartilhar</span>
@@ -135,13 +135,13 @@
 </template>
 
 <script setup>
-import { 
-  MESkeleton, 
-  MEInputField, 
-  meDialog, 
-  MEButton, 
-  MEDialog, 
-  MECopyToClipboard 
+import {
+  MESkeleton,
+  MEInputField,
+  meDialog,
+  MEButton,
+  MEDialog,
+  MECopyToClipboard
 } from '@melhorenvio/unbox';
 import Coupons from '~/components/Coupons.vue';
 import { sealMessage } from '~/enums/selosMessages';
@@ -154,10 +154,12 @@ const statusOnline = computed(() => {
   return isOnline.value ? effectiveType.value : 'Offline';
 });
 
-const { 
-  $state, 
-  getStorageTags, 
-  validationIndexedDB 
+const {
+  $state,
+  getStorageTags,
+  validationIndexedDB,
+  addDataToFirestore,
+  getDataFromFirestore
 } = useUserStore();
 
 const loading = ref(true);
@@ -177,7 +179,7 @@ function search() {
   let numberCompany = tag.map((string) =>
     parseInt(string.split(';').pop())
   );
- 
+
   let cumponFree = 0;
 
   numberCompany.unshift(cumponFree);
@@ -270,7 +272,7 @@ const getCard = computed(() => {
 });
 
 const description = computed(() => {
-  if ($state.tags.length > 1) return 'Envios'; 
+  if ($state.tags.length > 1) return 'Envios';
 
   return 'Envio';
 });
@@ -298,7 +300,7 @@ onMounted(() => {
 			.map(result => result[0])
 			.map(result => result.transcript)
 			.join('')
-		
+
 		transcript.value = voice;
 	}
 })
@@ -309,7 +311,8 @@ definePageMeta({
 
 async function init() {
   await validationIndexedDB();
-  
+
+
   setTimeout(() => {
     loading.value = false;
   }, 1000);
