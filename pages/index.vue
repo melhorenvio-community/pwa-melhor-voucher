@@ -158,7 +158,6 @@ const {
   $state,
   getStorageTags,
   validationIndexedDB,
-  addDataToFirestore,
   getDataFromFirestore
 } = useUserStore();
 

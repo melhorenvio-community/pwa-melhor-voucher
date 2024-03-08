@@ -134,7 +134,7 @@ function validateVoucher(qrcodeValue) {
       textRecharge.value = 'Parabéns você acaba de ganhar um Cupom!'
 
       $state.tags.push(qrcodeValue);
-      
+
       updateIndexedDBTag();
     } else {
       textErrorRecharge.value = 'Desculpe, mas parece que este QR Code já foi usado anteriormente.'
@@ -143,7 +143,7 @@ function validateVoucher(qrcodeValue) {
         variant: 'danger',
         title: 'Cupom inválido.',
         message: textErrorRecharge.value,
-      }); 
+      });
     }
   } else {
     notice.value = "Problemas na bipagem do QR Code, tente novamente";
