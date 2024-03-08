@@ -21,5 +21,15 @@ registerRoute(new NavigationRoute(
   { allowlist },
 ))
 
+registerRoute(
+  ({ url }) => {
+    const router = url.pathname === '/login';
+    const image = url.pathname.endsWith('.svg') || url.pathname.endsWith('.png');
+    return router || image;
+  },
+  
+  ({ event }) => fetch(event.request)
+);
+
 self.skipWaiting();
 clientsClaim();
