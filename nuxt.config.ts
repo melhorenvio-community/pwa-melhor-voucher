@@ -76,10 +76,10 @@ export default defineNuxtConfig({
       display: 'standalone',
     },
     workbox: {
-      globPatterns: ['login/**/*.{js,html}'],
+      globPatterns: ['login/*.{js,html}'],
     },
     injectManifest: {
-      globPatterns: ['login/**/*.{js,html}'],
+      globPatterns: ['login/*.{js,html}'],
     },
     client: {
       installPrompt: true
