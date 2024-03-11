@@ -78,13 +78,13 @@ export default defineNuxtConfig({
     workbox: {
       globPatterns: [
         'login/*.{js,html}',
-        'register/*.{css,html}'
+        'register/*.{jpg,jpeg,png,gif,svg,html}'
       ],
     },
     injectManifest: {
       globPatterns: [
-        'login/*.{js,html}',
-        'register/*.{css,html}'
+         'login/*.{js,html}',
+         'register/*.{jpg,jpeg,png,gif,svg,,html}'
       ],
     },
     client: {

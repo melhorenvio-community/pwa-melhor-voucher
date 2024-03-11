@@ -9,36 +9,7 @@ declare let self: ServiceWorkerGlobalScope
 
 cleanupOutdatedCaches();
 
-precacheAndRoute([
-  {
-    url: '/login/',
-    revision: null,
-  },
-  {
-    url: '/register/',
-    revision: null,
-  },
-  {
-    url: '/login/index.js',
-    revision: null,
-  },
-  {
-    url: '/login/index.html',
-    revision: null,
-  },
-  {
-    url: '/register/index.js',
-    revision: null,
-  },
-  {
-    url: '/register/index.css',
-    revision: null,
-  },
-  {
-    url: '/register/index.html',
-    revision: null,
-  },
-]);
+precacheAndRoute(self.__WB_MANIFEST);
 
 let allowlist: undefined | RegExp[]
 
