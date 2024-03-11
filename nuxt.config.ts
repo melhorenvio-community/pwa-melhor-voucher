@@ -21,9 +21,9 @@ export default defineNuxtConfig({
     autoInstall: true,
   }]],
   pwa: {
-    strategies: sw ? 'injectManifest' : 'generateSW',
-    srcDir: sw ? 'service-worker' : undefined,
-    filename: sw ? 'sw.ts' : undefined,
+    strategies:'injectManifest',
+    srcDir:'service-worker',
+    filename:'sw.ts',
     registerType: 'autoUpdate',
     manifest: {
       scope: '/',
@@ -84,7 +84,7 @@ export default defineNuxtConfig({
     injectManifest: {
       globPatterns: [
         'login/*.{js,html}',
-        'register/*.{js,css,html}'
+        'register/*.{css,html}'
       ],
     },
     client: {

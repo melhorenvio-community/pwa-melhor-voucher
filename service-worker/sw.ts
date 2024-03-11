@@ -9,7 +9,36 @@ declare let self: ServiceWorkerGlobalScope
 
 cleanupOutdatedCaches();
 
-precacheAndRoute(self.__WB_MANIFEST);
+precacheAndRoute([
+  {
+    url: '/login/',
+    revision: null,
+  },
+  {
+    url: '/register/',
+    revision: null,
+  },
+  {
+    url: '/login/index.js',
+    revision: null,
+  },
+  {
+    url: '/login/index.html',
+    revision: null,
+  },
+  {
+    url: '/register/index.js',
+    revision: null,
+  },
+  {
+    url: '/register/index.css',
+    revision: null,
+  },
+  {
+    url: '/register/index.html',
+    revision: null,
+  },
+]);
 
 let allowlist: undefined | RegExp[]
 
@@ -20,16 +49,6 @@ registerRoute(new NavigationRoute(
   createHandlerBoundToURL('/'),
   { allowlist },
 ))
-
-registerRoute(
-  ({ url }) => {
-    const router = url.pathname === '/login';
-    const image = url.pathname.endsWith('.svg') || url.pathname.endsWith('.png');
-    return router || image;
-  },
-  
-  ({ event }) => fetch(event.request)
-);
 
 self.skipWaiting();
 clientsClaim();
