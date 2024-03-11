@@ -7,9 +7,9 @@ import { NavigationRoute, registerRoute } from 'workbox-routing'
 
 declare let self: ServiceWorkerGlobalScope
 
-precacheAndRoute(self.__WB_MANIFEST);
-
 cleanupOutdatedCaches();
+
+precacheAndRoute(self.__WB_MANIFEST);
 
 let allowlist: undefined | RegExp[]
 
