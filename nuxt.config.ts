@@ -76,22 +76,10 @@ export default defineNuxtConfig({
       display: 'standalone',
     },
     workbox: {
-      runtimeCaching: [
-        {
-          urlPattern: /^https:\/\/develop\.d2wgytld0u25ik\.amplifyapp\.com\/login\/.*\.(css|html)$/,
-          handler: 'StaleWhileRevalidate',
-          options: {
-            cacheName: 'login-cache',
-            expiration: {
-              maxEntries: 10,
-              maxAgeSeconds: 60 * 60 * 24,
-            },
-          },
-        },
+      globPatterns: [
+        'login/*.{css,html}',
+        'register/**/*.{jpg,jpeg,png,gif,svg,css,html}',
       ],
-    },
-    injectManifest: {
-      globPatterns: ['**/*.{js,css,html,png,svg}']
     },
     client: {
       installPrompt: true
