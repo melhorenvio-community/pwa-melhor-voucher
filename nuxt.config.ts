@@ -78,7 +78,7 @@ export default defineNuxtConfig({
     workbox: {
       globPatterns: [
         'login/*.{css,html}',
-        'register/**/*.{jpg,jpeg,png,gif,svg,css,html}',
+        '**/*.{js,css,html,png,svg}',
       ],
     },
     client: {
