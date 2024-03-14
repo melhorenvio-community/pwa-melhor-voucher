@@ -23,33 +23,37 @@
     </div>
     
     <div class="my-8 w-full">
-      <MEButton @click="openScanner = !openScanner">
-        {{ textCamera }}
-      </MEButton>
-      <div class="flex items-center gap-2">
-        <div class="flex-col">
-          <p class="text-xs mt-2">Click no botão para fazer seu resgate.</p>
-          <p class="text-xs text-danger" v-if="notice">{{ notice }}</p>
-        </div>
-      </div>
+      <MEClickable @click="openScanner = !openScanner"
+        class="flex grow py-6 px-5 justify-between md:flex-row md:py-4 text-neutral-dark bg-white border-[1px] rounded border-neutral-light">
+          <MEInfoBlock class="info-block pr-5" :title="textCamera"
+            text="Click no botão para fazer seu resgate." />
 
-      <QRCodeScanner 
+          <div class="self-center">
+            <iconScan class="text-lg text-primary" />
+          </div>
+          <p class="text-xs text-danger" v-if="notice">{{ notice }}</p>
+      </MEClickable>
+
+      <QRCodeScanner
         v-if="openScanner" 
-        class="w-full" 
+        class="w-full mt-8"
         @result="onScan" 
       />
     </div>
+    <NuxtLink to="/">
+      {{ textCupom }}
+    </NuxtLink>
 
     <div class="my-8 md:flex justify-center items-center gap-4">
       <div v-if="textRecharge">
-        <img 
-          class="w-[250px] md:w-[350px] text-center mx-auto my-4" 
-          src="/icons/congratulations.svg" 
+        <img
+          class="w-[250px] md:w-[350px] text-center mx-auto my-4"
+          src="/icons/congratulations.svg"
           alt="Imagem de Parabéns"
         >
         <p class="max-w-[350px] my-4 mx-auto text-primary text-center text-lg font-bold md:w-[350px] md:text-xl">
           {{ textRecharge }}
-        </p> 
+        </p>
       </div>
 
       <div v-if="textErrorRecharge">
@@ -62,23 +66,17 @@
           {{ textErrorRecharge }}
         </p> 
       </div>
-      
-      <NuxtLink 
-        class="flex justify-center text-primary mx-auto underline mt-12"
-        to="/"
-      >
-        {{ textCupom }}
-      </NuxtLink>
     </div>
   </div>
 </template>
 
 <script setup>
-import { MEButton, meToast } from  '@melhorenvio/unbox';
+import { MEButton, meToast, MEClickable, MEInfoBlock} from  '@melhorenvio/unbox';
 import { useSpeechSynthesis } from '@vueuse/core';
 import { useUserStore } from '~/stores/user';
 import QRCodeScanner from '~/components/QRCodeScanner.vue'
 import ionChevronLeft from '~icons/ion/chevron-left';
+import iconScan from '~icons/ion/scan-circle-sharp';
 
 const { $state, getStorageTags, updateIndexedDBTag, getIndexedDBUser } = useUserStore();
 const openScanner = ref(false);
