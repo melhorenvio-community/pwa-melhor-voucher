@@ -2,7 +2,7 @@
 import { defineNuxtPlugin } from '#app';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
-import { initUser } from '../composables/useFirebaseHandleUser';
+
 import { openDB } from 'idb';
 
 export default defineNuxtPlugin(({ vueApp }) => {
@@ -20,7 +20,6 @@ export default defineNuxtPlugin(({ vueApp }) => {
   const app = initializeApp(firebaseConfig);
   const firestoreDb = getFirestore(app);
 
-  initUser();
 
   return {
     firestoreDb,

@@ -80,8 +80,7 @@ import { useUserStore } from '~/stores/user';
 import QRCodeScanner from '~/components/QRCodeScanner.vue'
 import ionChevronLeft from '~icons/ion/chevron-left';
 
-const { $state, getStorageTags, updateIndexedDBTag } = useUserStore();
-
+const { $state, getStorageTags, updateIndexedDBTag, getIndexedDBUser } = useUserStore();
 const openScanner = ref(false);
 const scan = ref({});
 const voice = ref(undefined);
@@ -126,7 +125,7 @@ function onScan(decodedText, decodedResult) {
   openScanner.value = !openScanner.value
 }
 
-function validateVoucher(qrcodeValue) {
+async function validateVoucher(qrcodeValue) {
   if(qrcodeValue) {
     const tag = getStorageTags();
 
@@ -134,24 +133,22 @@ function validateVoucher(qrcodeValue) {
       textRecharge.value = 'Parabéns você acaba de ganhar um Cupom!'
 
       $state.tags.push(qrcodeValue);
+      const indexDB = await getIndexedDBUser();
 
-      updateIndexedDBTag();
+      updateIndexedDBTag(indexDB.id, qrcodeValue);
     } else {
       textErrorRecharge.value = 'Desculpe, mas parece que este QR Code já foi usado anteriormente.'
-
-      meToast.show({
-        variant: 'danger',
+      notify({
         title: 'Cupom inválido.',
         message: textErrorRecharge.value,
+        variant: 'danger',
       });
     }
   } else {
-    notice.value = "Problemas na bipagem do QR Code, tente novamente";
-
-    meToast.show({
+    notify({
+      itle: 'QR Code inválido.',
+      message: 'Problemas na leitura do QR Code, tente novamente.',
       variant: 'danger',
-      title: 'QR Code inválido.',
-      message: notice.value,
     });
   }
 }

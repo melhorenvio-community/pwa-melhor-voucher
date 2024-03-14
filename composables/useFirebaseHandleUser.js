@@ -35,26 +35,30 @@ export const signUser = async (email, password) => {
     const auth = getAuth();
     const credentials = await signInWithEmailAndPassword(auth, email, password);
 
-    const { addIndexedDBUser } = useUserStore();
-
-    addIndexedDBUser(credentials);
     return credentials
   } catch (error) {
     const errorCode = error.code;
     const errorMessage = error.message;
+
+    if (errorCode === 'auth/invalid-login-credentials') {
+      notify({
+        title: 'E-mail ou senha incorretos',
+        message: 'Verifique suas credenciais e tente novamente',
+        variant: 'danger',
+      });
+
+      return;
+
+    }
     console.error("Error Code:", errorCode);
     console.error("Error Message:", errorMessage);
+    notify({
+      title: 'Ocorreu um erro',
+      message: 'tente novamente mais tarde',
+      variant: 'danger',
+    });
+
   }
-}
-
-export const initUser = () => {
-  const auth = getAuth();
-  const firebaseUser = useFirebaseUser();
-  firebaseUser.value = auth.currentUser;
-
-  onAuthStateChanged(auth, (user) => {
-    firebaseUser.value = user;
-  });
 }
 
 export const signOutUser = async () => {

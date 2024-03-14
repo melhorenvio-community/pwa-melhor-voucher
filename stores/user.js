@@ -1,16 +1,10 @@
 import { defineStore } from 'pinia';
 import { useVibrate, useStorage } from '@vueuse/core';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, setDoc, updateDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 const { vibrate, stop } = useVibrate({ pattern: [300, 100, 300] });
-
-function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -63,9 +57,8 @@ export const useUserStore = defineStore('user', {
 
 
           objectStore.add(newUser);
-
         };
-         await this.addDataToFirestore(newUser);
+        // await this.addDataToFirestore(newUser.id, newUser);
       } catch (error) {
         console.error("Error: " + error);
 
@@ -77,13 +70,11 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async updateIndexedDBTag(userId, newTags) {
-      console.log('updateIndexedDBTag')
-      console.log('userId', userId)
+    updateIndexedDBTag(userId) {
       const dbName = 'db-local-user';
       const storeName = 'me-user';
       const version = 1;
-
+      const newTags = this.tags;
       const request = indexedDB.open(dbName, version);
 
       request.onsuccess = (event) => {
@@ -94,56 +85,47 @@ export const useUserStore = defineStore('user', {
 
         getRequest.onsuccess = async () => {
           const record = getRequest.result;
-           console.log('record', record)
 
-          // Verifica se o registro foi encontrado
-          if (record) {
-            console.log('record', record)
-            // Atualiza as tags do usuário
-            const newTagsSet = new Set([...record.tags, ...newTags]); // Evita tags duplicadas
-            record.tags = Array.from(newTagsSet);
+          const filterTags = newTags.filter((newTags) => {
+            return !record.tags.includes(newTags);
+          });
 
-            // Atualiza o registro no IndexedDB
-            const updateRequest = objectStore.put(record);
-            console.log('antes de chamar', updateTagsInFireStore)
-            await this.updateTagsInFireStore(userId, record.tags);
+          record.tags.push(...filterTags);
 
-            updateRequest.onerror = () => {
-              console.error('Erro ao atualizar o registro:', updateRequest.error);
-            };
+          const updateRequest = objectStore.put(record);
+          await this.updateTagsInFireStore(userId, record.tags);
 
 
-          } else {
-            console.error('Usuário não encontrado no IndexedDB.');
-          }
+          updateRequest.onerror = () => {
+            console.error('Erro ao atualizar o registro:', updateRequest.error);
+          };
         };
-      };
+      }
     },
 
-    async addDataToFirestore(newUser) {
-      console.log('addDataToFirestore')
-      const config = useRuntimeConfig()
-      const firebaseConfig = {
-        apiKey: config.public.FIREBASE_API_KEY,
-        authDomain: config.public.FIREBASE_AUTH_DOMAIN,
-        projectId: config.public.FIREBASE_PROJECT_ID,
-        storageBucket: config.public.FIREBASE_STORAGE_BUCKET,
-        messagingSenderId: config.public.FIREBASE_SENDER_ID,
-        appId: config.public.FIREBASE_APP_ID
-      };
-      const app = initializeApp(firebaseConfig);
-      const firestoreDb = getFirestore(app);
+    async addDataToFirestore(userId, userDetails) {
+
       try {
-        const success = await addDoc(collection(firestoreDb, 'data-user'), {
-          user: newUser
-        });
-        if (success) {
-          console.log('Usuário salvo no Firestore com sucesso!');
-          return true;
-        }
+        const config = useRuntimeConfig()
+        const firebaseConfig = {
+          apiKey: config.public.FIREBASE_API_KEY,
+          authDomain: config.public.FIREBASE_AUTH_DOMAIN,
+          projectId: config.public.FIREBASE_PROJECT_ID,
+          storageBucket: config.public.FIREBASE_STORAGE_BUCKET,
+          messagingSenderId: config.public.FIREBASE_SENDER_ID,
+          appId: config.public.FIREBASE_APP_ID
+        };
+        const app = initializeApp(firebaseConfig);
+        const firestoreDb = getFirestore(app);
+
+        const myCustomId = userId; // Esse é o ID que você quer usar
+        const docRef = doc(firestoreDb, "users", myCustomId); // Especifica o ID do documento
+        const docData = userDetails;
+
+        await setDoc(docRef, docData);
+        console.log("Documento salvo com ID personalizado!");
       } catch (error) {
-        console.error('Erro ao salvar usuário no Firestore:', error);
-        return false;
+        console.error("Erro ao salvar o documento:", error);
       }
     },
 
@@ -151,21 +133,21 @@ export const useUserStore = defineStore('user', {
       console.log('updateTagsInFireStore')
       console.log('updateTagsInFireStore userId', userId);
       console.log('updateTagsInFireStore newTags', newTags)
-      // try {
-      //   const firestore = getFirestore(); // Obtém a instância do Firestore
-      //   const userRef = doc(firestore, 'users', userId); // Referência ao documento do usuário
+      try {
+        const firestore = getFirestore(); // Obtém a instância do Firestore
+        const userRef = doc(firestore, 'users', userId); // Referência ao documento do usuário
 
-      //   // Atualiza as tags do usuário
-      //   await updateDoc(userRef, {
-      //     tags: newTags // Define as novas tags
-      //   });
+        // Atualiza as tags do usuário
+        await updateDoc(userRef, {
+          tags: newTags // Define as novas tags
+        });
 
-      //   console.log('Tags atualizadas com sucesso para o usuário:', userId);
-      //   return true; // Retorna verdadeiro para indicar sucesso
-      // } catch (error) {
-      //   console.error('Erro ao atualizar as tags do usuário:', error);
-      //   return false; // Retorna falso para indicar falha
-      // }
+        console.log('Tags atualizadas no firestore com sucesso para o usuário:', userId);
+        return true; // Retorna verdadeiro para indicar sucesso
+      } catch (error) {
+        console.error('Erro ao atualizar as tags no firestore do usuário:', error);
+        return false; // Retorna falso para indicar falha
+      }
     },
 
     async getDataFromFirestore() {
@@ -217,8 +199,8 @@ export const useUserStore = defineStore('user', {
             const result = event.target.result;
 
             if (result) {
-              const { name, email, tags } = result.value;
-              resolve({ name, email, tags }); // Resolvendo a Promise com os dados do usuário
+              const { id, name, email, tags } = result.value;
+              resolve({ id, name, email, tags }); // Resolvendo a Promise com os dados do usuário
             } else {
               reject("Nenhum usuário encontrado.");
             }
