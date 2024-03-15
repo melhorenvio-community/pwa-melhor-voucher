@@ -71,18 +71,19 @@
       </MEInputField>
 
       <div class="flex flex-col mt-4 gap-4">
-        <MESkeleton
-          v-if="loading"
-          v-for="(message) in getCard"
-          :key="message"
-          width="w-full"
-          height="80px"
-          line
-        />
+        <div v-if="loading">
+          <MESkeleton
+            v-for="(message) in dataCards"
+            :key="message"
+            width="w-full"
+            height="80px"
+            line
+          />
+        </div>
 
         <div v-else class="flex flex-col mt-4 gap-4">
           <Coupons
-            v-for="(message, title) in getCard"
+            v-for="(message, title) in dataCards"
             :key="title"
             :image="message.image"
             :voucher="message.voucher"
@@ -158,7 +159,8 @@ const {
   $state,
   getStorageTags,
   validationIndexedDB,
-  getDataFromFirestore
+  getDataFromFirestore,
+  getIndexedDBUser
 } = useUserStore();
 
 const loading = ref(true);
@@ -172,8 +174,59 @@ const voucherNumber = ref('');
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const sr = new Recognition();
 
-function search() {
-  const tag = getStorageTags();
+watch(isOnline, (newValue, oldValue) => {
+  console.log(`O estado da rede mudou: era ${oldValue}, agora é ${newValue}`);
+  search();
+
+});
+
+async function getDataUser() {
+  const user = ref(null);
+  if (isOnline.value) {
+    try {
+      console.log('Buscando dados no firestore...');
+      user.value = await getDataFromFirestore();
+      if (user.value) {
+        console.log('Dados recuperados do firestore com sucesso!');
+        return user.value;
+      }
+
+
+    } catch (error) {
+      if (error.code === 'unavailable') {
+        console.log('Firestore temporariamente indisponível. Recuperando dados do IndexedDB...');
+        user.value = await getIndexedDBUser();
+
+        if (user.value) {
+          console.log('Dados recuperados do IndexedDB com sucesso!');
+          return user.value;
+        }
+
+      } else {
+        console.log('Erro ao  recuperar dados do firestore. Recuperando dados do IndexedDB...');
+        user.value = await getIndexedDBUser();
+
+        if (user.value) {
+          console.log('Dados recuperados do IndexedDB com sucesso!');
+          return user.value;
+        }
+      }
+    }
+  } else {
+    console.log('Usuário offline. Recuperando dados do indexDb...');
+    user.value = await getIndexedDBUser();
+
+    if (user.value) {
+      console.log('Dados recuperados do indexDB com sucesso!')
+      return user.value;
+    }
+  }
+}
+
+async function search() {
+  const user = await getDataUser();
+  const tag = user[0].tags
+
 
   let numberCompany = tag.map((string) =>
     parseInt(string.split(';').pop())
@@ -264,11 +317,30 @@ const user =  computed(() => {
   return $state.user?.name;
 });
 
-const getCard = computed(() => {
-  return search().map((description) => {
-    return sealMessage.find((item) => item.description === description);
-  });
-});
+const dataCards = ref();
+
+async function getCard() {
+  try {
+    const cards = await search();
+
+    if (cards) {
+      const result = cards.map((description) => {
+        return sealMessage.find((item) => item.description === description);
+      });
+
+      dataCards.value = result;
+    }
+  } catch (error) {
+    console.error(error);
+    notify({
+      title: 'Impossível recuperar os dados do usuário no momento',
+      message: 'Tente novamente mais tarde.',
+      variant: 'danger',
+    });
+  }
+}
+
+
 
 const description = computed(() => {
   if ($state.tags.length > 1) return 'Envios';
@@ -301,7 +373,8 @@ onMounted(() => {
 			.join('')
 
 		transcript.value = voice;
-	}
+  }
+  getCard();
 })
 
 definePageMeta({

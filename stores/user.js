@@ -164,7 +164,7 @@ export const useUserStore = defineStore('user', {
       const firestoreDb = getFirestore(app);
 
       try {
-        const querySnapshot = await getDocs(collection(firestoreDb, 'data-user'));
+        const querySnapshot = await getDocs(collection(firestoreDb, 'users'));
         const userData = [];
 
         querySnapshot.forEach((doc) => {
