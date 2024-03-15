@@ -57,7 +57,7 @@ export const useUserStore = defineStore('user', {
 
           objectStore.add(newUser);
         };
-        // await this.addDataToFirestore(newUser.id, newUser);
+        await this.addDataToFirestore(newUser.id, newUser);
       } catch (error) {
         console.error("Error: " + error);
 

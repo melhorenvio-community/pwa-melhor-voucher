@@ -23,12 +23,20 @@
             </strong>
           </p>
 
-          <p class="text-base">
-            Status:
-            <strong class="text-base font-bold capitalize">
-              {{ statusOnline }}
-            </strong>
-          </p>
+
+            <div class="flex flex-row-2 mt-4">
+              <span>
+                <wifiSharp class="mt-2 mr-2"/>
+
+              </span>
+              <span>
+                status de rede:
+                <strong class="text-normal font-bold capitalize ml-2">
+                  {{ statusOnline }}
+                </strong>
+              </span>
+            </div>
+
         </div>
 
         <div class="flex flex-col flex-wrap">
@@ -56,32 +64,17 @@
 
     <div class="px-5">
       <p class="font-bold pt-4">Cupons</p>
-      <MEInputField
-        class="my-3"
-        v-model="transcript"
-        label="Buscar selos"
-        name="transcript"
-      >
-        <template #right-icon>
-          <img
-            src="/icons/micro.svg"
-            alt="microfone"
-            class="hover:scale-110"
-            @click="ToggleMic"
-          />
-        </template>
-      </MEInputField>
-
       <div class="flex gap-4">
         <div class="relative w-full">
           <MEInputField
+            class="w-full"
             v-model="transcript"
             label="Buscar selos"
             name="transcript"
           >
             <template #right-icon>
               <img
-                class="hover:scale-110"
+                class="hover:scale-110 ml-8"
                 src="/icons/search.svg"
                 alt="search"
                 @click="ToggleMic"
@@ -176,7 +169,9 @@ import Coupons from '~/components/Coupons.vue';
 import { sealMessage } from '~/enums/selosMessages';
 import { useUserStore } from '~/stores/user';
 import { useNetwork } from '@vueuse/core';
-const { isOnline, effectiveType} = useNetwork();
+import wifiSharp from '~icons/ion/wifi-sharp';
+const { isOnline, effectiveType } = useNetwork();
+
 
 const statusOnline = computed(() => {
   return isOnline.value ? effectiveType.value : 'Offline';
