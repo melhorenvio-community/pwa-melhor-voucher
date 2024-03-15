@@ -157,8 +157,7 @@ const statusOnline = computed(() => {
 
 const {
   $state,
-  getStorageTags,
-  validationIndexedDB,
+  updateIndexedDBUser,
   getDataFromFirestore,
   getIndexedDBUser
 } = useUserStore();
@@ -174,77 +173,101 @@ const voucherNumber = ref('');
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const sr = new Recognition();
 
-watch(isOnline, (newValue, oldValue) => {
-  console.log(`O estado da rede mudou: era ${oldValue}, agora é ${newValue}`);
-  search();
+async function syncUserData() {
+  console.log('syncUserData')
+  try {
+    const firestoreData = await getDataFromFirestore();
+    const indexedDBData = await getIndexedDBUser();
 
-});
+    if (!firestoreData || !indexedDBData) {
+      console.log("Erro ao obter dados do Firestore ou IndexedDB.");
+      return;
+    }
+
+    // Converter a data do Firestore para milissegundos
+    const firestoreMilliseconds = firestoreData[0].date.seconds * 1000 + firestoreData[0].date.nanoseconds / 1000000;
+
+    // Comparar as datas em milissegundos
+    if (firestoreMilliseconds > indexedDBData.date) {
+      await updateIndexedDBUser(userDataFirestore.id, userDataFirestore);
+      console.log("Dados do Firestore atualizados no IndexedDB.");
+    } else if (firestoreMilliseconds < indexedDBData.date) {
+      //  await updateIndexedDBUser(indexedDBData.id, indexedDBData);
+       console.log("Dados do IndexedDB atualizados no Firestore.");
+    } else {
+        console.log("Os dados do Firestore e do IndexedDB estão atualizados.");
+    }
+
+    const fieldsToCheck = ['name', 'email', 'tags']; // Adicione os campos que deseja verificar
+    const userDataFirestore = firestoreData[0];
+    for (const field of fieldsToCheck) {
+      if (userDataFirestore[field] !== indexedDBData[field]) {
+        console.log(`O campo ${field} está desatualizado.`);
+        await updateIndexedDBUser(userDataFirestore.id, userDataFirestore);
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao sincronizar dados:", error);
+  }
+}
 
 async function getDataUser() {
-  const user = ref(null);
   if (isOnline.value) {
-    try {
-      console.log('Buscando dados no firestore...');
-      user.value = await getDataFromFirestore();
-      if (user.value) {
-        console.log('Dados recuperados do firestore com sucesso!');
-        return user.value;
-      }
-
-
-    } catch (error) {
-      if (error.code === 'unavailable') {
-        console.log('Firestore temporariamente indisponível. Recuperando dados do IndexedDB...');
-        user.value = await getIndexedDBUser();
-
-        if (user.value) {
-          console.log('Dados recuperados do IndexedDB com sucesso!');
-          return user.value;
+    return await getDataFromFirestore()
+      .catch(async (error) => {
+        if (error.code === 'unavailable') {
+          console.log('Firestore temporariamente indisponível. Recuperando dados locais.');
+          return await getIndexedDBUser();
+        } else {
+          console.error('Erro ao recuperar dados do Firestore. Recuperando dados locais.', error);
+          return await getIndexedDBUser();
         }
-
-      } else {
-        console.log('Erro ao  recuperar dados do firestore. Recuperando dados do IndexedDB...');
-        user.value = await getIndexedDBUser();
-
-        if (user.value) {
-          console.log('Dados recuperados do IndexedDB com sucesso!');
-          return user.value;
-        }
-      }
-    }
+      });
   } else {
-    console.log('Usuário offline. Recuperando dados do indexDb...');
-    user.value = await getIndexedDBUser();
+    console.log('Usuário offline. Recuperando dados locais.');
+    return getIndexedDBUser();
+  }
+}
 
-    if (user.value) {
-      console.log('Dados recuperados do indexDB com sucesso!')
-      return user.value;
-    }
+async function fetchData() {
+  const user = ref();
+  try {
+    loading.value = true;
+    user.value = await getDataUser();
+    $state.user = user.value[0];
+    return user.value;
+  } catch (error) {
+    console.error('Erro ao recuperar dados:', error);
+  } finally {
+    loading.value = false;
   }
 }
 
 async function search() {
-  const user = await getDataUser();
-  const tag = user[0].tags
+  const user = await fetchData();
+
+  if (user) {
+    const tag = user[0].tags
 
 
-  let numberCompany = tag.map((string) =>
-    parseInt(string.split(';').pop())
-  );
+    let numberCompany = tag.map((string) =>
+      parseInt(string.split(';').pop())
+    );
 
-  let cumponFree = 0;
+    let cumponFree = 0;
 
-  numberCompany.unshift(cumponFree);
+    numberCompany.unshift(cumponFree);
 
-  let matchingObjects = numberCompany.map((value) =>
-    sealMessage.find((obj) => obj.company === value)
-  );
+    let matchingObjects = numberCompany.map((value) =>
+      sealMessage.find((obj) => obj.company === value)
+    );
 
-  let description = matchingObjects.map((item) => item.description);
+    let description = matchingObjects.map((item) => item.description);
 
-  return description.filter((item) =>
-    item.includes(transcript.value.toLowerCase()),
-  );
+    return description.filter((item) =>
+      item.includes(transcript.value.toLowerCase()),
+    );
+  }
 }
 
 function CheckForCommand(result) {
@@ -320,6 +343,7 @@ const user =  computed(() => {
 const dataCards = ref();
 
 async function getCard() {
+  console.log('getCard!!!')
   try {
     const cards = await search();
 
@@ -329,21 +353,20 @@ async function getCard() {
       });
 
       dataCards.value = result;
+      loading.value = false;
     }
   } catch (error) {
     console.error(error);
-    notify({
-      title: 'Impossível recuperar os dados do usuário no momento',
-      message: 'Tente novamente mais tarde.',
-      variant: 'danger',
-    });
   }
 }
 
-
+watch(isOnline, () => {
+  getCard();
+  syncUserData();
+});
 
 const description = computed(() => {
-  if ($state.tags.length > 1) return 'Envios';
+  if ($state.tags.length > 1) return 'Cupons';
 
   return 'Envio';
 });
@@ -375,20 +398,10 @@ onMounted(() => {
 		transcript.value = voice;
   }
   getCard();
+  syncUserData();
 })
 
 definePageMeta({
   middleware: ['auth']
 });
-
-async function init() {
-  await validationIndexedDB();
-
-
-  setTimeout(() => {
-    loading.value = false;
-  }, 1000);
-}
-
-init();
 </script>

@@ -13,7 +13,6 @@ export const useUserStore = defineStore('user', {
   }),
 
   actions: {
-
     async addIndexedDBUser(userPromise) {
       try {
         const { user } = await userPromise;
@@ -44,7 +43,7 @@ export const useUserStore = defineStore('user', {
           const newUser = {
             id: user.uid,
             name: userName.replace('.', ' ') || 'Antônio Agusto',
-            date: new Date(),
+            date: Date.now(),
             email,
             tags: localStorageTags
           };
@@ -103,7 +102,149 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async addDataToFirestore(userId, userDetails) {
+    async updateIndexedDBUser(userId, updatedUserData) {
+      return new Promise((resolve, reject) => {
+        // Abrir uma conexão com o banco de dados
+        const request = indexedDB.open("db-local-user");
+
+
+        request.onerror = (event) => {
+          console.error("IndexedDB error:", request.error);
+          reject("Não foi possível abrir a base de dados IndexedDB.");
+        };
+
+        request.onupgradeneeded = (event) => {
+          // Caso seja necessário atualizar a base de dados
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains("users")) {
+            db.createObjectStore("users", { keyPath: "id" });
+          }
+        };
+
+        request.onsuccess = (event) => {
+          const db = event.target.result;
+          const transaction = db.transaction("me-user", "readwrite");
+          const store = transaction.objectStore("me-user");
+
+          // Atualizar os dados do usuário
+          const updateRequest = store.put({ ...updatedUserData, id: userId });
+
+          updateRequest.onsuccess = () => {
+            console.log("Dados locais do usuário atualizados com sucesso.");
+            resolve("Dados locais do usuário atualizados com sucesso.");
+          };
+
+          updateRequest.onerror = () => {
+            console.error("Erro ao atualizar dados locais do usuário:", updateRequest.error);
+            reject("Erro ao atualizar dados locais do usuário.");
+          };
+
+          // Fechar a conexão quando a transação for completada
+          transaction.oncomplete = () => {
+            db.close();
+          };
+        };
+      });
+    },
+
+    async getIndexedDBUser() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open('db-local-user');
+
+        request.onerror = (event) => {
+          console.error("Erro ao abrir o banco de dados:", event.target.error);
+          reject("Não foi possível abrir o banco de dados.");
+        };
+
+        request.onsuccess = (event) => {
+          const db = event.target.result;
+
+          const transaction = db.transaction(['me-user'], 'readonly');
+          const objectStore = transaction.objectStore('me-user');
+          const cursorRequest = objectStore.openCursor();
+
+          cursorRequest.onsuccess = (event) => {
+            const result = event.target.result;
+
+            if (result) {
+              const { id, name, email, tags, date } = result.value;
+              resolve({ id, name, email, tags, date }); // Resolvendo a Promise com os dados do usuário
+            } else {
+              reject("Nenhum usuário encontrado.");
+            }
+          };
+
+          cursorRequest.onerror = (event) => {
+            console.error("Erro ao acessar os dados do cursor:", event.target.error);
+            db.close();
+            reject("Erro ao ler os dados do usuário.");
+          };
+        };
+      });
+    },
+
+    async deleteIndexedDBUser() {
+      const db = 'db-local-user'
+      indexedDB.deleteDatabase(db);
+    },
+
+    async setStorageUser(result) {
+      try {
+        const { user } = await result
+        const { email } = user;
+        
+        let partes = email.split('@');
+        let userName = partes[0];
+
+        this.user = {
+          name: userName.replace('.', ' ') || 'Antônio Agusto',
+          email,
+        }
+
+        localStorage.setItem('user', JSON.stringify(this.user));
+        } catch (error) {
+        console.error("Um erro ocorreu:", error);
+      }
+    },
+
+    async getStorageUser() {
+      const userLocal = await localStorage?.getItem('user');
+
+      try {
+        const { name, email } = JSON.parse(userLocal);
+
+        this.user = {
+          name: name || 'Antônio Agusto',
+          email,
+        }
+        
+        const user = {
+          name: name || 'Antônio Agusto',
+          email, 
+        }
+
+        return user;
+      } catch (error) {
+        console.error("Erro a buscar usuario", error);
+      }
+    },
+
+    getStorageTags() {
+      const userLocal = localStorage?.getItem('tags');
+      const tags = JSON.parse(userLocal);
+
+      return tags;
+    },
+
+    async deleteStorageUser() {
+      localStorage.removeItem("user");
+    },
+
+    async deleteStorageTag() {
+      this.tags = []
+    },
+
+      async addDataToFirestore(userId, userDetails) {
 
       try {
         const config = useRuntimeConfig()
@@ -177,118 +318,6 @@ export const useUserStore = defineStore('user', {
         console.error('Erro ao buscar dados do Firestore:', error);
         throw error; // Se houver um erro, lance-o para que possa ser tratado no componente Vue
       }
-    },
-
-    async getIndexedDBUser() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open('db-local-user');
-
-        request.onerror = (event) => {
-          console.error("Erro ao abrir o banco de dados:", event.target.error);
-          reject("Não foi possível abrir o banco de dados.");
-        };
-
-        request.onsuccess = (event) => {
-          const db = event.target.result;
-
-          const transaction = db.transaction(['me-user'], 'readonly');
-          const objectStore = transaction.objectStore('me-user');
-          const cursorRequest = objectStore.openCursor();
-
-          cursorRequest.onsuccess = (event) => {
-            const result = event.target.result;
-
-            if (result) {
-              const { id, name, email, tags } = result.value;
-              resolve({ id, name, email, tags }); // Resolvendo a Promise com os dados do usuário
-            } else {
-              reject("Nenhum usuário encontrado.");
-            }
-          };
-
-          cursorRequest.onerror = (event) => {
-            console.error("Erro ao acessar os dados do cursor:", event.target.error);
-            db.close();
-            reject("Erro ao ler os dados do usuário.");
-          };
-        };
-      });
-    },
-
-    async validationIndexedDB() {
-      try {
-        const user = await this.getIndexedDBUser(); // Obtemos os dados do usuário
-        return user;
-
-        // Agora podemos salvar os dados do usuário no Firestore
-        // await this.addDataToFirestore(user);
-        // console.log('Usuário salvo no Firestore com sucesso.');
-      } catch (error) {
-        console.error(error);
-        navigateTo('/login');
-        this.clearAll();
-      }
-    },
-
-    async deleteIndexedDBUser() {
-      const db = 'db-local-user'
-      indexedDB.deleteDatabase(db);
-    },
-
-    async setStorageUser(result) {
-      try {
-        const { user } = await result
-        const { email } = user;
-        
-        let partes = email.split('@');
-        let userName = partes[0];
-
-        this.user = {
-          name: userName.replace('.', ' ') || 'Antônio Agusto',
-          email,
-        }
-
-        localStorage.setItem('user', JSON.stringify(this.user));
-        } catch (error) {
-        console.error("Um erro ocorreu:", error);
-      }
-    },
-
-    async getStorageUser() {
-      const userLocal = await localStorage?.getItem('user');
-
-      try {
-        const { name, email } = JSON.parse(userLocal);
-
-        this.user = {
-          name: name || 'Antônio Agusto',
-          email,
-        }
-        
-        const user = {
-          name: name || 'Antônio Agusto',
-          email, 
-        }
-
-        return user;
-      } catch (error) {
-        console.error("Erro a buscar usuario", error);
-      }
-    },
-
-    getStorageTags() {
-      const userLocal = localStorage?.getItem('tags');
-      const tags = JSON.parse(userLocal);
-
-      return tags;
-    },
-
-    async deleteStorageUser() {
-      localStorage.removeItem("user");
-    },
-
-    async deleteStorageTag() {
-      this.tags = []
     },
 
     async clearAll() {
