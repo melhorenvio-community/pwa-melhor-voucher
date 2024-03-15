@@ -29,6 +29,26 @@
 <script setup>
 import { MEButton, MEAvatar, MEInfoBlock, MEClickable } from '@melhorenvio/unbox';
 import ionChevronLeft from '~icons/ion/chevron-left';
+import { useBreakpoints } from '@vueuse/core';
+
+const breakpoints = useBreakpoints({
+  mobile: 0, // optional
+  tablet: 640,
+  laptop: 1024,
+  desktop: 1280,
+})
+const isLaptop = window.innerWidth >= 1280 && window.innerWidth < Infinity;
+const isMobile = breakpoints.between('mobile', 'tablet');
+
+const definePlataform = computed(() => {
+  if (isMobile.value) {
+    return "plataform";
+  }
+
+  if (isLaptop) {
+    return "cross-platform";
+  }
+});
 
 definePageMeta({
   middleware: ['auth']
@@ -72,7 +92,7 @@ const registerCredential = async () => {
     },
     pubKeyCredParams: [{ alg: -7, type: "public-key" }],
     authenticatorSelection: {
-      authenticatorAttachment: "cross-platform",
+      authenticatorAttachment: definePlataform.value,
     },
     attestation: "direct",
   };

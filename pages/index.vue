@@ -172,7 +172,6 @@ import { useNetwork } from '@vueuse/core';
 import wifiSharp from '~icons/ion/wifi-sharp';
 const { isOnline, effectiveType } = useNetwork();
 
-
 const statusOnline = computed(() => {
   return isOnline.value ? effectiveType.value : 'Offline';
 });
