@@ -82,7 +82,7 @@ export default defineNuxtConfig({
     },
     workbox: {
       globPatterns: [
-        '**/*.{js,css,html}',
+        '**/*.{js,css,html,svg}',
       ],
     },
     client: {
