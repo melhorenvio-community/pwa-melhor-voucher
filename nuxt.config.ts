@@ -84,6 +84,7 @@ export default defineNuxtConfig({
       globPatterns: [
         '**/*.{js,css,html,png,svg}',
       ],
+    },
     client: {
       installPrompt: true
     },
