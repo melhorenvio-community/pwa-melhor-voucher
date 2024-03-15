@@ -33,7 +33,7 @@
 
         <div class="flex flex-col flex-wrap">
           <p class="basis-full mb-5 text-lg font-bold lg:basis-auto lg:mr-7 lg:mb-0">
-            Quantidades de envios atual:
+            Meus cupons
           </p>
 
           <MESkeleton
@@ -45,10 +45,12 @@
 
           <div class="flex gap-4" v-else>
             <p class="text-2xl font-bold">
-              {{ $state.tags.length }} <small class="text-minute">{{ description }}</small>
+              {{ $state.user.tags.length }} <small class="text-minute">{{ description }}</small>
             </p>
           </div>
-          <small class="text-minute">{{ inspire }}</small>
+          <small class="text-minute">
+            <p> Expira em: {{  generateFutureDate() }}</p>
+          </small>
         </div>
     </div>
 
@@ -148,7 +150,6 @@ import Coupons from '~/components/Coupons.vue';
 import { sealMessage } from '~/enums/selosMessages';
 import { useUserStore } from '~/stores/user';
 import { useNetwork } from '@vueuse/core';
-
 const { isOnline, effectiveType} = useNetwork();
 
 const statusOnline = computed(() => {
@@ -164,7 +165,6 @@ const {
 } = useUserStore();
 
 const loading = ref(true);
-const inspire = ref('Expira: 28/03/2024');
 const hours = new Date().getHours();
 const transcript = ref('');
 const isRecording = ref(false);
@@ -220,7 +220,6 @@ async function updateFieldsIfNeeded(data1, data2) {
    const fieldsToCheck = ['name', 'email', 'tags'];
   for (const field of fieldsToCheck) {
     if (compareFields(data1[field], data2[field])) {
-      console.log(`O campo ${field} está desatualizado.`);
       await updateIndexedDBUser(data1.id, data1);
     }
   }
@@ -358,7 +357,6 @@ const user =  computed(() => {
 const dataCards = ref();
 
 async function getCard() {
-  console.log('getCard!!!')
   try {
     const cards = await search();
 
@@ -381,11 +379,22 @@ watch(isOnline, () => {
 });
 
 const description = computed(() => {
-  if ($state.tags.length > 1) return 'Cupons';
-  console.log($state.tags.length)
-
-  return 'Cupon';
+  return $state.user.tags.length > 1 ? 'Cupons' : 'Cupon';
 });
+
+function formatarData(data) {
+  const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+  const dataFormatada = data.toLocaleDateString('pt-BR', options);
+  return dataFormatada;
+}
+
+function generateFutureDate() {
+  const currentDate = new Date();
+  const daysToAdd = Math.floor(Math.random() * 30) + 1; // Adiciona de 1 a 30 dias
+  currentDate.setDate(currentDate.getDate() + daysToAdd);
+
+  return formatarData(currentDate);
+}
 
 onMounted(() => {
 	sr.continuous = true
