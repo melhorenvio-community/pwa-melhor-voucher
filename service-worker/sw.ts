@@ -21,9 +21,9 @@ registerRoute(
   },  
   
   new StaleWhileRevalidate({
-    cacheName: 'images',
+    cacheName: 'images-login',
     plugins: [
-      new ExpirationPlugin({ maxEntries: 50 }),
+      new ExpirationPlugin({ maxEntries: 24 * 60 * 60 }),
     ],
   })
   
