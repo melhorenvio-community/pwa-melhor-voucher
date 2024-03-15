@@ -23,11 +23,21 @@ registerRoute(
   new StaleWhileRevalidate({
     cacheName: 'images-login',
     plugins: [
-      new ExpirationPlugin({ maxEntries: 24 * 60 * 60 }),
+      //new ExpirationPlugin({ maxEntries: 24 * 60 * 60 }), 24hrs
+      new ExpirationPlugin({ maxAgeSeconds: 120 })
     ],
   })
-  
 );
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.ts').then((registration) => {
+      console.log('ServiceWorker registrado com sucesso: ', registration);
+    }, (err) => {
+      console.error('Erro ao registrar o ServiceWorker: ', err);
+    });
+  });
+}
 
 self.skipWaiting()
 clientsClaim()
