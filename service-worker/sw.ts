@@ -1,27 +1,48 @@
 /// <reference lib="WebWorker" />
 /// <reference types="vite/client" />
-import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching'
+import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
 import { clientsClaim } from 'workbox-core'
-import { NavigationRoute, registerRoute } from 'workbox-routing'
+import { registerRoute } from 'workbox-routing'
+import { StaleWhileRevalidate } from 'workbox-strategies';
+import { ExpirationPlugin } from 'workbox-expiration';
 
 declare let self: ServiceWorkerGlobalScope
 
-// self.__WB_MANIFEST is default injection point
 precacheAndRoute(self.__WB_MANIFEST)
 
-// clean old assets
 cleanupOutdatedCaches()
 
-let allowlist: undefined | RegExp[]
+registerRoute(
+  ({ url }) => {
+    const image = url.origin === self.location.origin && url.pathname.endsWith('.png');
+    const router = url.pathname === '/login';
+    return image || router;
+  },  
+  
+  new StaleWhileRevalidate({
+    cacheName: 'images',
+    plugins: [
+      new ExpirationPlugin({ maxEntries: 50 }),
+    ],
+  })
+  
+);
 
-if (import.meta.env.DEV)
-  allowlist = [/^\/$/]
+self.addEventListener('fetch', (event) => {
+  const request = event.request;
+  if (request.url.includes('/register')) {
+    event.respondWith(
+      fetch(request.url, { cache: 'no-store' })
+    );
+  } else {
+    event.respondWith(
+      caches.match(request).then((response) => {
+        return response || fetch(request);
+      })
+    );
+  }
+});
 
-
-registerRoute(new NavigationRoute(
-  createHandlerBoundToURL('/login'),
-  { allowlist },
-))
 
 self.skipWaiting()
 clientsClaim()
