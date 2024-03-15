@@ -244,7 +244,7 @@ export const useUserStore = defineStore('user', {
       this.tags = []
     },
 
-      async addDataToFirestore(userId, userDetails) {
+    async addDataToFirestore(userId, userDetails) {
 
       try {
         const config = useRuntimeConfig()
@@ -271,9 +271,6 @@ export const useUserStore = defineStore('user', {
     },
 
     async updateTagsInFireStore(userId, newTags) {
-      console.log('updateTagsInFireStore')
-      console.log('updateTagsInFireStore userId', userId);
-      console.log('updateTagsInFireStore newTags', newTags)
       try {
         const firestore = getFirestore(); // Obtém a instância do Firestore
         const userRef = doc(firestore, 'users', userId); // Referência ao documento do usuário
@@ -288,6 +285,26 @@ export const useUserStore = defineStore('user', {
       } catch (error) {
         console.error('Erro ao atualizar as tags no firestore do usuário:', error);
         return false; // Retorna falso para indicar falha
+      }
+    },
+
+    async updateFirestoreUserData(userId, userData) {
+      try {
+        const firestore = getFirestore();
+        const userRef = firestore.collection('users').doc(userId); // Referência do documento do usuário
+
+        // Atualize os campos específicos com os novos dados
+        await userRef.update({
+          name: userData.name,
+          email: userData.email,
+          tags: userData.tags
+          // Adicione outros campos que deseja atualizar, conforme necessário
+        });
+
+        console.log('Dados do usuário atualizados no Firestore com sucesso.');
+      } catch (error) {
+        console.error('Erro ao atualizar dados do usuário no Firestore:', error);
+        throw error; // Lançar o erro para tratamento adequado, se necessário
       }
     },
 

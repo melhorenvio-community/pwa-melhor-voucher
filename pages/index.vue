@@ -159,7 +159,8 @@ const {
   $state,
   updateIndexedDBUser,
   getDataFromFirestore,
-  getIndexedDBUser
+  getIndexedDBUser,
+  updateFirestoreUserData
 } = useUserStore();
 
 const loading = ref(true);
@@ -174,7 +175,6 @@ const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const sr = new Recognition();
 
 async function syncUserData() {
-  console.log('syncUserData')
   try {
     const firestoreData = await getDataFromFirestore();
     const indexedDBData = await getIndexedDBUser();
@@ -184,32 +184,41 @@ async function syncUserData() {
       return;
     }
 
-    // Converter a data do Firestore para milissegundos
-    const firestoreMilliseconds = firestoreData[0].date.seconds * 1000 + firestoreData[0].date.nanoseconds / 1000000;
-
-    // Comparar as datas em milissegundos
-    if (firestoreMilliseconds > indexedDBData.date) {
-      await updateIndexedDBUser(userDataFirestore.id, userDataFirestore);
-      console.log("Dados do Firestore atualizados no IndexedDB.");
-    } else if (firestoreMilliseconds < indexedDBData.date) {
-      //  await updateIndexedDBUser(indexedDBData.id, indexedDBData);
-       console.log("Dados do IndexedDB atualizados no Firestore.");
-    } else {
-        console.log("Os dados do Firestore e do IndexedDB estão atualizados.");
-    }
-
-    const fieldsToCheck = ['name', 'email', 'tags']; // Adicione os campos que deseja verificar
-    const userDataFirestore = firestoreData[0];
-    for (const field of fieldsToCheck) {
-      if (userDataFirestore[field] !== indexedDBData[field]) {
-        console.log(`O campo ${field} está desatualizado.`);
-        await updateIndexedDBUser(userDataFirestore.id, userDataFirestore);
-      }
-    }
+    await syncFirestoreToIndexedDB(firestoreData, indexedDBData);
+    await syncIndexedDBToFirestore(firestoreData, indexedDBData);
+    await updateIndexedDBFieldsIfNeeded(firestoreData, indexedDBData);
   } catch (error) {
     console.error("Erro ao sincronizar dados:", error);
   }
 }
+
+async function syncFirestoreToIndexedDB(firestoreData, indexedDBData) {
+  const firestoreMilliseconds = firestoreData[0].date.seconds * 1000 + firestoreData[0].date.nanoseconds / 1000000;
+  if (firestoreMilliseconds > indexedDBData.date) {
+    await updateIndexedDBUser(firestoreData[0].id, firestoreData[0]);
+    console.log("Dados do Firestore atualizados no IndexedDB.");
+  }
+}
+
+async function syncIndexedDBToFirestore(firestoreData, indexedDBData) {
+  const firestoreMilliseconds = firestoreData[0].date.seconds * 1000 + firestoreData[0].date.nanoseconds / 1000000;
+  if (firestoreMilliseconds < indexedDBData.date) {
+    await updateFirestoreUserData(indexedDBData.id, indexedDBData);
+    console.log("Dados do IndexedDB atualizados no Firestore.");
+  }
+}
+
+async function updateIndexedDBFieldsIfNeeded(firestoreData, indexedDBData) {
+  const fieldsToCheck = ['name', 'email', 'tags']; // Adicione os campos que deseja verificar
+  const userDataFirestore = firestoreData[0];
+  for (const field of fieldsToCheck) {
+    if (userDataFirestore[field] !== indexedDBData[field]) {
+      console.log(`O campo ${field} está desatualizado.`);
+      await updateIndexedDBUser(userDataFirestore.id, userDataFirestore);
+    }
+  }
+}
+
 
 async function getDataUser() {
   if (isOnline.value) {
