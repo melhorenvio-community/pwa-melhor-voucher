@@ -80,11 +80,6 @@ export default defineNuxtConfig({
       background_color: '#ffffff',
       display: 'standalone',
     },
-    workbox: {
-      globPatterns: [
-        '**/*.{js,css,html,svg}',
-      ],
-    },
     client: {
       installPrompt: true
     },
