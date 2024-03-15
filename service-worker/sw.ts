@@ -29,28 +29,5 @@ registerRoute(
   
 );
 
-function registerCustomRoutes() {
-  registerRoute(
-    ({ url }) => url.pathname.startsWith('/register'),
-    new NetworkOnly()
-  );
-}
-
-self.addEventListener('fetch', (event) => {
-  const request = event.request;
-  if (request.url.includes('/register')) {
-    event.respondWith(
-      fetch(request.url, { cache: 'no-store' })
-    );
-  } else {
-    event.respondWith(
-      caches.match(request).then((response) => {
-        return response || fetch(request);
-      })
-    );
-  }
-});
-
-registerCustomRoutes();
 self.skipWaiting()
 clientsClaim()
