@@ -5,6 +5,7 @@ import { clientsClaim } from 'workbox-core'
 import { registerRoute } from 'workbox-routing'
 import { StaleWhileRevalidate } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
+import { NetworkOnly } from 'workbox-strategies';
 
 declare let self: ServiceWorkerGlobalScope
 
@@ -28,6 +29,13 @@ registerRoute(
   
 );
 
+function registerCustomRoutes() {
+  registerRoute(
+    ({ url }) => url.pathname.startsWith('/register'),
+    new NetworkOnly()
+  );
+}
+
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.url.includes('/register')) {
@@ -43,6 +51,6 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-
+registerCustomRoutes();
 self.skipWaiting()
 clientsClaim()
