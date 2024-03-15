@@ -21,69 +21,64 @@
         @click="play()"
       />
     </div>
-    
-    <div class="my-8 w-full">
-      <MEButton @click="openScanner = !openScanner">
-        {{ textCamera }}
-      </MEButton>
-      <div class="flex items-center gap-2">
-        <div class="flex-col">
-          <p class="text-xs mt-2">Click no botão para fazer seu resgate.</p>
-          <p class="text-xs text-danger" v-if="notice">{{ notice }}</p>
-        </div>
-      </div>
 
-      <QRCodeScanner 
-        v-if="openScanner" 
-        class="w-full" 
-        @result="onScan" 
+    <div class="my-8 w-full">
+      <MEClickable @click="openScanner = !openScanner"
+        class="flex grow py-6 px-5 justify-between md:flex-row md:py-4 text-neutral-dark bg-white border-[1px] rounded border-neutral-light">
+          <MEInfoBlock class="info-block pr-5" :title="textCamera"
+            text="Click no botão para fazer seu resgate." />
+
+          <div class="self-center">
+            <iconScan class="text-lg text-primary" />
+          </div>
+          <p class="text-xs text-danger" v-if="notice">{{ notice }}</p>
+      </MEClickable>
+
+      <QRCodeScanner
+        v-if="openScanner"
+        class="w-full mt-8"
+        @result="onScan"
       />
     </div>
+    <NuxtLink to="/">
+      {{ textCupom }}
+    </NuxtLink>
 
     <div class="my-8 md:flex justify-center items-center gap-4">
       <div v-if="textRecharge">
-        <div>
-          <img 
-            class="w-[250px] md:w-[350px] text-center mx-auto my-4" 
-            src="/icons/congratulations.svg" 
-            alt="Imagem de Parabéns"
-          >
-          <p class="max-w-[350px] my-4 mx-auto text-primary text-center text-lg font-bold md:w-[350px] md:text-xl">
-            {{ textRecharge }}
-          </p> 
-        </div>
-
-        <NuxtLink 
-          class="flex justify-center text-primary mx-auto underline mt-12"
-          to="/"
+        <img
+          class="w-[250px] md:w-[350px] text-center mx-auto my-4"
+          src="/icons/congratulations.svg"
+          alt="Imagem de Parabéns"
         >
-          {{ textCupom }}
-        </NuxtLink>
+        <p class="max-w-[350px] my-4 mx-auto text-primary text-center text-lg font-bold md:w-[350px] md:text-xl">
+          {{ textRecharge }}
+        </p>
       </div>
 
       <div v-if="textErrorRecharge">
-        <img 
-          class="w-[250px] md:w-[350px] text-center mx-auto my-4" 
-          src="/icons/error.svg" 
+        <img
+          class="w-[250px] md:w-[350px] text-center mx-auto my-4"
+          src="/icons/error.svg"
           alt="Imagem de Erro"
         >
         <p class="max-w-[350px] my-4 mx-auto text-danger text-center text-lg font-bold md:w-[350px] md:text-xl">
           {{ textErrorRecharge }}
-        </p> 
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { MEButton, meToast } from  '@melhorenvio/unbox';
+import { MEButton, meToast, MEClickable, MEInfoBlock} from  '@melhorenvio/unbox';
 import { useSpeechSynthesis } from '@vueuse/core';
 import { useUserStore } from '~/stores/user';
 import QRCodeScanner from '~/components/QRCodeScanner.vue'
 import ionChevronLeft from '~icons/ion/chevron-left';
+import iconScan from '~icons/ion/scan-circle-sharp';
 
-const { $state, getStorageTags, updateIndexedDBTag } = useUserStore();
-
+const { $state, updateIndexedDBTag, getIndexedDBUser, getDataFromFirestore} = useUserStore();
 const openScanner = ref(false);
 const scan = ref({});
 const voice = ref(undefined);
@@ -127,33 +122,82 @@ function onScan(decodedText, decodedResult) {
   openScanner.value = !openScanner.value
 }
 
-function validateVoucher(qrcodeValue) {
-  if(qrcodeValue) {
-    const tag = getStorageTags();
+const { isOnline } = useNetwork();
+async function getDataUser() {
+  if (isOnline.value) {
+    console.log('Recuperando dados do firestore.');
+    return await getDataFromFirestore()
+      .catch(async (error) => {
+        if (error.code === 'unavailable') {
+          console.log('Firestore temporariamente indisponível. Recuperando dados locais.');
+          const result = await getIndexedDBUser();
 
-    if (!tag.includes(qrcodeValue)) {
-      textRecharge.value = 'Parabéns você acaba de ganhar um Cupom!'
+          if (result) {
+            console.log('Dados locais recuperados com sucesso!')
+          }
+          return result;
+        } else {
+          console.log('Erro ao recuperar dados do Firestore. Recuperando dados locais.');
+          const result = await getIndexedDBUser();
 
-      $state.tags.push(qrcodeValue);
-      
-      updateIndexedDBTag();
-    } else {
-      textErrorRecharge.value = 'Desculpe, mas parece que este QR Code já foi usado anteriormente.'
-
-      meToast.show({
-        variant: 'danger',
-        title: 'Cupom inválido.',
-        message: textErrorRecharge.value,
-      }); 
-    }
+          if (result) {
+            console.log('Dados locais recuperados com sucesso!')
+          }
+          return result;
+        }
+      });
   } else {
-    notice.value = "Problemas na bipagem do QR Code, tente novamente";
+    console.log('Usuário offline. Recuperando dados locais.');
+    const result = await getIndexedDBUser();
+    if (result) {
+      console.log('Dados locais recuperados com sucesso!')
+    }
+    return result;
+  }
+}
 
-    meToast.show({
-      variant: 'danger',
-      title: 'QR Code inválido.',
-      message: notice.value,
-    });
+async function fetchData() {
+  const user = ref();
+  try {
+    loading.value = true;
+    user.value = await getDataUser();
+    return user.value;
+  } catch (error) {
+    console.error('Erro ao recuperar dados:', error);
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function validateVoucher(qrcodeValue) {
+  const user = await fetchData();
+
+  if (user) {
+    if (qrcodeValue) {
+      const tag = user[0].tags
+
+      if (!tag.includes(qrcodeValue)) {
+        textRecharge.value = 'Parabéns você acaba de ganhar um Cupom!'
+
+        $state.tags.push(qrcodeValue);
+        const indexDB = await getIndexedDBUser();
+
+        updateIndexedDBTag(indexDB.id, qrcodeValue);
+      } else {
+        textErrorRecharge.value = 'Desculpe, mas parece que este QR Code já foi usado anteriormente.'
+        notify({
+          title: 'Cupom inválido.',
+          message: textErrorRecharge.value,
+          variant: 'danger',
+        });
+      }
+    } else {
+      notify({
+        itle: 'QR Code inválido.',
+        message: 'Problemas na leitura do QR Code, tente novamente.',
+        variant: 'danger',
+      });
+    }
   }
 }
 
