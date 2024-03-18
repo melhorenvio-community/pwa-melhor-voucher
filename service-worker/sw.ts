@@ -22,8 +22,8 @@ registerRoute(
     return (
       url.origin === self.location.origin &&
       (url.pathname.includes('cupon.svg') || url.pathname.includes('audio.svg') || url.pathname.includes('logo.svg') || 
-        url.pathname.includes('micro.svg')|| url.pathname.includes('search.svg') || url.pathname.includes('correios.svg') || 
-        url.pathname.includes('jadlog.svg') || url.pathname.includes('loggi.svg') || url.pathname.includes('buslog.svg'))
+        url.pathname.includes('micro.svg')|| url.pathname.includes('search.svg') || url.pathname.includes('companies/') || 
+        url.pathname.includes('loggi.svg'))
     );
   },
   new CacheFirst({
