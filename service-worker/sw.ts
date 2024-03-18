@@ -1,43 +1,54 @@
 /// <reference lib="WebWorker" />
 /// <reference types="vite/client" />
+
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
 import { clientsClaim } from 'workbox-core'
 import { registerRoute } from 'workbox-routing'
-import { StaleWhileRevalidate } from 'workbox-strategies';
-import { ExpirationPlugin } from 'workbox-expiration';
-import { NetworkOnly } from 'workbox-strategies';
+import { CacheFirst } from 'workbox-strategies'
+import { ExpirationPlugin } from 'workbox-expiration'
 
 declare let self: ServiceWorkerGlobalScope
 
-precacheAndRoute(self.__WB_MANIFEST)
+precacheAndRoute(self.__WB_MANIFEST);
 
-cleanupOutdatedCaches()
+cleanupOutdatedCaches();
+
+self.addEventListener('install', (event) => {
+  console.log('Guardando caches');
+});
 
 registerRoute(
   ({ url }) => {
-    const image = url.origin === self.location.origin && url.pathname.endsWith('.png');
-    const router = url.pathname === '/login';
-    return image || router;
-  },  
-  
-  new StaleWhileRevalidate({
-    cacheName: 'images-login',
+    return (
+      url.origin === self.location.origin &&
+      (url.pathname.includes('cupon.svg') || url.pathname.includes('audio.svg')) || url.pathname.includes('logo.svg') || 
+        url.pathname.includes('micro.svg')|| url.pathname.includes('search.svg') || url.pathname.includes('correios.svg') || 
+        url.pathname.includes('jadlog.svg') || url.pathname.includes('loggi.svg') || url.pathname.includes('buslog.svg')
+    );
+  },
+  new CacheFirst({
+    cacheName: 'products-approve-image',
     plugins: [
-      //new ExpirationPlugin({ maxEntries: 24 * 60 * 60 }), 24hrs
-      new ExpirationPlugin({ maxAgeSeconds: 120 })
+      new ExpirationPlugin({ maxEntries: 120, maxAgeSeconds: 3600 }),
     ],
   })
 );
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.ts').then((registration) => {
-      console.log('ServiceWorker registrado com sucesso: ', registration);
-    }, (err) => {
-      console.error('Erro ao registrar o ServiceWorker: ', err);
-    });
-  });
-}
+self.skipWaiting();
+clientsClaim();
 
-self.skipWaiting()
-clientsClaim()
+// registerRoute(
+//   ({ url }) => {
+//     const image = url.origin === self.location.origin && url.pathname.endsWith('.png');
+//     const router = url.pathname === '/login';
+//     return image || router;
+//   },  
+  
+//   new StaleWhileRevalidate({
+//     cacheName: 'images-login',
+//     plugins: [
+//       //new ExpirationPlugin({ maxEntries: 24 * 60 * 60 }), 24hrs
+//       new ExpirationPlugin({ maxAgeSeconds: 120 })
+//     ],
+//   })
+// );
