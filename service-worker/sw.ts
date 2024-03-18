@@ -22,12 +22,11 @@ registerRoute(
     return (
       url.origin === self.location.origin &&
       (url.pathname.includes('cupon.svg') || url.pathname.includes('audio.svg') || url.pathname.includes('logo.svg') || 
-        url.pathname.includes('micro.svg')|| url.pathname.includes('search.svg') || url.pathname.includes('companies/') || 
-        url.pathname.includes('loggi.svg'))
+        url.pathname.includes('micro.svg')|| url.pathname.includes('search.svg') || url.pathname.includes('companies'))
     );
   },
   new CacheFirst({
-    cacheName: 'svg-cache-v1',
+    cacheName: 'svg-cache-v2',
     plugins: [
       new ExpirationPlugin({ maxEntries: 120, maxAgeSeconds: 3600 }),
     ],

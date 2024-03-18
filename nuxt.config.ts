@@ -84,7 +84,8 @@ export default defineNuxtConfig({
       globPatterns: ['**/*.{js,html,css,png}'],
     },
     client: {
-      installPrompt: true
+      installPrompt: true,
+      periodicSyncForUpdates: 20,
     },
     devOptions: {
       enabled: true,
