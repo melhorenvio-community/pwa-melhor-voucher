@@ -27,7 +27,7 @@ registerRoute(
     );
   },
   new CacheFirst({
-    cacheName: 'svg-cache',
+    cacheName: 'svg-cache-v1',
     plugins: [
       new ExpirationPlugin({ maxEntries: 120, maxAgeSeconds: 3600 }),
     ],
