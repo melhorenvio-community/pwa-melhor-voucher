@@ -10,91 +10,91 @@ export const useUserStore = defineStore('user', {
   }),
 
   actions: {
-    async addIndexedDBUser(userPromise) {
-      try {
-        const { user } = await userPromise;
-
+      async addIndexedDBUser(userPromise) {
+        try {
+          const { user } = await userPromise;
+  
+          const dbName = 'db-local-user';
+          const dbVersion = 1;
+    
+          const request = indexedDB.open(dbName, dbVersion);
+    
+          request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+    
+            if (!db.objectStoreNames.contains('me-user')) {
+             db.createObjectStore('me-user', { keyPath: 'id', autoIncrement: true });
+            }
+          };
+  
+          this.setStorageUser(userPromise)
+    
+          request.onsuccess = (event) => {
+            const db = event.target.result;
+    
+            const transaction = db.transaction(['me-user'], 'readwrite');
+            const objectStore = transaction.objectStore('me-user');
+    
+            let email = user.email;
+            let partes = email.split('@');
+            let userName = partes[0];
+            
+            let localStorageTags = this.getStorageTags()
+         
+            const newUser = {
+              name: userName.replace('.', ' ') || 'Antônio Agusto',
+              date: new Date(),
+              email,
+              tags: localStorageTags
+            };
+  
+            objectStore.add(newUser);
+          };
+        } catch (error) {
+          console.error("Error: " + error);
+  
+          vibrate();
+  
+          setTimeout(() => {
+            stop();
+          }, 2000);
+        }
+      },
+  
+      updateIndexedDBTag() {
         const dbName = 'db-local-user';
-        const dbVersion = 1;
+        const storeName = 'me-user';
+        const version = 1;
+        const idToUpdate = 1;
+        const newValue = this.tags;
   
-        const request = indexedDB.open(dbName, dbVersion);
-  
-        request.onupgradeneeded = (event) => {
-          const db = event.target.result;
-  
-          if (!db.objectStoreNames.contains('me-user')) {
-           db.createObjectStore('me-user', { keyPath: 'id', autoIncrement: true });
-          }
-        };
-
-        this.setStorageUser(userPromise)
+        const request = indexedDB.open(dbName, version);
   
         request.onsuccess = (event) => {
           const db = event.target.result;
-  
-          const transaction = db.transaction(['me-user'], 'readwrite');
-          const objectStore = transaction.objectStore('me-user');
-  
-          let email = user.email;
-          let partes = email.split('@');
-          let userName = partes[0];
+          const transaction = db.transaction([storeName], 'readwrite');
+          const objectStore = transaction.objectStore(storeName);
+          const getRequest = objectStore.get(idToUpdate);
+ 
+          getRequest.onsuccess = () => {
+    
+            const record = getRequest.result;
+
+            const filterTags = newValue.filter((newValue) => {
+              return !record.tags.includes(newValue);
+            });
           
-          let localStorageTags = this.getStorageTags()
-       
-          const newUser = {
-            name: userName.replace('.', ' ') || 'Antônio Agusto',
-            date: new Date(),
-            email,
-            tags: localStorageTags
-          };
-          console.log(newUser);
-
-          objectStore.add(newUser);
-        };
-      } catch (error) {
-        console.error("Error: " + error);
-
-        vibrate();
-
-        setTimeout(() => {
-          stop();
-        }, 2000);
-      }
-    },
-
-    updateIndexedDBTag() {
-      const dbName = 'db-local-user';
-      const storeName = 'me-user';
-      const version = 1;
-      const idToUpdate = 1;
-      const newValue = this.tags;
-
-      const request = indexedDB.open(dbName, version);
-
-      request.onsuccess = (event) => {
-        const db = event.target.result;
-        const transaction = db.transaction([storeName], 'readwrite');
-        const objectStore = transaction.objectStore(storeName);
-        const getRequest = objectStore.get(idToUpdate);
-      
-        getRequest.onsuccess = () => {
-          const record = getRequest.result;
-
-          const filterTags = newValue.filter((newValue) => {
-            return !record.tags.includes(newValue);
-          });
+            record.tags.push(...filterTags);
+          
+            const updateRequest = objectStore.put(record);
         
-          record.tags.push(...filterTags);
-        
-          const updateRequest = objectStore.put(record);
-      
-          updateRequest.onerror = () => {
-            console.error('Erro ao atualizar o registro:', updateRequest.error);
+            updateRequest.onerror = () => {
+              console.error('Erro ao atualizar o registro:', updateRequest.error);
+            };
           };
-        };
-      }
-    },
-
+        }
+      },
+    
     async getIndexedDBUser() {
       const request = indexedDB.open('db-local-user');
 
@@ -120,8 +120,8 @@ export const useUserStore = defineStore('user', {
             }
           }
         } catch(e) {
-          // navigateTo('/login');
-          // this.clearAll();
+          navigateTo('/login');
+          this.clearAll();
         }
       }; 
     },

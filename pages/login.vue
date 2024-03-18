@@ -51,6 +51,9 @@
 
 <script setup>
 import { MEEmailField, MEPasswordField, MEButton, MEForm } from '@melhorenvio/unbox';
+import { useUserStore } from '~/stores/user';
+
+const { addIndexedDBUser } = useUserStore();
 
 definePageMeta({
   layout: 'empty',
@@ -67,6 +70,9 @@ const credentialId = ref(null);
 
 const authenticateLogin = async (email, password) => {
   credentialsUser.value = await signUser(email, password);
+
+  await addIndexedDBUser( credentialsUser.value);
+
   if (credentialsUser.value) return navigateTo('/');
 }
 

@@ -94,6 +94,7 @@ const paths = computed(() => route.path
   .slice(0, -1)
   .filter(base => !!base)
 );
+
 const back = computed(() => {
   return '/' + paths.value.join('/');
 });
@@ -123,8 +124,6 @@ function onScan(decodedText, decodedResult) {
   openScanner.value = !openScanner.value
 }
 
-
-
 function validateVoucher(qrcodeValue) {
   if(qrcodeValue) {
     const tag = getStorageTags();
@@ -133,7 +132,7 @@ function validateVoucher(qrcodeValue) {
       textRecharge.value = 'Parabéns você acaba de ganhar um Cupom!'
 
       $state.tags.push(qrcodeValue);
-      
+ 
       updateIndexedDBTag();
     } else {
       textErrorRecharge.value = 'Desculpe, mas parece que este QR Code já foi usado anteriormente.'
