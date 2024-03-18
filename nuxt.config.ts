@@ -81,7 +81,7 @@ export default defineNuxtConfig({
       display: 'standalone',
     },
     injectManifest: {
-      globPatterns: ['**/*.{js,html,png,mp3}'],
+      globPatterns: ['**/*.{js,html,css,png,mp3}'],
     },
     client: {
       installPrompt: true
