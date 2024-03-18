@@ -71,14 +71,15 @@
 </template>
 
 <script setup>
-import { MEButton, meToast, MEClickable, MEInfoBlock} from  '@melhorenvio/unbox';
+import { meToast, MEClickable, MEInfoBlock} from  '@melhorenvio/unbox';
 import { useSpeechSynthesis } from '@vueuse/core';
 import { useUserStore } from '~/stores/user';
 import QRCodeScanner from '~/components/QRCodeScanner.vue'
 import ionChevronLeft from '~icons/ion/chevron-left';
 import iconScan from '~icons/ion/scan-circle-sharp';
 
-const { $state, updateIndexedDBTag, getIndexedDBUser, getDataFromFirestore} = useUserStore();
+const { $state, getStorageTags, updateIndexedDBTag } = useUserStore();
+
 const openScanner = ref(false);
 const scan = ref({});
 const voice = ref(undefined);
@@ -122,87 +123,40 @@ function onScan(decodedText, decodedResult) {
   openScanner.value = !openScanner.value
 }
 
-const { isOnline } = useNetwork();
-async function getDataUser() {
-  if (isOnline.value) {
-    console.log('Recuperando dados do firestore.');
-    return await getDataFromFirestore()
-      .catch(async (error) => {
-        if (error.code === 'unavailable') {
-          console.log('Firestore temporariamente indisponível. Recuperando dados locais.');
-          const result = await getIndexedDBUser();
 
-          if (result) {
-            console.log('Dados locais recuperados com sucesso!')
-          }
-          return result;
-        } else {
-          console.log('Erro ao recuperar dados do Firestore. Recuperando dados locais.');
-          const result = await getIndexedDBUser();
 
-          if (result) {
-            console.log('Dados locais recuperados com sucesso!')
-          }
-          return result;
-        }
-      });
-  } else {
-    console.log('Usuário offline. Recuperando dados locais.');
-    const result = await getIndexedDBUser();
-    if (result) {
-      console.log('Dados locais recuperados com sucesso!')
-    }
-    return result;
-  }
-}
+function validateVoucher(qrcodeValue) {
+  if(qrcodeValue) {
+    const tag = getStorageTags();
 
-async function fetchData() {
-  const user = ref();
-  try {
-    loading.value = true;
-    user.value = await getDataUser();
-    return user.value;
-  } catch (error) {
-    console.error('Erro ao recuperar dados:', error);
-  } finally {
-    loading.value = false;
-  }
-}
+    if (!tag.includes(qrcodeValue)) {
+      textRecharge.value = 'Parabéns você acaba de ganhar um Cupom!'
 
-async function validateVoucher(qrcodeValue) {
-  const user = await fetchData();
-
-  if (user) {
-    if (qrcodeValue) {
-      const tag = user[0].tags
-
-      if (!tag.includes(qrcodeValue)) {
-        textRecharge.value = 'Parabéns você acaba de ganhar um Cupom!'
-
-        $state.tags.push(qrcodeValue);
-        const indexDB = await getIndexedDBUser();
-
-        updateIndexedDBTag(indexDB.id, qrcodeValue);
-      } else {
-        textErrorRecharge.value = 'Desculpe, mas parece que este QR Code já foi usado anteriormente.'
-        notify({
-          title: 'Cupom inválido.',
-          message: textErrorRecharge.value,
-          variant: 'danger',
-        });
-      }
+      $state.tags.push(qrcodeValue);
+      
+      updateIndexedDBTag();
     } else {
-      notify({
-        itle: 'QR Code inválido.',
-        message: 'Problemas na leitura do QR Code, tente novamente.',
+      textErrorRecharge.value = 'Desculpe, mas parece que este QR Code já foi usado anteriormente.'
+
+      meToast.show({
         variant: 'danger',
-      });
+        title: 'Cupom inválido.',
+        message: textErrorRecharge.value,
+      }); 
     }
+  } else {
+    notice.value = "Problemas na bipagem do QR Code, tente novamente";
+
+    meToast.show({
+      variant: 'danger',
+      title: 'QR Code inválido.',
+      message: notice.value,
+    });
   }
 }
 
 const textCamera = computed(()=>{
-  if(!openScanner.value) return 'Ativar Câmera';
+  if(!openScanner.value) return 'Câmera';
   return 'Fechar'
 })
 

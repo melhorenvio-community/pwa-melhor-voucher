@@ -1,8 +1,5 @@
 import { defineStore } from 'pinia';
 import { useVibrate, useStorage } from '@vueuse/core';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, doc, setDoc, updateDoc } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
 
 const { vibrate, stop } = useVibrate({ pattern: [300, 100, 300] });
 
@@ -19,45 +16,41 @@ export const useUserStore = defineStore('user', {
 
         const dbName = 'db-local-user';
         const dbVersion = 1;
-
+  
         const request = indexedDB.open(dbName, dbVersion);
-
+  
         request.onupgradeneeded = (event) => {
           const db = event.target.result;
-
+  
           if (!db.objectStoreNames.contains('me-user')) {
            db.createObjectStore('me-user', { keyPath: 'id', autoIncrement: true });
           }
         };
 
         this.setStorageUser(userPromise)
-
-
+  
+        request.onsuccess = (event) => {
+          const db = event.target.result;
+  
+          const transaction = db.transaction(['me-user'], 'readwrite');
+          const objectStore = transaction.objectStore('me-user');
+  
           let email = user.email;
           let partes = email.split('@');
           let userName = partes[0];
-
-
+          
           let localStorageTags = this.getStorageTags()
-
+       
           const newUser = {
-            id: user.uid,
             name: userName.replace('.', ' ') || 'Antônio Agusto',
-            date: Date.now(),
+            date: new Date(),
             email,
             tags: localStorageTags
           };
-
-        request.onsuccess = async (event) => {
-          const db = event.target.result;
-
-          const transaction = db.transaction(['me-user'], 'readwrite');
-          const objectStore = transaction.objectStore('me-user');
-
+          console.log(newUser);
 
           objectStore.add(newUser);
         };
-        await this.addDataToFirestore(newUser.id, newUser);
       } catch (error) {
         console.error("Error: " + error);
 
@@ -69,32 +62,32 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    updateIndexedDBTag(userId) {
+    updateIndexedDBTag() {
       const dbName = 'db-local-user';
       const storeName = 'me-user';
       const version = 1;
-      const newTags = this.tags;
+      const idToUpdate = 1;
+      const newValue = this.tags;
+
       const request = indexedDB.open(dbName, version);
 
       request.onsuccess = (event) => {
         const db = event.target.result;
         const transaction = db.transaction([storeName], 'readwrite');
         const objectStore = transaction.objectStore(storeName);
-        const getRequest = objectStore.get(userId);
-
-        getRequest.onsuccess = async () => {
+        const getRequest = objectStore.get(idToUpdate);
+      
+        getRequest.onsuccess = () => {
           const record = getRequest.result;
 
-          const filterTags = newTags.filter((newTags) => {
-            return !record.tags.includes(newTags);
+          const filterTags = newValue.filter((newValue) => {
+            return !record.tags.includes(newValue);
           });
-
+        
           record.tags.push(...filterTags);
-
+        
           const updateRequest = objectStore.put(record);
-          await this.updateTagsInFireStore(userId, record.tags);
-
-
+      
           updateRequest.onerror = () => {
             console.error('Erro ao atualizar o registro:', updateRequest.error);
           };
@@ -102,85 +95,39 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async updateIndexedDBUser(userId, updatedUserData) {
-      return new Promise((resolve, reject) => {
-        // Abrir uma conexão com o banco de dados
-        const request = indexedDB.open("db-local-user");
-
-
-        request.onerror = (event) => {
-          console.error("IndexedDB error:", request.error);
-          reject("Não foi possível abrir a base de dados IndexedDB.");
-        };
-
-        request.onupgradeneeded = (event) => {
-          // Caso seja necessário atualizar a base de dados
-          const db = event.target.result;
-          if (!db.objectStoreNames.contains("users")) {
-            db.createObjectStore("users", { keyPath: "id" });
-          }
-        };
-
-        request.onsuccess = (event) => {
-          const db = event.target.result;
-          const transaction = db.transaction("me-user", "readwrite");
-          const store = transaction.objectStore("me-user");
-
-          // Atualizar os dados do usuário
-          const updateRequest = store.put({ ...updatedUserData, id: userId });
-
-          updateRequest.onsuccess = () => {
-            console.log("Dados locais do usuário atualizados com sucesso.");
-            resolve("Dados locais do usuário atualizados com sucesso.");
-          };
-
-          updateRequest.onerror = () => {
-            console.error("Erro ao atualizar dados locais do usuário:", updateRequest.error);
-            reject("Erro ao atualizar dados locais do usuário.");
-          };
-
-          // Fechar a conexão quando a transação for completada
-          transaction.oncomplete = () => {
-            db.close();
-          };
-        };
-      });
-    },
-
     async getIndexedDBUser() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open('db-local-user');
+      const request = indexedDB.open('db-local-user');
 
-        request.onerror = (event) => {
-          console.error("Erro ao abrir o banco de dados:", event.target.error);
-          reject("Não foi possível abrir o banco de dados.");
-        };
+      request.onsuccess = (event) => {
+        const db = event.target.result;
 
-        request.onsuccess = (event) => {
-          const db = event.target.result;
-
+        try {
           const transaction = db.transaction(['me-user'], 'readonly');
           const objectStore = transaction.objectStore('me-user');
           const cursorRequest = objectStore.openCursor();
 
           cursorRequest.onsuccess = (event) => {
             const result = event.target.result;
-
+          
             if (result) {
-              const { id, name, email, tags, date } = result.value;
-              resolve({ id, name, email, tags, date }); // Resolvendo a Promise com os dados do usuário
-            } else {
-              reject("Nenhum usuário encontrado.");
-            }
-          };
+              const { name, email, tags } = result.value;
 
-          cursorRequest.onerror = (event) => {
-            console.error("Erro ao acessar os dados do cursor:", event.target.error);
-            db.close();
-            reject("Erro ao ler os dados do usuário.");
-          };
-        };
-      });
+              this.user = {
+                name: name || 'Antônio Agusto',
+                email,
+                tags
+              }
+            }
+          }
+        } catch(e) {
+          // navigateTo('/login');
+          // this.clearAll();
+        }
+      }; 
+    },
+
+    async validationIndexedDB() {
+      return !localStorage.getItem('user') ? this.getIndexedDBUser() : this.getStorageUser();
     },
 
     async deleteIndexedDBUser() {
@@ -242,99 +189,6 @@ export const useUserStore = defineStore('user', {
 
     async deleteStorageTag() {
       this.tags = []
-    },
-
-    async addDataToFirestore(userId, userDetails) {
-
-      try {
-        const config = useRuntimeConfig()
-        const firebaseConfig = {
-          apiKey: config.public.FIREBASE_API_KEY,
-          authDomain: config.public.FIREBASE_AUTH_DOMAIN,
-          projectId: config.public.FIREBASE_PROJECT_ID,
-          storageBucket: config.public.FIREBASE_STORAGE_BUCKET,
-          messagingSenderId: config.public.FIREBASE_SENDER_ID,
-          appId: config.public.FIREBASE_APP_ID
-        };
-        const app = initializeApp(firebaseConfig);
-        const firestoreDb = getFirestore(app);
-
-        const myCustomId = userId; // Esse é o ID que você quer usar
-        const docRef = doc(firestoreDb, "users", myCustomId); // Especifica o ID do documento
-        const docData = userDetails;
-
-        await setDoc(docRef, docData);
-        console.log("Documento salvo com ID personalizado!");
-      } catch (error) {
-        console.error("Erro ao salvar o documento:", error);
-      }
-    },
-
-    async updateTagsInFireStore(userId, newTags) {
-      try {
-        const firestore = getFirestore(); // Obtém a instância do Firestore
-        const userRef = doc(firestore, 'users', userId); // Referência ao documento do usuário
-
-        // Atualiza as tags do usuário
-        await updateDoc(userRef, {
-          tags: newTags // Define as novas tags
-        });
-
-        console.log('Tags atualizadas no firestore com sucesso para o usuário:', userId);
-        return true; // Retorna verdadeiro para indicar sucesso
-      } catch (error) {
-        console.error('Erro ao atualizar as tags no firestore do usuário:', error);
-        return false; // Retorna falso para indicar falha
-      }
-    },
-
-    async updateFirestoreUserData(userId, userData) {
-      try {
-        const firestore = getFirestore();
-        const userRef = firestore.collection('users').doc(userId); // Referência do documento do usuário
-
-        // Atualize os campos específicos com os novos dados
-        await userRef.update({
-          name: userData.name,
-          email: userData.email,
-          tags: userData.tags
-          // Adicione outros campos que deseja atualizar, conforme necessário
-        });
-
-        console.log('Dados do usuário atualizados no Firestore com sucesso.');
-      } catch (error) {
-        console.error('Erro ao atualizar dados do usuário no Firestore:', error);
-        throw error; // Lançar o erro para tratamento adequado, se necessário
-      }
-    },
-
-    async getDataFromFirestore() {
-      const config = useRuntimeConfig();
-      const firebaseConfig = {
-        apiKey: config.public.FIREBASE_API_KEY,
-        authDomain: config.public.FIREBASE_AUTH_DOMAIN,
-        projectId: config.public.FIREBASE_PROJECT_ID,
-        storageBucket: config.public.FIREBASE_STORAGE_BUCKET,
-        messagingSenderId: config.public.FIREBASE_SENDER_ID,
-        appId: config.public.FIREBASE_APP_ID
-      };
-      const app = initializeApp(firebaseConfig);
-      const firestoreDb = getFirestore(app);
-
-      try {
-        const querySnapshot = await getDocs(collection(firestoreDb, 'users'));
-        const userData = [];
-
-        querySnapshot.forEach((doc) => {
-          // Para cada documento na coleção, adicione os dados ao array userData
-          userData.push({ id: doc.id, ...doc.data() });
-        });
-
-        return userData; // Retorne os dados recuperados do Firestore
-      } catch (error) {
-        console.error('Erro ao buscar dados do Firestore:', error);
-        throw error; // Se houver um erro, lance-o para que possa ser tratado no componente Vue
-      }
     },
 
     async clearAll() {
