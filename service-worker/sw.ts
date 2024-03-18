@@ -9,12 +9,11 @@ import { ExpirationPlugin } from 'workbox-expiration'
 
 declare let self: ServiceWorkerGlobalScope
 
+cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST);
 
-cleanupOutdatedCaches();
-
 self.addEventListener('install', (event) => {
-  console.log('Guardando caches');
+  console.log('Guardando caches-v1');
 });
 
 registerRoute(
@@ -26,15 +25,15 @@ registerRoute(
     );
   },
   new CacheFirst({
-    cacheName: 'svg-cache-v2',
+    cacheName: 'svg-cache',
     plugins: [
-      new ExpirationPlugin({ maxEntries: 120, maxAgeSeconds: 3600 }),
+      new ExpirationPlugin({ maxEntries: 24 * 60 * 60 })
     ],
   })
 );
 
-self.skipWaiting();
-clientsClaim();
+self.skipWaiting()
+clientsClaim()
 
 // registerRoute(
 //   ({ url }) => {
