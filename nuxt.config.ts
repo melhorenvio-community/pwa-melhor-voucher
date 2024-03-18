@@ -80,6 +80,9 @@ export default defineNuxtConfig({
       background_color: '#ffffff',
       display: 'standalone',
     },
+    injectManifest: {
+      globPatterns: ['**/*.{js,html,png,mp3}'],
+    },
     client: {
       installPrompt: true
     },
