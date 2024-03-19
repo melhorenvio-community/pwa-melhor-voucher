@@ -1,9 +1,10 @@
 import { useUserStore } from '~/stores/user';
-const { addDataToFirestore, updateIndexedDBUser, updateFirestoreUserData, getDataFromFirestore } = useUserStore();
+
 const { isOnline } = useNetwork();
 
-async function syncUserData() {
+export async function syncUserData() {
   try {
+    const {  updateFirestoreUserData, updateIndexedDBUser, getDataFromFirestore, getIndexedDBUser } = useUserStore();
     const firestoreData = await getDataFromFirestore();
     const indexedDBData = await getIndexedDBUser();
 
@@ -12,76 +13,82 @@ async function syncUserData() {
       return;
     }
 
-    await syncFirestoreToIndexedDB(firestoreData, indexedDBData);
-    await syncIndexedDBToFirestore(firestoreData, indexedDBData);
+    const indexedDBUpdatedAt = new Date(indexedDBData.updateAt);
+    const firestoreUpdatedAt = new Date(firestoreData.updateAt);
+
+    if (indexedDBUpdatedAt > firestoreUpdatedAt) {
+      console.log("Dados do IndexedDB são mais recentes. Atualizando o Firestore.");
+      await updateFirestoreUserData(indexedDBData.id, indexedDBData);
+    } else if (firestoreUpdatedAt > indexedDBUpdatedAt) {
+      // Dados do Firestore são mais recentes
+      console.log("Dados do Firestore são mais recentes. Atualizando o IndexedDB.");
+      await updateIndexedDBUser(firestoreData[0].id, firestoreData[0]);
+    } else {
+      // Ambos os dados estão atualizados
+      console.log("Os dados do IndexedDB e do Firestore estão atualizados.");
+    }
+
+    compareUserData();
   } catch (error) {
     console.error("Erro ao sincronizar dados:", error);
   }
 }
 
-async function syncFirestoreToIndexedDB(firestoreData, indexedDBData) {
-  const firestoreMilliseconds = firestoreData[0].date.seconds * 1000 + firestoreData[0].date.nanoseconds / 1000000;
-  if (firestoreMilliseconds > indexedDBData.date) {
-    await updateIndexedDBUser(firestoreData[0].id, firestoreData[0]);
-    $state.user = firestoreData[0];
-    console.log("Dados do Firestore atualizados no IndexedDB.");
+export async function compareUserData() {
+   const {  updateFirestoreUserData, updateIndexedDBUser, getDataFromFirestore, getIndexedDBUser } = useUserStore();
+  const firestoreUser = await getDataFromFirestore();
+  const firestoreUserData = firestoreUser[0]
+  const indexedDBUserData = await getIndexedDBUser();
+
+  const indexedDBInFirestore = Object.keys(indexedDBUserData).every(key => {
+    return firestoreUserData.hasOwnProperty(key) && firestoreUserData[key] === indexedDBUserData[key];
+  });
+
+  if (!indexedDBInFirestore) {
+    await updateIndexedDBUser(firestoreUserData.id, firestoreUserData);
   }
 
-   await updateFieldsIfNeeded(firestoreData[0], indexedDBData);
-}
+  const firestoreInIndexedDB = Object.keys(firestoreUserData).every(key => {
+    return indexedDBUserData.hasOwnProperty(key) && indexedDBUserData[key] === firestoreUserData[key];
+  });
 
-async function syncIndexedDBToFirestore(firestoreData, indexedDBData) {
-  const firestoreMilliseconds = firestoreData[0].date.seconds * 1000 + firestoreData[0].date.nanoseconds / 1000000;
-  if (firestoreMilliseconds < indexedDBData.date) {
-    await updateFirestoreUserData(indexedDBData.id, indexedDBData);
-    $state.user = indexedDBData;
-    console.log("Dados do IndexedDB atualizados no Firestore.");
-  }
 
-   await updateFieldsIfNeeded(indexedDBData, firestoreData[0]);
-}
-
-function compareFields(value1, value2) {
-  return value1 !== value2;
-}
-async function updateFieldsIfNeeded(data1, data2) {
-   const fieldsToCheck = ['name', 'email', 'tags'];
-  for (const field of fieldsToCheck) {
-    if (compareFields(data1[field], data2[field])) {
-      await updateIndexedDBUser(data1.id, data1);
-    }
+  if (!firestoreInIndexedDB) {
+    console.log('firestoreInIndexedDB', firestoreInIndexedDB)
+    await updateFirestoreUserData(indexedDBUserData.id, indexedDBUserData);
   }
 }
 
-async function getDataUser() {
+export async function getDataUser() {
+  const { getDataFromFirestore, getIndexedDBUser } = useUserStore();
   if (isOnline.value) {
-    console.log('Dados recuperados do firestore com sucesso!');
-    return await getDataFromFirestore()
-      .catch(async (error) => {
-        if (error.code === 'unavailable') {
-          console.log('Firestore temporariamente indisponível. Recuperando dados locais.');
-          return await getIndexedDBUser();
-        } else {
-          console.error('Erro ao recuperar dados do Firestore. Recuperando dados locais.', error);
-          return await getIndexedDBUser();
-        }
-      });
+    try {
+      const user = await getDataFromFirestore();
+      if (user) return user[0];
+    } catch (error) {
+      if (error.code === 'unavailable') {
+        console.log('Firestore temporariamente indisponível. Recuperando dados locais.');
+        return await getIndexedDBUser();
+      } else {
+        console.error('Erro ao recuperar dados do Firestore. Recuperando dados locais.', error);
+        return await getIndexedDBUser();
+      }
+    }
   } else {
     console.log('Usuário offline. Recuperando dados locais.');
-    return getIndexedDBUser();
+    return await getIndexedDBUser();
   }
 }
 
-async function fetchData() {
+export async function fetchData() {
+  const {  $state } = useUserStore();
   const user = ref();
+  user.value = await getDataUser();
   try {
-    loading.value = true;
     user.value = await getDataUser();
-    $state.user = user.value[0];
+    $state.user = user.value;
     return user.value;
   } catch (error) {
     console.error('Erro ao recuperar dados:', error);
-  } finally {
-    loading.value = false;
   }
 }

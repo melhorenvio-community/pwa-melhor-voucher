@@ -123,59 +123,12 @@ function onScan(decodedText, decodedResult) {
   openScanner.value = !openScanner.value
 }
 
-const { isOnline } = useNetwork();
-async function getDataUser() {
-  if (isOnline.value) {
-    console.log('Recuperando dados do firestore.');
-    return await getDataFromFirestore()
-      .catch(async (error) => {
-        if (error.code === 'unavailable') {
-          console.log('Firestore temporariamente indisponível. Recuperando dados locais.');
-          const result = await getIndexedDBUser();
-
-          if (result) {
-            console.log('Dados locais recuperados com sucesso!')
-          }
-          return result;
-        } else {
-          console.log('Erro ao recuperar dados do Firestore. Recuperando dados locais.');
-          const result = await getIndexedDBUser();
-
-          if (result) {
-            console.log('Dados locais recuperados com sucesso!')
-          }
-          return result;
-        }
-      });
-  } else {
-    console.log('Usuário offline. Recuperando dados locais.');
-    const result = await getIndexedDBUser();
-    if (result) {
-      console.log('Dados locais recuperados com sucesso!')
-    }
-    return result;
-  }
-}
-
-async function fetchData() {
-  const user = ref();
-  try {
-    loading.value = true;
-    user.value = await getDataUser();
-    return user.value;
-  } catch (error) {
-    console.error('Erro ao recuperar dados:', error);
-  } finally {
-    loading.value = false;
-  }
-}
-
 async function validateVoucher(qrcodeValue) {
   const user = await fetchData();
 
   if (user) {
     if (qrcodeValue) {
-      const tag = user[0].tags
+      const tag = user.tags
 
       if (!tag.includes(qrcodeValue)) {
         textRecharge.value = 'Parabéns você acaba de ganhar um Cupom!'
