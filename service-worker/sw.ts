@@ -69,19 +69,3 @@ if (self.location.pathname === '/rescue') {
 
 self.skipWaiting()
 clientsClaim()
-
-// registerRoute(
-//   ({ url }) => {
-//     const image = url.origin === self.location.origin && url.pathname.endsWith('.png');
-//     const router = url.pathname === '/login';
-//     return image || router;
-//   },  
-  
-//   new StaleWhileRevalidate({
-//     cacheName: 'images-login',
-//     plugins: [
-//       //new ExpirationPlugin({ maxEntries: 24 * 60 * 60 }), 24hrs
-//       new ExpirationPlugin({ maxAgeSeconds: 120 })
-//     ],
-//   })
-// );
