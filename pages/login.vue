@@ -76,10 +76,10 @@ const login = async () => {
   const password = user.value.password;
   credentialId.value = JSON.parse(sessionStorage.getItem('secure_credential_data')) || null;
 
-
   if (credentialId.value && credentials.userCredentials.user === email) {
     return authCredential(email, password);
   }
+
   authenticateLogin(email, password);
 }
 async function authCredential(email, password) {
@@ -92,7 +92,7 @@ async function authCredential(email, password) {
       challenge: challenge,
       allowCredentials: [
         {
-          id: base64ToBuffer(credentialId.value),
+          id: base64ToBuffer(credentialId.value.credential),
           type: "public-key",
         },
       ],
