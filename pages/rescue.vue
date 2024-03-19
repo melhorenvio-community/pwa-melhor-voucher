@@ -87,6 +87,7 @@ const text = ref('Coloque a câmera na direção do QRCode');
 const textRecharge = ref('');
 const textErrorRecharge = ref('');
 const route = useRoute();
+const loading = ref(false);
 
 const paths = computed(() => route.path
   .split('/')

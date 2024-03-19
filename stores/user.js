@@ -5,6 +5,8 @@ import { getFirestore, collection, getDocs, doc, setDoc, updateDoc } from 'fireb
 import { getAuth } from 'firebase/auth';
 
 const { vibrate, stop } = useVibrate({ pattern: [300, 100, 300] });
+const currentDate = new Date();
+const formattedDate = currentDate.toISOString();
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -45,7 +47,8 @@ export const useUserStore = defineStore('user', {
             name: userName.replace('.', ' ') || 'Antônio Agusto',
             date: Date.now(),
             email,
-            tags: localStorageTags
+            tags: localStorageTags,
+            updateAt: ''
           };
 
         request.onsuccess = async (event) => {
@@ -57,7 +60,7 @@ export const useUserStore = defineStore('user', {
 
           objectStore.add(newUser);
         };
-        await this.addDataToFirestore(newUser.id, newUser);
+        // await this.addDataToFirestore(newUser.id, newUser);
       } catch (error) {
         console.error("Error: " + error);
 
@@ -90,6 +93,7 @@ export const useUserStore = defineStore('user', {
           });
 
           record.tags.push(...filterTags);
+          record.updateAt = formattedDate;
 
           const updateRequest = objectStore.put(record);
           await this.updateTagsInFireStore(userId, record.tags);
@@ -103,6 +107,8 @@ export const useUserStore = defineStore('user', {
     },
 
     async updateIndexedDBUser(userId, updatedUserData) {
+      updatedUserData.updatedAt = formattedDate;
+
       return new Promise((resolve, reject) => {
         // Abrir uma conexão com o banco de dados
         const request = indexedDB.open("db-local-user");
@@ -244,7 +250,23 @@ export const useUserStore = defineStore('user', {
       this.tags = []
     },
 
-    async addDataToFirestore(userId, userDetails) {
+    async addDataToFirestore(userPromise) {
+      const { user } = await userPromise;
+
+      let email = user.email;
+      let partes = email.split('@');
+      let userName = partes[0];
+
+      let localStorageTags = this.getStorageTags();
+
+      const userDetails = {
+        id: user.uid,
+        name: userName.replace('.', ' ') || 'Antônio Agusto',
+        date: Date.now(),
+        email,
+        tags: localStorageTags,
+        updateAt: ''
+      };
 
       try {
         const config = useRuntimeConfig()
@@ -259,7 +281,7 @@ export const useUserStore = defineStore('user', {
         const app = initializeApp(firebaseConfig);
         const firestoreDb = getFirestore(app);
 
-        const myCustomId = userId; // Esse é o ID que você quer usar
+        const myCustomId = user.uid; // Esse é o ID que você quer usar
         const docRef = doc(firestoreDb, "users", myCustomId); // Especifica o ID do documento
         const docData = userDetails;
 
@@ -277,7 +299,8 @@ export const useUserStore = defineStore('user', {
 
         // Atualiza as tags do usuário
         await updateDoc(userRef, {
-          tags: newTags // Define as novas tags
+          tags: newTags,
+          updateAt: formattedDate// Define as novas tags
         });
 
         console.log('Tags atualizadas no firestore com sucesso para o usuário:', userId);
@@ -291,14 +314,13 @@ export const useUserStore = defineStore('user', {
     async updateFirestoreUserData(userId, userData) {
       try {
         const firestore = getFirestore();
-        const userRef = firestore.collection('users').doc(userId); // Referência do documento do usuário
+        const userRef = firestore.collection('users').doc(userId);
 
-        // Atualize os campos específicos com os novos dados
         await userRef.update({
           name: userData.name,
           email: userData.email,
-          tags: userData.tags
-          // Adicione outros campos que deseja atualizar, conforme necessário
+          tags: userData.tags,
+          updateAt: formattedDate
         });
 
         console.log('Dados do usuário atualizados no Firestore com sucesso.');
