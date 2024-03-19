@@ -57,7 +57,7 @@
             </p>
           </div>
           <small class="text-minute">
-            <p> Expira em: {{  generateFutureDate() }}</p>
+            <p> Expira em: {{  expirationDate }}</p>
           </small>
         </div>
     </div>
@@ -195,6 +195,7 @@ const voucherNumber = ref('');
 
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const sr = new Recognition();
+const expirationDate = ref('');
 
 async function search() {
   const user = await fetchData();
@@ -334,8 +335,8 @@ function generateFutureDate() {
   const currentDate = new Date();
   const daysToAdd = Math.floor(Math.random() * 30) + 1; // Adiciona de 1 a 30 dias
   currentDate.setDate(currentDate.getDate() + daysToAdd);
-
-  return formatarData(currentDate);
+  expirationDate.value = formatarData(currentDate);
+  console.log('expirationDate.value', expirationDate.value )
 }
 
 onMounted(() => {
@@ -366,6 +367,7 @@ onMounted(() => {
   }
   getCard();
   syncUserData();
+  generateFutureDate();
 })
 
 definePageMeta({
