@@ -195,7 +195,7 @@ export const useUserStore = defineStore('user', {
       try {
         const { user } = await result
         const { email } = user;
-        
+
         let partes = email.split('@');
         let userName = partes[0];
 
@@ -220,10 +220,10 @@ export const useUserStore = defineStore('user', {
           name: name || 'Antônio Agusto',
           email,
         }
-        
+
         const user = {
           name: name || 'Antônio Agusto',
-          email, 
+          email,
         }
 
         return user;
@@ -346,22 +346,25 @@ export const useUserStore = defineStore('user', {
         messagingSenderId: config.public.FIREBASE_SENDER_ID,
         appId: config.public.FIREBASE_APP_ID
       };
+
       const app = initializeApp(firebaseConfig);
       const firestoreDb = getFirestore(app);
+      const auth = getAuth();
+      const user = auth.currentUser;
 
       try {
         const querySnapshot = await getDocs(collection(firestoreDb, 'users'));
         const userData = [];
 
         querySnapshot.forEach((doc) => {
-          // Para cada documento na coleção, adicione os dados ao array userData
-          userData.push({ id: doc.id, ...doc.data() });
+          if (doc.id === user?.uid) {
+            userData.push({ id: doc.id, ...doc.data() });
+          }
         });
 
-        return userData; // Retorne os dados recuperados do Firestore
+        return userData;
       } catch (error) {
         console.error('Erro ao buscar dados do Firestore:', error);
-        throw error; // Se houver um erro, lance-o para que possa ser tratado no componente Vue
       }
     },
 

@@ -54,7 +54,6 @@ export async function compareUserData() {
 
 
   if (!firestoreInIndexedDB) {
-    console.log('firestoreInIndexedDB', firestoreInIndexedDB)
     await updateFirestoreUserData(indexedDBUserData.id, indexedDBUserData);
   }
 }
