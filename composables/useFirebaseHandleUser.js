@@ -11,11 +11,11 @@ import { useUserStore } from '~/stores/user';
  * @throws {Error} If an error occurs during user creation.
  */
 export const createUser = async (email, password) => {
-  const { addIndexedDBUser } = useUserStore();
   try {
     const auth = getAuth();
     const credentials = await createUserWithEmailAndPassword(auth, email, password);
-    await addIndexedDBUser(credentials);
+     const { addDataToFirestore } = useUserStore();
+     await addDataToFirestore(credentials);
 
     return credentials;
   } catch (error) {
@@ -33,7 +33,10 @@ export const createUser = async (email, password) => {
 export const signUser = async (email, password) => {
   try {
     const auth = getAuth();
+    const { addIndexedDBUser } = useUserStore();
     const credentials = await signInWithEmailAndPassword(auth, email, password);
+
+    await addIndexedDBUser(credentials);
 
     return credentials
   } catch (error) {

@@ -5,6 +5,8 @@ import { getFirestore, collection, getDocs, doc, setDoc, updateDoc } from 'fireb
 import { getAuth } from 'firebase/auth';
 
 const { vibrate, stop } = useVibrate({ pattern: [300, 100, 300] });
+const currentDate = new Date();
+const formattedDate = currentDate.toISOString();
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -31,8 +33,6 @@ export const useUserStore = defineStore('user', {
         };
 
         this.setStorageUser(userPromise)
-
-
           let email = user.email;
           let partes = email.split('@');
           let userName = partes[0];
@@ -45,7 +45,8 @@ export const useUserStore = defineStore('user', {
             name: userName.replace('.', ' ') || 'Antônio Agusto',
             date: Date.now(),
             email,
-            tags: localStorageTags
+            tags: localStorageTags,
+            updateAt: formattedDate
           };
 
         request.onsuccess = async (event) => {
@@ -57,7 +58,7 @@ export const useUserStore = defineStore('user', {
 
           objectStore.add(newUser);
         };
-        await this.addDataToFirestore(newUser.id, newUser);
+        // await this.addDataToFirestore(newUser.id, newUser);
       } catch (error) {
         console.error("Error: " + error);
 
@@ -90,6 +91,7 @@ export const useUserStore = defineStore('user', {
           });
 
           record.tags.push(...filterTags);
+          record.updateAt = formattedDate;
 
           const updateRequest = objectStore.put(record);
           await this.updateTagsInFireStore(userId, record.tags);
@@ -103,6 +105,8 @@ export const useUserStore = defineStore('user', {
     },
 
     async updateIndexedDBUser(userId, updatedUserData) {
+      updatedUserData.updateAt = formattedDate;
+
       return new Promise((resolve, reject) => {
         // Abrir uma conexão com o banco de dados
         const request = indexedDB.open("db-local-user");
@@ -130,7 +134,6 @@ export const useUserStore = defineStore('user', {
           const updateRequest = store.put({ ...updatedUserData, id: userId });
 
           updateRequest.onsuccess = () => {
-            console.log("Dados locais do usuário atualizados com sucesso.");
             resolve("Dados locais do usuário atualizados com sucesso.");
           };
 
@@ -192,7 +195,7 @@ export const useUserStore = defineStore('user', {
       try {
         const { user } = await result
         const { email } = user;
-        
+
         let partes = email.split('@');
         let userName = partes[0];
 
@@ -217,10 +220,10 @@ export const useUserStore = defineStore('user', {
           name: name || 'Antônio Agusto',
           email,
         }
-        
+
         const user = {
           name: name || 'Antônio Agusto',
-          email, 
+          email,
         }
 
         return user;
@@ -244,7 +247,23 @@ export const useUserStore = defineStore('user', {
       this.tags = []
     },
 
-    async addDataToFirestore(userId, userDetails) {
+    async addDataToFirestore(userPromise) {
+      const { user } = await userPromise;
+
+      let email = user.email;
+      let partes = email.split('@');
+      let userName = partes[0];
+
+      let localStorageTags = this.getStorageTags();
+
+      const userDetails = {
+        id: user.uid,
+        name: userName.replace('.', ' ') || 'Antônio Agusto',
+        date: Date.now(),
+        email,
+        tags: localStorageTags,
+        updateAt: ''
+      };
 
       try {
         const config = useRuntimeConfig()
@@ -259,7 +278,7 @@ export const useUserStore = defineStore('user', {
         const app = initializeApp(firebaseConfig);
         const firestoreDb = getFirestore(app);
 
-        const myCustomId = userId; // Esse é o ID que você quer usar
+        const myCustomId = user.uid; // Esse é o ID que você quer usar
         const docRef = doc(firestoreDb, "users", myCustomId); // Especifica o ID do documento
         const docData = userDetails;
 
@@ -277,7 +296,8 @@ export const useUserStore = defineStore('user', {
 
         // Atualiza as tags do usuário
         await updateDoc(userRef, {
-          tags: newTags // Define as novas tags
+          tags: newTags,
+          updateAt: formattedDate// Define as novas tags
         });
 
         console.log('Tags atualizadas no firestore com sucesso para o usuário:', userId);
@@ -289,22 +309,30 @@ export const useUserStore = defineStore('user', {
     },
 
     async updateFirestoreUserData(userId, userData) {
+      const config = useRuntimeConfig()
+        const firebaseConfig = {
+          apiKey: config.public.FIREBASE_API_KEY,
+          authDomain: config.public.FIREBASE_AUTH_DOMAIN,
+          projectId: config.public.FIREBASE_PROJECT_ID,
+          storageBucket: config.public.FIREBASE_STORAGE_BUCKET,
+          messagingSenderId: config.public.FIREBASE_SENDER_ID,
+          appId: config.public.FIREBASE_APP_ID
+        };
+        const app = initializeApp(firebaseConfig);
+        const firestoreDb = getFirestore(app);
       try {
-        const firestore = getFirestore();
-        const userRef = firestore.collection('users').doc(userId); // Referência do documento do usuário
+        const userRef = doc(firestoreDb, 'users', userId);
 
-        // Atualize os campos específicos com os novos dados
-        await userRef.update({
+        await setDoc(userRef, {
           name: userData.name,
           email: userData.email,
-          tags: userData.tags
-          // Adicione outros campos que deseja atualizar, conforme necessário
-        });
+          tags: userData.tags,
+          updateAt: formattedDate
+        }, { merge: true });
 
         console.log('Dados do usuário atualizados no Firestore com sucesso.');
       } catch (error) {
         console.error('Erro ao atualizar dados do usuário no Firestore:', error);
-        throw error; // Lançar o erro para tratamento adequado, se necessário
       }
     },
 
@@ -318,22 +346,25 @@ export const useUserStore = defineStore('user', {
         messagingSenderId: config.public.FIREBASE_SENDER_ID,
         appId: config.public.FIREBASE_APP_ID
       };
+
       const app = initializeApp(firebaseConfig);
       const firestoreDb = getFirestore(app);
+      const auth = getAuth();
+      const user = auth.currentUser;
 
       try {
         const querySnapshot = await getDocs(collection(firestoreDb, 'users'));
         const userData = [];
 
         querySnapshot.forEach((doc) => {
-          // Para cada documento na coleção, adicione os dados ao array userData
-          userData.push({ id: doc.id, ...doc.data() });
+          if (doc.id === user?.uid) {
+            userData.push({ id: doc.id, ...doc.data() });
+          }
         });
 
-        return userData; // Retorne os dados recuperados do Firestore
+        return userData;
       } catch (error) {
         console.error('Erro ao buscar dados do Firestore:', error);
-        throw error; // Se houver um erro, lance-o para que possa ser tratado no componente Vue
       }
     },
 

@@ -30,13 +30,6 @@ export default defineNuxtConfig({
     srcDir:'service-worker',
     filename:'sw.ts',
     registerType: 'autoUpdate',
-    injectRegister: 'auto',
-    injectManifest: {
-      globPatterns: [
-        '**/*.{js,css,html,png,svg}',
-        'login/*.{css,html}'
-      ]
-    },
     manifest: {
       scope: '/',
       name: 'Melhor Voucher',
@@ -87,8 +80,12 @@ export default defineNuxtConfig({
       background_color: '#ffffff',
       display: 'standalone',
     },
+    injectManifest: {
+      globPatterns: ['**/*.{js,css,html}']
+    },
     client: {
-      installPrompt: true
+      installPrompt: true,
+      periodicSyncForUpdates: 20,
     },
     devOptions: {
       enabled: true,
