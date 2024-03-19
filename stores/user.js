@@ -33,8 +33,6 @@ export const useUserStore = defineStore('user', {
         };
 
         this.setStorageUser(userPromise)
-
-
           let email = user.email;
           let partes = email.split('@');
           let userName = partes[0];
@@ -48,7 +46,7 @@ export const useUserStore = defineStore('user', {
             date: Date.now(),
             email,
             tags: localStorageTags,
-            updateAt: ''
+            updateAt: formattedDate
           };
 
         request.onsuccess = async (event) => {
@@ -107,7 +105,7 @@ export const useUserStore = defineStore('user', {
     },
 
     async updateIndexedDBUser(userId, updatedUserData) {
-      updatedUserData.updatedAt = formattedDate;
+      updatedUserData.updateAt = formattedDate;
 
       return new Promise((resolve, reject) => {
         // Abrir uma conexão com o banco de dados
@@ -136,7 +134,6 @@ export const useUserStore = defineStore('user', {
           const updateRequest = store.put({ ...updatedUserData, id: userId });
 
           updateRequest.onsuccess = () => {
-            console.log("Dados locais do usuário atualizados com sucesso.");
             resolve("Dados locais do usuário atualizados com sucesso.");
           };
 
@@ -312,21 +309,30 @@ export const useUserStore = defineStore('user', {
     },
 
     async updateFirestoreUserData(userId, userData) {
+      const config = useRuntimeConfig()
+        const firebaseConfig = {
+          apiKey: config.public.FIREBASE_API_KEY,
+          authDomain: config.public.FIREBASE_AUTH_DOMAIN,
+          projectId: config.public.FIREBASE_PROJECT_ID,
+          storageBucket: config.public.FIREBASE_STORAGE_BUCKET,
+          messagingSenderId: config.public.FIREBASE_SENDER_ID,
+          appId: config.public.FIREBASE_APP_ID
+        };
+        const app = initializeApp(firebaseConfig);
+        const firestoreDb = getFirestore(app);
       try {
-        const firestore = getFirestore();
-        const userRef = firestore.collection('users').doc(userId);
+        const userRef = doc(firestoreDb, 'users', userId);
 
-        await userRef.update({
+        await setDoc(userRef, {
           name: userData.name,
           email: userData.email,
           tags: userData.tags,
           updateAt: formattedDate
-        });
+        }, { merge: true });
 
         console.log('Dados do usuário atualizados no Firestore com sucesso.');
       } catch (error) {
         console.error('Erro ao atualizar dados do usuário no Firestore:', error);
-        throw error; // Lançar o erro para tratamento adequado, se necessário
       }
     },
 

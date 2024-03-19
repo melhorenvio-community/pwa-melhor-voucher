@@ -206,8 +206,8 @@ async function syncUserData() {
       return;
     }
 
-    const indexedDBUpdatedAt = new Date(indexedDBData.updatedAt);
-    const firestoreUpdatedAt = new Date(firestoreData.updatedAt);
+    const indexedDBUpdatedAt = new Date(indexedDBData.updateAt);
+    const firestoreUpdatedAt = new Date(firestoreData.updateAt);
 
     if (indexedDBUpdatedAt > firestoreUpdatedAt) {
       console.log("Dados do IndexedDB são mais recentes. Atualizando o Firestore.");
@@ -250,9 +250,9 @@ async function syncIndexedDBToFirestore(firestoreData, indexedDBData) {
 }
 
 async function compareUserData() {
-  const firestoreUser = getDataFromFirestore();
+  const firestoreUser = await getDataFromFirestore();
   const firestoreUserData = firestoreUser[0]
-  const indexedDBUserData = getIndexedDBUser();
+  const indexedDBUserData = await getIndexedDBUser();
 
   const indexedDBInFirestore = Object.keys(indexedDBUserData).every(key => {
     return firestoreUserData.hasOwnProperty(key) && firestoreUserData[key] === indexedDBUserData[key];
@@ -266,7 +266,10 @@ async function compareUserData() {
     return indexedDBUserData.hasOwnProperty(key) && indexedDBUserData[key] === firestoreUserData[key];
   });
 
+
+
   if (!firestoreInIndexedDB) {
+    console.log('firestoreInIndexedDB', firestoreInIndexedDB)
     await updateFirestoreUserData(indexedDBUserData.id, indexedDBUserData);
   }
 }
