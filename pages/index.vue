@@ -335,7 +335,6 @@ function generateFutureDate() {
   const daysToAdd = Math.floor(Math.random() * 30) + 1; // Adiciona de 1 a 30 dias
   currentDate.setDate(currentDate.getDate() + daysToAdd);
   expirationDate.value = formatarData(currentDate);
-  console.log('expirationDate.value', expirationDate.value )
 }
 
 onMounted(() => {
