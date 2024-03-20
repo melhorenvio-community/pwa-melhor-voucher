@@ -76,7 +76,7 @@ const login = async () => {
   const password = user.value.password;
   credentialId.value = JSON.parse(sessionStorage.getItem('secure_credential_data')) || null;
 
-  if (credentialId.value && credentials.userCredentials.user === email) {
+  if (credentialId.value) {
     return authCredential(email, password);
   }
 
@@ -96,7 +96,7 @@ async function authCredential(email, password) {
           type: "public-key",
         },
       ],
-      rpId: "localhost",
+      rpId: process.env.APP_DOMAIN,
       userVerification: "required",
     },
   });
