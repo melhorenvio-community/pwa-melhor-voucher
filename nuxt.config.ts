@@ -80,7 +80,7 @@ export default defineNuxtConfig({
       background_color: '#ffffff',
       display: 'standalone',
     },
-    injectManifest: {
+    workbox: {
       globPatterns: ['**/*.{js,css,html}'],
     },
     client: {
