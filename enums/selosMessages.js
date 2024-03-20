@@ -62,6 +62,6 @@ export const sealMessage = [
     voucher: 'me25202',
     description: '*Ganhe 5% nas 2 primeiras postagens J&T',
     image: jet,
-    company: 14
+    company: 16
   },
 ]

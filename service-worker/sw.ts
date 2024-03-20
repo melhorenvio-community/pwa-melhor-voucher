@@ -12,10 +12,6 @@ declare let self: ServiceWorkerGlobalScope
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST);
 
-self.addEventListener('install', (event) => {
-  console.log('Guardando caches-v1');
-});
-
 registerRoute(
   ({ url }) => {
     return (
@@ -61,5 +57,5 @@ registerRoute(
   })
 );
 
-self.skipWaiting()
-clientsClaim()
+self.skipWaiting();
+clientsClaim();
