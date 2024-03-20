@@ -20,7 +20,7 @@ registerRoute(
     );
   },
   new CacheFirst({
-    cacheName: 'login-cache',
+    cacheName: 'page-login-cache',
     plugins: [
       new ExpirationPlugin({ maxEntries: 2 * 24 * 60 * 60 })
     ],
@@ -35,7 +35,7 @@ registerRoute(
     );
   },
   new CacheFirst({
-    cacheName: 'index-cache',
+    cacheName: 'page-index-cache',
     plugins: [
       new ExpirationPlugin({ maxEntries: 24 * 60 * 60 })
     ],
@@ -50,7 +50,7 @@ registerRoute(
     );
   },
   new CacheFirst({
-    cacheName: 'rescue-cache',
+    cacheName: 'page-rescue-cache',
     plugins: [
       new ExpirationPlugin({ maxEntries: 24 * 60 * 60 })
     ],
