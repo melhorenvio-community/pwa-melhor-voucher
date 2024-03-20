@@ -13,7 +13,7 @@ cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST);
 
 self.addEventListener('install', (event) => {
-  console.log('Guardando caches-v2');
+  console.log('Guardando caches-v1');
 });
 
 registerRoute(
@@ -26,7 +26,7 @@ registerRoute(
   new CacheFirst({
     cacheName: 'login-cache',
     plugins: [
-      new ExpirationPlugin({ maxEntries: 24 * 60 * 60 })
+      new ExpirationPlugin({ maxEntries: 2 * 24 * 60 * 60 })
     ],
   })
 );
