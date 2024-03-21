@@ -300,7 +300,6 @@ export const useUserStore = defineStore('user', {
           updateAt: formattedDate// Define as novas tags
         });
 
-        console.log('Tags atualizadas no firestore com sucesso para o usuário:', userId);
         return true; // Retorna verdadeiro para indicar sucesso
       } catch (error) {
         console.error('Erro ao atualizar as tags no firestore do usuário:', error);
