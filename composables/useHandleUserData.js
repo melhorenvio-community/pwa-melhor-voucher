@@ -63,6 +63,7 @@ export async function getDataUser() {
   if (isOnline.value) {
     try {
       const user = await getDataFromFirestore();
+      console.log('Buscando dados remotos...');
       if (user) return user[0];
     } catch (error) {
       if (error.code === 'unavailable') {

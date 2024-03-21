@@ -202,22 +202,22 @@ async function search() {
   if (user) {
     const tag = user.tags
 
-    let numberCompany = tag.map((string) =>
+    let numberCompany = tag?.map((string) =>
       parseInt(string.split(';').pop())
     );
 
     let cumponFree = 0;
 
-    numberCompany.unshift(cumponFree);
+    numberCompany?.unshift(cumponFree);
 
-    let matchingObjects = numberCompany.map((value) =>
+    let matchingObjects = numberCompany?.map((value) =>
       sealMessage.find((obj) => obj.company === value)
     );
 
-    let description = matchingObjects.map((item) => item.description);
+    let description = matchingObjects?.map((item) => item.description);
 
-    return description.filter((item) =>
-      item.includes(transcript.value.toLowerCase()),
+    return description?.filter((item) =>
+      item.includes(transcript.value?.toLowerCase()),
     );
   }
 }

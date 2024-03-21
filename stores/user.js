@@ -70,14 +70,14 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    updateIndexedDBTag(userId) {
+    async updateIndexedDBTag(userId) {
       const dbName = 'db-local-user';
       const storeName = 'me-user';
       const version = 1;
       const newTags = this.tags;
       const request = indexedDB.open(dbName, version);
 
-      request.onsuccess = (event) => {
+      request.onsuccess = async (event) => {
         const db = event.target.result;
         const transaction = db.transaction([storeName], 'readwrite');
         const objectStore = transaction.objectStore(storeName);
@@ -86,22 +86,44 @@ export const useUserStore = defineStore('user', {
         getRequest.onsuccess = async () => {
           const record = getRequest.result;
 
-          const filterTags = newTags.filter((newTags) => {
-            return !record.tags.includes(newTags);
-          });
+          if (!record) {
+            console.error('Registro não encontrado para userId:', userId);
+            return;
+          }
 
-          record.tags.push(...filterTags);
-          record.updateAt = formattedDate;
+          const filterTags = newTags.filter((newTag) => !record.tags.includes(newTag));
 
-          const updateRequest = objectStore.put(record);
-          await this.updateTagsInFireStore(userId, record.tags);
+          if (filterTags.length > 0) {
+            record.tags.push(...filterTags);
+            record.updateAt = formattedDate;
 
+            const updateRequest = objectStore.put(record);
 
-          updateRequest.onerror = () => {
-            console.error('Erro ao atualizar o registro:', updateRequest.error);
-          };
+            updateRequest.onsuccess = async () => {
+              console.log('Registro atualizado com sucesso no IndexedDB');
+
+              try {
+                await this.updateTagsInFireStore(userId, record.tags);
+                console.log('Tags atualizadas com sucesso no Firestore');
+              } catch (error) {
+                console.error('Erro ao atualizar tags no Firestore:', error);
+              }
+            };
+
+            updateRequest.onerror = () => {
+              console.error('Erro ao atualizar o registro no IndexedDB:', updateRequest.error);
+            };
+          }
         };
-      }
+
+        getRequest.onerror = () => {
+          console.error('Erro ao obter registro do IndexedDB:', getRequest.error);
+        };
+      };
+
+      request.onerror = () => {
+        console.error('Erro ao abrir o IndexedDB:', request.error);
+      };
     },
 
     async updateIndexedDBUser(userId, updatedUserData) {
