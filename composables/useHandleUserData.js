@@ -28,7 +28,7 @@ export async function syncUserData() {
       console.log("Os dados do IndexedDB e do Firestore estão atualizados.");
     }
 
-    compareUserData();
+    // compareUserData();
   } catch (error) {
     console.error("Erro ao sincronizar dados:", error);
   }
