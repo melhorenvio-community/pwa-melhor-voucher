@@ -364,7 +364,6 @@ onMounted(() => {
 		transcript.value = voice;
   }
   getCard();
-  syncUserData();
   generateFutureDate();
 })
 

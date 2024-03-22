@@ -3,39 +3,58 @@ import { useUserStore } from '~/stores/user';
 const { isOnline } = useNetwork();
 
 export async function syncUserData() {
-  try {
+  if (isOnline.value) {
     const {  updateFirestoreUserData, updateIndexedDBUser, getDataFromFirestore, getIndexedDBUser } = useUserStore();
-    const firestoreData = await getDataFromFirestore();
-    const indexedDBData = await getIndexedDBUser();
+    try {
+      // Recupera os dados do Firestore e do IndexedDB
+      const firestoreData = await getDataFromFirestore();
+      const indexedDBData = await getIndexedDBUser();
 
-    if (!firestoreData || !indexedDBData) {
-      console.log("Erro ao obter dados do Firestore ou IndexedDB.");
-      return;
+      if (!firestoreData || !indexedDBData) {
+        console.log("Erro ao obter dados do Firestore ou IndexedDB.");
+        return;
+      }
+
+      // Compara as tags entre o Firestore e o IndexedDB
+      const firestoreTags = firestoreData[0]?.tags || [];
+      const indexedDBTags = indexedDBData?.tags || [];
+      const newTagsFirestore = firestoreTags?.filter(tag => !indexedDBTags.includes(tag));
+      const newTagsIndexedDB = indexedDBTags?.filter(tag => !firestoreTags?.includes(tag));
+
+      if (firestoreData[0].updateAt > indexedDBData.updateAt) {
+        console.log("Dados do IndexedDB são mais recentes. Atualizando o Firestore.");
+        await updateFirestoreUserData(indexedDBData.id, indexedDBData);
+      } else if (indexedDBData.updateAt > firestoreData[0].updateAt) {
+        // Dados do Firestore são mais recentes
+        console.log("Dados do Firestore são mais recentes. Atualizando o IndexedDB.");
+        await updateIndexedDBUser(firestoreData[0].id, firestoreData[0]);
+      }
+
+      // Atualiza as tags no IndexedDB com as novas do Firestore
+      if (newTagsFirestore?.length) {
+        console.log('Atualiza as tags no IndexedDB com as novas do Firestore')
+        indexedDBData.tags.push(...newTagsFirestore);
+        await updateIndexedDBUser(indexedDBData.id, indexedDBData);
+      }
+
+      // Atualiza as tags no Firestore com as novas do IndexedDB
+      if (newTagsIndexedDB?.length) {
+        console.log('Atualiza as tags no Firestore com as novas do IndexedDB')
+        firestoreData[0].tags.push(...newTagsIndexedDB);
+        await updateFirestoreUserData(firestoreData[0].id, firestoreData[0]);
+      }
+
+      // Compara as datas de última atualização e realiza a sincronização conforme necessário
+      // ...
+    } catch (error) {
+      console.error("Erro ao sincronizar dados:", error);
     }
-
-    const indexedDBUpdatedAt = new Date(indexedDBData.updateAt);
-    const firestoreUpdatedAt = new Date(firestoreData.updateAt);
-
-    if (indexedDBUpdatedAt > firestoreUpdatedAt) {
-      console.log("Dados do IndexedDB são mais recentes. Atualizando o Firestore.");
-      await updateFirestoreUserData(indexedDBData.id, indexedDBData);
-    } else if (firestoreUpdatedAt > indexedDBUpdatedAt) {
-      // Dados do Firestore são mais recentes
-      console.log("Dados do Firestore são mais recentes. Atualizando o IndexedDB.");
-      await updateIndexedDBUser(firestoreData[0].id, firestoreData[0]);
-    } else {
-      // Ambos os dados estão atualizados
-      console.log("Os dados do IndexedDB e do Firestore estão atualizados.");
-    }
-
-    // compareUserData();
-  } catch (error) {
-    console.error("Erro ao sincronizar dados:", error);
   }
+
 }
 
 export async function compareUserData() {
-   const {  updateFirestoreUserData, updateIndexedDBUser, getDataFromFirestore, getIndexedDBUser } = useUserStore();
+  const {  updateFirestoreUserData, updateIndexedDBUser, getDataFromFirestore, getIndexedDBUser } = useUserStore();
   const firestoreUser = await getDataFromFirestore();
   const firestoreUserData = firestoreUser[0]
   const indexedDBUserData = await getIndexedDBUser();

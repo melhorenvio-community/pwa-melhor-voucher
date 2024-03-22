@@ -192,8 +192,8 @@ export const useUserStore = defineStore('user', {
             const result = event.target.result;
 
             if (result) {
-              const { id, name, email, tags, date } = result.value;
-              resolve({ id, name, email, tags, date }); // Resolvendo a Promise com os dados do usuário
+              const { id, name, email, tags, updateAt } = result.value;
+              resolve({ id, name, email, tags, updateAt }); // Resolvendo a Promise com os dados do usuário
             } else {
               reject("Nenhum usuário encontrado.");
             }
